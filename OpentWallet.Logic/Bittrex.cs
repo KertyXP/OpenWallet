@@ -17,20 +17,24 @@ namespace OpentWallet.Logic
     public class Bittrex : IExchange
     {
         private ExchangeConfig oConfig;
+        private GlobalConfig oGlobalConfig;
 
         private const string hostname = "https://api.bittrex.com"; // put here your secret key
         private const string apiBalance = "/v3/balances"; // put here your secret key
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
+        public string GetExchangeName => "Bittrex";
+
         public Bittrex()
         {
 
         }
 
-        public void Init(ExchangeConfig oConfig)
+        public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
+            this.oGlobalConfig = oGlobalConfig;
         }
 
         internal class Payload
@@ -49,7 +53,7 @@ namespace OpentWallet.Logic
         }
 
 
-        public async Task<List<CurrencySymbolPrice>> GetCurrencies()
+        public List<CurrencySymbolPrice> GetCurrencies()
         {
             WebClient wc = new WebClient();
             var sData = wc.DownloadString($"{hostname}/v3/markets/tickers");
@@ -60,8 +64,8 @@ namespace OpentWallet.Logic
                 double Price = (kvp.AskRate.ToDouble() + kvp.BidRate.ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, GetExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, GetExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -69,10 +73,8 @@ namespace OpentWallet.Logic
         }
 
 
-        public async Task<List<GlobalBalance>> GetBalance()
+        public List<GlobalBalance> GetBalance()
         {
-
-            var oCurrencies = await GetCurrencies();
 
 
             // If the nonce is similar to or lower than the previous request number, you will receive the 'too many requests' error message
@@ -103,10 +105,9 @@ namespace OpentWallet.Logic
             {
                 return new GlobalBalance
                 {
-                    Exchange = "Bittrex",
+                    Exchange = GetExchangeName,
                     Crypto = b.CurrencySymbol,
                     Value = b.Total.ToDouble(),
-                    BitCoinValue = oCurrencies.GetBtcValue(b.CurrencySymbol, b.Total.ToDouble())
                 };
             }
                 ).Where(gb => gb.Value > 0).ToList();
@@ -165,6 +166,11 @@ namespace OpentWallet.Logic
                 .TotalMilliseconds;
 
             return milliseconds.ToString();
+        }
+
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        {
+            return new List<GlobalTrade>();
         }
     }
 }

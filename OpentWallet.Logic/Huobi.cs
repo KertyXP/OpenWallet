@@ -18,6 +18,8 @@ namespace OpentWallet.Logic
     public class Huobi : IExchange
     {
         private ExchangeConfig oConfig;
+        private GlobalConfig oGlobalConfig;
+
         private readonly string hostname = "https://api.huobi.pro";
         private readonly string HUOBI_HOST = "api.huobi.pro";
 
@@ -42,6 +44,9 @@ namespace OpentWallet.Logic
 
 
         private WebClient client;
+
+        public string GetExchangeName => "Huobi";
+
         public Huobi()
         {
             client = new WebClient();
@@ -49,13 +54,14 @@ namespace OpentWallet.Logic
             client.Headers.Add("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36");
         }
 
-        public void Init(ExchangeConfig oConfig)
+        public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
+            this.oGlobalConfig = oGlobalConfig;
         }
 
 
-        public async Task<List<CurrencySymbolPrice>> GetCurrencies()
+        public List<CurrencySymbolPrice> GetCurrencies()
         {
             WebClient wc = new WebClient();
             var sData = wc.DownloadString($"{hostname}/market/tickers");
@@ -69,8 +75,8 @@ namespace OpentWallet.Logic
                 {
                     return new List<CurrencySymbolPrice>()
                     {
-                        new CurrencySymbolPrice(oSymbol.From, oSymbol.To, Price),
-                        new CurrencySymbolPriceReverted(oSymbol.From, oSymbol.To, Price),
+                        new CurrencySymbolPrice(oSymbol.From, oSymbol.To, Price, GetExchangeName),
+                        new CurrencySymbolPriceReverted(oSymbol.From, oSymbol.To, Price, GetExchangeName),
                     };
                 }
                 return new List<CurrencySymbolPrice>();
@@ -80,10 +86,8 @@ namespace OpentWallet.Logic
             .ToList();
         }
 
-        public async Task<List<GlobalBalance>> GetBalance()
+        public List<GlobalBalance> GetBalance()
         {
-
-            var oCurrencies = await GetCurrencies();
 
             var result = SendRequest<List<HBAccount>>(GET_ACCOUNT);
 
@@ -101,10 +105,9 @@ namespace OpentWallet.Logic
                     return null;
                 return new GlobalBalance()
                 {
-                    Exchange = "Huobi",
+                    Exchange = GetExchangeName,
                     Crypto = g.Key.ToUpper(),
                     Value = val,
-                    BitCoinValue = oCurrencies.GetBtcValue(g.Key.ToUpper(), val)
                 };
             })
                 .Where(gb => gb != null && gb.Value > 0)
@@ -320,6 +323,11 @@ namespace OpentWallet.Logic
             sign = sb.ToString().TrimEnd('&');
             sign = CalculateSignature256(sign, oConfig.SecretKey);
             return UrlEncode(sign);
+        }
+
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        {
+            return new List<GlobalTrade>();
         }
 
     }

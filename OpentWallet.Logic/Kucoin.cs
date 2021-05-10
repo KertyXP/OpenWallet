@@ -17,6 +17,7 @@ namespace OpentWallet.Logic
     public class Kucoin : IExchange
     {
         private ExchangeConfig oConfig;
+        private GlobalConfig oGlobalConfig;
 
         private const string apiVersion = "2"; // put here your public key
 
@@ -25,17 +26,20 @@ namespace OpentWallet.Logic
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
+        public string GetExchangeName => "Kucoin";
+
         public Kucoin()
         {
 
         }
 
-        public void Init(ExchangeConfig oConfig)
+        public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
+            this.oGlobalConfig = oGlobalConfig;
         }
 
-        public async Task<List<CurrencySymbolPrice>> GetCurrencies()
+        public List<CurrencySymbolPrice> GetCurrencies()
         {
             WebClient wc = new WebClient();
             var sData = wc.DownloadString($"{hostname}/api/v1/market/allTickers");
@@ -46,18 +50,16 @@ namespace OpentWallet.Logic
                 double Price = (kvp.Buy.ToDouble() + kvp.Sell.ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, GetExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, GetExchangeName),
                 };
             })
             .SelectMany(o => o)
             .ToList();
         }
 
-        public async Task<List<GlobalBalance>> GetBalance()
+        public List<GlobalBalance> GetBalance()
         {
-            var oCurrencies = await GetCurrencies();
-
 
             // If the nonce is similar to or lower than the previous request number, you will receive the 'too many requests' error message
             // nonce is a number that is always higher than the previous request number
@@ -101,10 +103,9 @@ namespace OpentWallet.Logic
                 {
                     return new GlobalBalance
                     {
-                        Exchange = "Kucoin",
+                        Exchange = GetExchangeName,
                         Crypto = b.Currency,
                         Value = b.Available.ToDouble(),
-                        BitCoinValue = oCurrencies.GetBtcValue(b.Currency, b.Available.ToDouble())
                     };
                 }
                     ).Where(gb => gb.Value > 0).ToList();
@@ -134,6 +135,11 @@ namespace OpentWallet.Logic
                 .TotalMilliseconds;
 
             return milliseconds.ToString();
+        }
+
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        {
+            return new List<GlobalTrade>();
         }
     }
 

@@ -31,6 +31,12 @@ namespace OpenWallet.WinForm
         {
             InitializeComponent();
 
+        }
+
+        private async void Form1_Load(object sender, EventArgs e)
+        {
+
+            await Task.Delay(1000);
             GlobalConfig oGlobalConfig = null;
             if (File.Exists("config.json"))
             {
@@ -69,12 +75,22 @@ namespace OpenWallet.WinForm
                 if (oExchange == null)
                     continue; // re-oops
 
-                oExchange.Init(oConfig);
+                oExchange.Init(oGlobalConfig, oConfig);
                 aEchanges.Add(oExchange);
             }
 
-            var aTasks = aEchanges.Select(oExchange => oExchange.GetBalance()).ToList();
+
+
+            var aTasks = aEchanges.Select(oExchange => Task.Run(oExchange.GetBalance)).ToList();
             List<GlobalBalance> aAll = new List<GlobalBalance>();
+
+            //foreach (var oTask in aTasks)
+            //{
+            //    if(oTask.Status == TaskStatus.WaitingForActivation)
+            //    {
+            //        oTask.Start();
+            //    }
+            //}
 
             foreach (var oTask in aTasks)
             {
@@ -82,13 +98,95 @@ namespace OpenWallet.WinForm
                 aAll.AddRange(aBalance);
             }
 
+            List<CurrencySymbolPrice> aAllCurrencies = new List<CurrencySymbolPrice>();
+            var aTaskCurrencies = aEchanges.Select(oExchange => Task.Run(oExchange.GetCurrencies)).ToList();
 
-            var dTotalSum = aAll.Sum(a => a.BitCoinValue);
-            dataGridView1.Rows.Add("TOTAL", "BTC", dTotalSum, dTotalSum);
+            foreach (var oTask in aTaskCurrencies)
+            {
+                var aBalance = oTask.GetAwaiter().GetResult();
+                aAllCurrencies.AddRange(aBalance);
+            }
+
+
 
             aAll.ForEach(b =>
             {
-                dataGridView1.Rows.Add(b.Exchange, b.Crypto, b.Value, b.BitCoinValue);
+                b.BitCoinValue = aAllCurrencies.GetBtcValue(b);
+                b.FavCrypto = oGlobalConfig.FavoriteCurrency;
+                b.FavCryptoValue = aAllCurrencies.GetCustomValue(b, b.FavCrypto);
+
+                dataGridView1.Rows.Add(b.Exchange, b.Crypto, b.Value, b.BitCoinValue, b.FavCryptoValue);
+            });
+
+            dataGridView1.Columns[4].HeaderText = oGlobalConfig.FavoriteCurrency;
+
+            var dTotalSumBtc = aAll.Sum(a => a.BitCoinValue);
+            var dTotalSum = aAll.Sum(a => a.FavCryptoValue);
+
+            dataGridView1.Rows.Insert(0, "TOTAL", oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSumBtc, dTotalSum);
+
+
+
+
+            var aTasks3 = aEchanges.Select(oExchange =>
+            {
+                string sFileName = "Trades_" + oExchange.GetExchangeName + ".json";
+
+                var aTrades = File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sFileName)) : new List<GlobalTrade>();
+                return Task.Run(() => oExchange.GetTradeHistory(aTrades));
+            }).ToList();
+            List<GlobalTrade> aListTrades = new List<GlobalTrade>();
+
+            foreach (var oTask in aTasks3)
+            {
+                var aBalance = oTask.GetAwaiter().GetResult();
+                if (aBalance.Any() == false)
+                    continue;
+
+                File.WriteAllText("Trades_" + aBalance?.FirstOrDefault()?.Exchange + ".json", JsonConvert.SerializeObject(aBalance));
+
+                aListTrades.AddRange(aBalance);
+            }
+
+
+
+            var aListTrades2 = aListTrades.GroupBy(l => l.From + "|" + l.To + "_" + l.dtTrade.ToString("_yyyy-MM-dd")).Select(l =>
+            {
+                var one = l.FirstOrDefault();
+                var oGlobalTrade = new GlobalTrade();
+                oGlobalTrade.Exchange = one.Exchange;
+                oGlobalTrade.From = one.From;
+                oGlobalTrade.To = one.To;
+                oGlobalTrade.QuantityFrom = l.Sum(m => m.QuantityFrom);
+                oGlobalTrade.QuantityTo = l.Sum(m => m.QuantityTo);
+                oGlobalTrade.InternalExchangeId = one.InternalExchangeId;
+                oGlobalTrade.dtTrade = one.dtTrade;
+
+                oGlobalTrade.Price = oGlobalTrade.QuantityFrom / oGlobalTrade.QuantityTo;
+
+                return oGlobalTrade;
+            }).OrderBy(l => l.dtTrade).ToList();
+
+            var aListTrades3 = aListTrades.GroupBy(l => l.From + "|" + l.To).Select(l =>
+            {
+                var one = l.FirstOrDefault();
+                var oGlobalTrade = new GlobalTrade();
+                oGlobalTrade.Exchange = one.Exchange;
+                oGlobalTrade.From = one.From;
+                oGlobalTrade.To = one.To;
+                oGlobalTrade.QuantityFrom = l.Sum(m => m.QuantityFrom);
+                oGlobalTrade.QuantityTo = l.Sum(m => m.QuantityTo);
+                oGlobalTrade.InternalExchangeId = one.InternalExchangeId;
+                oGlobalTrade.dtTrade = one.dtTrade;
+
+                oGlobalTrade.Price = oGlobalTrade.QuantityFrom / oGlobalTrade.QuantityTo;
+
+                return oGlobalTrade;
+            }).OrderBy(l => l.From).ToList();
+
+            aListTrades3.OrderBy(t => t.Couple).ToList().ForEach(t =>
+            {
+                dgv_Trades.Rows.Add(t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo);
             });
         }
     }

@@ -17,23 +17,27 @@ namespace OpentWallet.Logic
     public class Binance : IExchange
     {
         private ExchangeConfig oConfig;
+        private GlobalConfig oGlobalConfig;
 
         private const string hostname = "https://api.binance.com"; // put here your secret key
         private const string apiBalance = "/api/v3/account"; // put here your secret key
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
+        public string GetExchangeName => "Binance";
+
         public Binance()
         {
 
         }
 
-        public void Init(ExchangeConfig oConfig)
+        public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
+            this.oGlobalConfig = oGlobalConfig;
         }
 
-        public async Task<List<CurrencySymbolPrice>> GetCurrencies()
+        public List<CurrencySymbolPrice> GetCurrencies()
         {
 
             var wc = new WebClient();
@@ -45,69 +49,27 @@ namespace OpentWallet.Logic
             //wc.Headers.Add("Api-Subaccount-Id", signature);
             wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
             var sPair = wc.DownloadString("https://api.binance.com/sapi/v1/margin/allPairs");
-            var aPairs = JsonConvert.DeserializeObject<List<BinancePair>>(sPair);
+            var aPairs = JsonConvert.DeserializeObject<List<BinancePair>>(sPair).Select(p => new CurrencySymbol(p.Base, p.Quote)).ToList();
 
 
             return oCurrencies.Select(o =>
             {
                 double Price = o.Price.ToDouble();
 
-                string s1 = string.Empty;
-                string s2 = string.Empty;
+                var cur = aPairs.FirstOrDefault(c => c.From + c.To == o.Symbol);
 
-                var cur = aPairs.FirstOrDefault(c => c.Symbol == o.Symbol);
-                //if (cur != null)
-                //{
-                //    s1 = cur.Base;
-                //    s2 = cur.Quote;
-                //}
-                //else 
-                if (o.Symbol.Length == 6)
-                {
-                    s1 = o.Symbol.Substring(0, 3);
-                    s2 = o.Symbol.Substring(3, 3);
-                }
-                else if (o.Symbol.EndsWith("BUSDS"))
-                {
-                    s1 = o.Symbol.Substring(0, o.Symbol.Length - 5);
-                    s2 = o.Symbol.Substring(o.Symbol.Length - 5, 5);
-                }
+                if (cur == null)
+                    cur = CurrencySymbol.AutoDiscoverCurrencySymbol(o.Symbol);
 
-                else if (o.Symbol.EndsWith("USDC") || o.Symbol.EndsWith("TUSD") || o.Symbol.EndsWith("USDT") || o.Symbol.EndsWith("BUSD"))
-                {
 
-                    s1 = o.Symbol.Substring(0, o.Symbol.Length - 4);
-                    s2 = o.Symbol.Substring(o.Symbol.Length - 4, 4);
-                }
-                else if (o.Symbol.StartsWith("BUSD") || o.Symbol.StartsWith("USDC") || o.Symbol.StartsWith("USDT") || o.Symbol.StartsWith("TUSD"))
-                {
-                    s1 = o.Symbol.Substring(0, 4);
-                    s2 = o.Symbol.Substring(4);
-                }
-                else if (o.Symbol.StartsWith("BTC") || o.Symbol.StartsWith("ETH") || o.Symbol.StartsWith("BNB"))
-                {
-                    s1 = o.Symbol.Substring(0, 3);
-                    s2 = o.Symbol.Substring(3);
-                }
-                else if (o.Symbol.EndsWith("ETH") || o.Symbol.EndsWith("BTC") || o.Symbol.EndsWith("BNB") || o.Symbol.EndsWith("PAX"))
-                {
-
-                    s1 = o.Symbol.Substring(0, o.Symbol.Length - 3);
-                    s2 = o.Symbol.Substring(o.Symbol.Length - 3, 3);
-                }
-                else
-                {
-
-                }
-
-                if (string.IsNullOrEmpty(s1))
+                if (cur == null)
                 {
                     return new List<CurrencySymbolPrice>();
                 }
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(s1, s2, Price),
-                    new CurrencySymbolPriceReverted(s1, s2, Price),
+                    new CurrencySymbolPrice(cur.From, cur.To, Price, GetExchangeName),
+                    new CurrencySymbolPriceReverted(cur.From, cur.To, Price, GetExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -117,11 +79,8 @@ namespace OpentWallet.Logic
         }
 
 
-        public async Task<List<GlobalBalance>> GetBalance()
+        public List<GlobalBalance> GetBalance()
         {
-            var oCurrencies = await GetCurrencies();
-
-
             // If the nonce is similar to or lower than the previous request number, you will receive the 'too many requests' error message
             // nonce is a number that is always higher than the previous request number
             var nonce = GetNonce();
@@ -164,10 +123,9 @@ namespace OpentWallet.Logic
                         return null;
                     return new GlobalBalance
                     {
-                        Exchange = "Binance",
+                        Exchange = GetExchangeName,
                         Crypto = b.Asset,
                         Value = val,
-                        BitCoinValue = oCurrencies.GetBtcValue(b.Asset, val)
                     };
                 }
                     )
@@ -200,6 +158,11 @@ namespace OpentWallet.Logic
                 .TotalMilliseconds;
 
             return milliseconds.ToString();
+        }
+
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        {
+            return new List<GlobalTrade>();
         }
     }
     public partial class BinancePair

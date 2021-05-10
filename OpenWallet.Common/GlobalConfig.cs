@@ -7,6 +7,8 @@ namespace OpenWallet.Common
     {
         [JsonProperty("configs")]
         public List<ExchangeConfig> aConfigs { get; set; }
+        [JsonProperty("favoriteCurrency")]
+        public string FavoriteCurrency { get; set; }
     }
 
 }

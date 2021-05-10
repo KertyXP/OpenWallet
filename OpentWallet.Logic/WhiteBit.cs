@@ -11,27 +11,32 @@ using Newtonsoft.Json.Converters;
 using System.Globalization;
 using System.Linq;
 using OpenWallet.Logic.Abstraction;
+using Newtonsoft.Json.Linq;
 
 namespace OpentWallet.Logic
 {
     public partial class WhiteBit : IExchange
     {
         private ExchangeConfig oConfig;
+        private GlobalConfig oGlobalConfig;
 
 
         string request = "/api/v4/trade-account/balance"; // put here request path. For obtaining trading balance use: /api/v4/trade-account/balance
         string hostname = "https://whitebit.com"; // domain without last slash. Do not use whitebit.com/
+
+        public string GetExchangeName => "WhiteBit";
 
         public WhiteBit()
         {
 
         }
 
-        public void Init(ExchangeConfig oConfig)
+        public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
+            this.oGlobalConfig = oGlobalConfig;
         }
-        public async Task<List<CurrencySymbolPrice>> GetCurrencies()
+        public List<CurrencySymbolPrice> GetCurrencies()
         {
             WebClient wc = new WebClient();
             var sData = wc.DownloadString($"{hostname}/api/v4/public/ticker");
@@ -42,35 +47,31 @@ namespace OpentWallet.Logic
                 double Price = kvp.Value.LastPrice.ToDouble();
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price),
-                    new CurrencySymbolPriceReverted(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price),
+                    new CurrencySymbolPrice(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, GetExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, GetExchangeName),
                 };
             })
             .SelectMany(o => o)
             .ToList();
         }
 
-        public async Task<List<GlobalBalance>> GetBalance()
+        private T SendRequest<T>(string sApi, Payload oPost) where T : new()
         {
-            var oCurrencies = await GetCurrencies();
+
+            //var responseBodyHistory = wc.UploadString($"{hostname}{"api/v4/main-account/history}",dataJsonStr);
+
             // If the nonce is similar to or lower than the previous request number, you will receive the 'too many requests' error message
             // nonce is a number that is always higher than the previous request number
             var nonce = GetNonce();
-            var data = new Payload
-            {
-                Nonce = nonce,
-                Request = request
-            };
+            oPost.Nonce = nonce;
+            oPost.Request = sApi;
 
-            var dataJsonStr = JsonConvert.SerializeObject(data);
+            var dataJsonStr = JsonConvert.SerializeObject(oPost);
             var payload = dataJsonStr.Base64Encode();
             var signature = CalcSignature(payload, oConfig.SecretKey);
 
             var content = new StringContent(dataJsonStr, Encoding.UTF8, "application/json");
-            var requestMessage = new HttpRequestMessage(HttpMethod.Post, $"{hostname}{request}")
-            {
-                Content = content
-            };
+
 
             WebClient wc = new WebClient();
             wc.Headers.Add("X-TXC-APIKEY", oConfig.ApiKey);
@@ -78,27 +79,171 @@ namespace OpentWallet.Logic
             wc.Headers.Add("X-TXC-SIGNATURE", signature);
             wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
 
-            var responseBody = wc.UploadString($"{hostname}{request}", dataJsonStr);
-
-            Dictionary<string, Balance> oBalance = BalanceRoot.FromJson(responseBody);
-            List<GlobalBalance> oGlobalBalance = oBalance.Select(keyValue =>
+            try
             {
-                double val = keyValue.Value.Available.ToDouble() + keyValue.Value.Freeze.ToDouble();
-                if (val <= 0)
-                    return null;
-                return new GlobalBalance
+
+                var responseBody = wc.UploadString($"{hostname}{sApi}", dataJsonStr);
+
+                try
                 {
-                    Exchange = "WhiteBit",
-                    Crypto = keyValue.Key,
-                    Value = val,
-                    BitCoinValue = oCurrencies.GetBtcValue(keyValue.Key, val)
-                };
+                    T oBalance = JsonConvert.DeserializeObject<T>(responseBody);
+                    return oBalance;
+                }
+                catch (Exception ex)
+                {
+                    return new T();
+                }
             }
-                ).Where(gb => gb != null).ToList(); ;
+            catch (Exception ex)
+            {
+                return new T();
+            }
+
+        }
+
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        {
+
+            List<GlobalTrade> aListTrades = new List<GlobalTrade>();
+            Dictionary<string, List<OrderHistory>> aOrderByCurrencyHistory = new Dictionary<string, List<OrderHistory>>();
+            int nOffset = 0;
+            while (true)
+            {
+                var oHistoryResponse = SendRequest<Dictionary<string, List<OrderHistory>>>("/api/v4/trade-account/executed-history", new PayloadOrderHistory() { Offset = nOffset, Limit = 100 });
+                if (oHistoryResponse.Any() == false)
+                    break;
+                foreach (var kvpResponse in oHistoryResponse)
+                {
+                    if (aOrderByCurrencyHistory.ContainsKey(kvpResponse.Key))
+                    {
+                        var oOrdersHistory = aOrderByCurrencyHistory[kvpResponse.Key];
+                        if (oOrdersHistory == null)
+                        {
+                            aOrderByCurrencyHistory[kvpResponse.Key] = kvpResponse.Value;
+                        }
+                        else
+                        {
+                            foreach (var oOrder in kvpResponse.Value)
+                            {
+                                if (oOrdersHistory.Any(o => o.Id == oOrder.Id) == false)
+                                {
+                                    oOrdersHistory.Add(oOrder);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        aOrderByCurrencyHistory.Add(kvpResponse.Key, kvpResponse.Value);
+                    }
+                }
+                nOffset += 100;
+            }
+
+            foreach (var kvpResponse in aOrderByCurrencyHistory)
+            {
+
+                var cur = new CurrencySymbolExchange(kvpResponse.Key.Split('_').FirstOrDefault(), kvpResponse.Key.Split('_').Last(), GetExchangeName);
+                if (cur == null)
+                    continue; // oops
+
+                foreach (var oTrade in kvpResponse.Value)
+                {
+
+                    var oGlobalTrade = new GlobalTrade();
+                    oGlobalTrade.Exchange = cur.Exchange;
+                    if (oTrade.Side == Side.Buy)
+                    {
+                        oGlobalTrade.From = cur.To;
+                        oGlobalTrade.To = cur.From;
+                        oGlobalTrade.Price = 1 / oTrade.Price.ToDouble();
+                        oGlobalTrade.QuantityTo = oTrade.Amount.ToDouble();
+                        oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
+                    }
+                    else
+                    {
+
+                        oGlobalTrade.From = cur.From;
+                        oGlobalTrade.To = cur.To;
+                        oGlobalTrade.Price = oTrade.Price.ToDouble();
+                        oGlobalTrade.QuantityFrom = oTrade.Amount.ToDouble();
+                        oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
+                    }
+                    oGlobalTrade.InternalExchangeId = oTrade.ClientOrderId;
+                    oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oTrade.Time);
+                    aListTrades.Add(oGlobalTrade);
+                }
+
+            }
+
+
+            return aListTrades;
+        }
+        private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime;
+        }
+
+        public List<GlobalBalance> GetBalance()
+        {
+
+            var oBalance = SendRequest<Dictionary<string, Balance>>(request, new Payload() { });
+
+            // this one does not work???
+            //var oHistory = SendRequest<JObject>("/api/v4/main-account/history", new PayloadWithdrawDepositHistory() { Offset = 0, Limit = 100, TransactionMethod = "1" });
+
+
+            List<GlobalBalance> oGlobalBalance = oBalance.Select(keyValue =>
+        {
+            double val = keyValue.Value.Available.ToDouble() + keyValue.Value.Freeze.ToDouble();
+            if (val <= 0)
+                return null;
+            return new GlobalBalance
+            {
+                Exchange = GetExchangeName,
+                Crypto = keyValue.Key,
+                Value = val,
+            };
+        }
+            ).Where(gb => gb != null).ToList(); ;
 
             return oGlobalBalance;
         }
 
+        public partial class OrderHistory
+        {
+            [JsonProperty("id")]
+            public long Id { get; set; }
+
+            [JsonProperty("clientOrderId")]
+            public string ClientOrderId { get; set; }
+
+            [JsonProperty("time")]
+            public double Time { get; set; }
+
+            [JsonProperty("side")]
+            public Side Side { get; set; }
+
+            [JsonProperty("role")]
+            public long Role { get; set; }
+
+            [JsonProperty("amount")]
+            public string Amount { get; set; }
+
+            [JsonProperty("price")]
+            public string Price { get; set; }
+
+            [JsonProperty("deal")]
+            public string Deal { get; set; }
+
+            [JsonProperty("fee")]
+            public string Fee { get; set; }
+        }
+
+        public enum Side { Buy, Sell };
 
         public partial class WhiteBitCurrencies
         {
@@ -124,10 +269,6 @@ namespace OpentWallet.Logic
             public string Change { get; set; }
         }
 
-        public partial class BalanceRoot
-        {
-            public static Dictionary<string, Balance> FromJson(string json) => JsonConvert.DeserializeObject<Dictionary<string, Balance>>(json, WhiteBit.Converter.Settings);
-        }
         public partial class Balance
         {
             [JsonProperty("available")]
@@ -151,6 +292,30 @@ namespace OpentWallet.Logic
 
             [JsonProperty("ticker")]
             public string Ticker { get; set; }
+        }
+        internal class PayloadWithdrawDepositHistory : Payload
+        {
+
+            [JsonProperty("transactionMethod ")]
+            public string TransactionMethod { get; set; }
+
+            [JsonProperty("limit")]
+            public int Limit { get; set; }
+
+            [JsonProperty("offset")]
+            public int Offset { get; set; }
+        }
+        internal class PayloadOrderHistory : Payload
+        {
+
+            //[JsonProperty("market ")]
+            //public string Market { get; set; }
+
+            [JsonProperty("limit")]
+            public int Limit { get; set; }
+
+            [JsonProperty("offset")]
+            public int Offset { get; set; }
         }
 
 
@@ -179,7 +344,7 @@ namespace OpentWallet.Logic
         {
             var milliseconds = (long)DateTime.Now.ToUniversalTime()
                 .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
-                .TotalMilliseconds / 1000;
+                .TotalMilliseconds;
 
             return milliseconds.ToString();
         }

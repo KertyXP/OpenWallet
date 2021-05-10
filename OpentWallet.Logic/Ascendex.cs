@@ -21,13 +21,16 @@ namespace OpentWallet.Logic
         private const string hostname = "https://ascendex.com";
 
         private WebClient client;
+
+        public string GetExchangeName => "Ascendex";
+
         public Ascendex()
         {
             client = new WebClient();
 
         }
 
-        public void Init(ExchangeConfig oConfig)
+        public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
         }
@@ -51,7 +54,7 @@ namespace OpentWallet.Logic
             return milliseconds.ToString();
         }
 
-        public async Task<List<CurrencySymbolPrice>> GetCurrencies()
+        public List<CurrencySymbolPrice> GetCurrencies()
         {
             WebClient wc = new WebClient();
             var sData = wc.DownloadString($"{hostname}/api/pro/v1/ticker");
@@ -62,18 +65,16 @@ namespace OpentWallet.Logic
                 double Price = (kvp.Ask.FirstOrDefault().ToDouble() + kvp.Bid.FirstOrDefault().ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, GetExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, GetExchangeName),
                 };
             })
             .SelectMany(o => o)
             .ToList();
         }
 
-        public async Task<List<GlobalBalance>> GetBalance()
+        public List<GlobalBalance> GetBalance()
         {
-            var oCurrencies = await GetCurrencies();
-
             var timestampUtcMillisecond = GetNonce();
 
             var signature = CalcSignature(timestampUtcMillisecond + "+info", oConfig.SecretKey);
@@ -108,10 +109,9 @@ namespace OpentWallet.Logic
 
             return balance.Data.Select(b => new GlobalBalance()
             {
-                Exchange = "Ascendex",
+                Exchange = GetExchangeName,
                 Crypto = b.Asset,
                 Value = b.TotalBalance.ToDouble(),
-                BitCoinValue = oCurrencies.GetBtcValue(b.Asset, b.TotalBalance.ToDouble())
             }).Where(b => b.Value > 0).ToList();
 
             //var result = SendRequest<List<Logic.Account>>(GET_ACCOUNT);
@@ -163,6 +163,10 @@ namespace OpentWallet.Logic
             return 0;
         }
 
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        {
+            return new List<GlobalTrade>();
+        }
     }
     public partial class AscendexCurrencies
     {

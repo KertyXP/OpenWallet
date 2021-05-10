@@ -6,6 +6,10 @@ namespace OpenWallet.Common
 
     public class CurrencySymbol
     {
+        public CurrencySymbol()
+        {
+
+        }
         public CurrencySymbol(string from, string to)
         {
             From = from;
@@ -14,6 +18,7 @@ namespace OpenWallet.Common
 
         public string From { get; set; }
         public string To { get; set; }
+        public string Couple => string.Compare(From, To) > 0 ? $"{From}_{To}" : $"{To}_{From}";
 
         private static List<string> aSymbols = new List<string>(){
             "BUSDS", "USDC", "TUSD", "USDT", "BUSD", "BTC", "ETH", "BNB", "PAX"};
@@ -39,9 +44,29 @@ namespace OpenWallet.Common
         }
     }
 
-    public class CurrencySymbolPrice : CurrencySymbol
+    public class CurrencySymbolExchange : CurrencySymbol
     {
-        public CurrencySymbolPrice(string from, string to, double price) : base(from, to)
+        public CurrencySymbolExchange()
+        {
+
+        }
+        public CurrencySymbolExchange(string from, string to, string exchange) : base(from, to)
+        {
+            Exchange = exchange;
+        }
+
+        public string Exchange { get; set; }
+
+
+    }
+
+    public class CurrencySymbolPrice : CurrencySymbolExchange
+    {
+        public CurrencySymbolPrice()
+        {
+
+        }
+        public CurrencySymbolPrice(string from, string to, double price, string exchange) : base(from, to, exchange)
         {
             Price = price;
         }
@@ -53,7 +78,7 @@ namespace OpenWallet.Common
 
     public class CurrencySymbolPriceReverted : CurrencySymbolPrice
     {
-        public CurrencySymbolPriceReverted(string from, string to, double price) : base(to, from, 1 / price)
+        public CurrencySymbolPriceReverted(string from, string to, double price, string exchange) : base(to, from, 1 / price, exchange)
         {
         }
     }
@@ -61,25 +86,63 @@ namespace OpenWallet.Common
     public static class CurrencySymbolExtension
     {
 
-        public static double GetBtcValue(this List<CurrencySymbolPrice> oCurrencies, string Crypto, double Value)
+        public static double GetBtcValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance) => oCurrencies.GetCustomValue(globalBalance, "BTC");
+        public static double GetCustomValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto)
         {
-            if (Crypto == "BTC")
-                return Value;
+            string sCryptoFrom = globalBalance.Crypto.ToUpper();
+            if (sCryptoFrom == sCrypto)
+                return globalBalance.Value;
 
+            if (sCryptoFrom == "BTXCRD") // Bittrex Credit
+                return 0;
 
-            var oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == Crypto && o.To == "BTC");
+            // look in current exchange
+            var oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == sCrypto && o.Exchange == globalBalance.Exchange);
 
             if (oCryptoFound != null)
             {
-                return Value * oCryptoFound.Price;
+                return globalBalance.Value * oCryptoFound.Price;
             }
 
-            var oCryptoFoundUsdtBtc = oCurrencies.FirstOrDefault(o => o.From == "USDT" && o.To == "BTC");
-            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == Crypto && o.To == "USDT");
+            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "USDT" && o.Exchange == globalBalance.Exchange);
+            var oCryptoFoundUsdtToFav = oCurrencies.FirstOrDefault(o => o.From == "USDT" && o.To == sCrypto && o.Exchange == globalBalance.Exchange);
+
+            if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
+            {
+                return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+            }
+
+            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "BTC" && o.Exchange == globalBalance.Exchange);
+            oCryptoFoundUsdtToFav = oCurrencies.FirstOrDefault(o => o.From == "BTC" && o.To == sCrypto && o.Exchange == globalBalance.Exchange);
+
+            if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
+            {
+                return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+            }
+
+
+            // fallback, look in all exchanges
+            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == sCrypto);
 
             if (oCryptoFound != null)
             {
-                return Value * oCryptoFound.Price * oCryptoFoundUsdtBtc.Price;
+                return globalBalance.Value * oCryptoFound.Price;
+            }
+
+            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "USDT");
+            oCryptoFoundUsdtToFav = oCurrencies.FirstOrDefault(o => o.From == "USDT" && o.To == sCrypto);
+
+            if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
+            {
+                return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+            }
+
+            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "BTC");
+            oCryptoFoundUsdtToFav = oCurrencies.FirstOrDefault(o => o.From == "BTC" && o.To == sCrypto);
+
+            if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
+            {
+                return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
             }
 
             return 0;
