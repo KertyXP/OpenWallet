@@ -12,6 +12,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
 using OpenWallet.Logic.Abstraction;
+using System.IO;
 
 namespace OpentWallet.Logic
 {
@@ -115,40 +116,95 @@ namespace OpentWallet.Logic
 
         public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
         {
+            var oTempTrades = new List<GlobalTrade>();
             var oTrades = new List<GlobalTrade>();
-            WebClient wc = new WebClient();
+            bool bOneFound = false;
 
             // get lists of transactions
-            var aTradeIds = new List<string>();
             for (int i = 1; i < 100; i++)
             {
-                var sHTML = wc.DownloadString($"{host}/{getTrades}{oConfig.ApiKey}&p={i}");
+                bOneFound = false;
+                WebRequest wc = HttpWebRequest.Create(new Uri($"{host}/{getTrades}{oConfig.ApiKey}&p={i}"));
+                var response = wc.GetResponse();
+
+                Stream dataStream = response.GetResponseStream();
+                StreamReader sr = new StreamReader(dataStream);
+                string sHTML = sr.ReadToEnd();
 
                 var oDoc = new HtmlAgilityPack.HtmlDocument();
                 oDoc.LoadHtml(sHTML);
 
-                var aTrades = oDoc.DocumentNode.Descendants("a").Where(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/tx/") == true).Select(a => a.Attributes["href"].Value.Split('/').LastOrDefault());
 
-                if (aTrades.Any() == false)
+
+                var tr = oDoc.DocumentNode.Descendants("tr").ToList();
+
+
+                foreach(var oRow in tr)
+                {
+
+                    var sTradeId = oRow.Descendants("a")
+                        .Where(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/tx/") == true)
+                        .Select(a => a.Attributes["href"].Value.Split('/')
+                        .LastOrDefault())
+                        .FirstOrDefault();
+
+                    if (sTradeId == null)
+                        continue;
+
+                    bOneFound = true;
+                    var oDate = oRow.Descendants("td").FirstOrDefault(td => td.Attributes.Contains("class") && td.Attributes["class"].Value.Trim() == "showAge")
+                        ?.Descendants("span").FirstOrDefault()?.Attributes["title"]?.Value;
+
+                    var dt = DateTime.ParseExact(oDate, "yyyy-MM-dd H:mm:ss", CultureInfo.InvariantCulture.DateTimeFormat).ToLocalTime();
+
+                    oTempTrades.Add(new GlobalTrade()
+                    {
+                        InternalExchangeId = sTradeId,
+                        dtTrade = dt
+                    });
+                }
+
+                if (bOneFound == false)
                     break;
-
-                aTradeIds.AddRange(aTrades);
 
             }
 
 
-            foreach (var oTrade in aTradeIds.GroupBy(a => a).Select(a => a.FirstOrDefault()))
+            foreach (var oTrade in oTempTrades.GroupBy(a => a.InternalExchangeId).Select(a => a.FirstOrDefault()))
             {
-                var oCache = aCache.FirstOrDefault(c => c.InternalExchangeId == oTrade);
-                if(oCache != null)
+                aCache = aCache ?? new List<GlobalTrade>();
+                var oCache = aCache.FirstOrDefault(c => c.InternalExchangeId == oTrade.InternalExchangeId);
+                if (oCache != null)
                 {
                     oTrades.Add(oCache);
                     continue;
                 }
-                var sHTML = wc.DownloadString($"{host}/{getTradeDetail}/{oTrade}");
+                string sHTML = string.Empty;
+                while (true)
+                {
+                    WebRequest wc = HttpWebRequest.Create(new Uri($"{host}/{getTradeDetail}/{oTrade.InternalExchangeId}"));
+                    var response = wc.GetResponse();
+
+                    Stream dataStream = response.GetResponseStream();
+                    StreamReader sr = new StreamReader(dataStream);
+                    sHTML = sr.ReadToEnd();
+
+                    if (response.ResponseUri.AbsolutePath == "/busy")
+                    {
+                        // too many request?
+                        Task.Delay(1000).GetAwaiter().GetResult();
+                        continue;
+                    }
+
+                    break;
+                }
 
                 var oDoc = new HtmlAgilityPack.HtmlDocument();
                 oDoc.LoadHtml(sHTML);
+
+                var aDivs = oDoc.DocumentNode
+                    .Descendants("div").Where(d => d.Attributes.Contains("class") && d.Attributes["class"].Value.StartsWith("row align-items-center"))
+                    .ToList();
 
                 var aSwapRoute = oDoc.DocumentNode.Descendants("ul").Where(x => x.Attributes.Contains("id") && x.Attributes["id"].Value == "wrapperContent")
                     .ElementAtOrDefault(1);
@@ -182,9 +238,9 @@ namespace OpentWallet.Logic
                 oGlobalTrade.QuantityFrom = dFrom;
                 oGlobalTrade.QuantityTo = dTo;
                 oGlobalTrade.Price = dTo / dFrom;
-                oGlobalTrade.InternalExchangeId = oTrade;
+                oGlobalTrade.InternalExchangeId = oTrade.InternalExchangeId;
+                oGlobalTrade.dtTrade = oTrade.dtTrade;
                 oGlobalTrade.Exchange = GetExchangeName;
-                oGlobalTrade.dtTrade = DateTime.Now;
                 oTrades.Add(oGlobalTrade);
                 //Name: "data-toggle", Value: "tooltip"
             }

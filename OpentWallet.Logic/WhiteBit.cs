@@ -104,77 +104,64 @@ namespace OpentWallet.Logic
         public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
         {
 
-            List<GlobalTrade> aListTrades = new List<GlobalTrade>();
-            Dictionary<string, List<OrderHistory>> aOrderByCurrencyHistory = new Dictionary<string, List<OrderHistory>>();
+            List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache);
+
+            bool bOrderFoundInCache = false;
+
             int nOffset = 0;
             while (true)
             {
+                if (bOrderFoundInCache == true)
+                {
+                    return aListTrades;
+                }
+
                 var oHistoryResponse = SendRequest<Dictionary<string, List<OrderHistory>>>("/api/v4/trade-account/executed-history", new PayloadOrderHistory() { Offset = nOffset, Limit = 100 });
                 if (oHistoryResponse.Any() == false)
                     break;
                 foreach (var kvpResponse in oHistoryResponse)
                 {
-                    if (aOrderByCurrencyHistory.ContainsKey(kvpResponse.Key))
+                    var cur = new CurrencySymbolExchange(kvpResponse.Key.Split('_').FirstOrDefault(), kvpResponse.Key.Split('_').Last(), GetExchangeName);
+                    if (cur == null)
+                        continue; // oops
+
+                    foreach (var oOrderHistory in kvpResponse.Value)
                     {
-                        var oOrdersHistory = aOrderByCurrencyHistory[kvpResponse.Key];
-                        if (oOrdersHistory == null)
+
+                        if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHistory.ClientOrderId))
                         {
-                            aOrderByCurrencyHistory[kvpResponse.Key] = kvpResponse.Value;
+                            bOrderFoundInCache = true;
+                            continue;
+                        }
+
+                        var oGlobalTrade = new GlobalTrade();
+                        oGlobalTrade.Exchange = GetExchangeName;
+                        if (oOrderHistory.Side == Side.Buy)
+                        {
+                            oGlobalTrade.From = cur.To;
+                            oGlobalTrade.To = cur.From;
+                            oGlobalTrade.Price = 1 / oOrderHistory.Price.ToDouble();
+                            oGlobalTrade.QuantityTo = oOrderHistory.Amount.ToDouble();
+                            oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
                         }
                         else
                         {
-                            foreach (var oOrder in kvpResponse.Value)
-                            {
-                                if (oOrdersHistory.Any(o => o.Id == oOrder.Id) == false)
-                                {
-                                    oOrdersHistory.Add(oOrder);
-                                }
-                            }
+
+                            oGlobalTrade.From = cur.From;
+                            oGlobalTrade.To = cur.To;
+                            oGlobalTrade.Price = oOrderHistory.Price.ToDouble();
+                            oGlobalTrade.QuantityFrom = oOrderHistory.Amount.ToDouble();
+                            oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
                         }
-                    }
-                    else
-                    {
-                        aOrderByCurrencyHistory.Add(kvpResponse.Key, kvpResponse.Value);
+                        oGlobalTrade.InternalExchangeId = oOrderHistory.ClientOrderId;
+                        oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.Time);
+                        aListTrades.Add(oGlobalTrade);
+
                     }
                 }
                 nOffset += 100;
             }
 
-            foreach (var kvpResponse in aOrderByCurrencyHistory)
-            {
-
-                var cur = new CurrencySymbolExchange(kvpResponse.Key.Split('_').FirstOrDefault(), kvpResponse.Key.Split('_').Last(), GetExchangeName);
-                if (cur == null)
-                    continue; // oops
-
-                foreach (var oTrade in kvpResponse.Value)
-                {
-
-                    var oGlobalTrade = new GlobalTrade();
-                    oGlobalTrade.Exchange = cur.Exchange;
-                    if (oTrade.Side == Side.Buy)
-                    {
-                        oGlobalTrade.From = cur.To;
-                        oGlobalTrade.To = cur.From;
-                        oGlobalTrade.Price = 1 / oTrade.Price.ToDouble();
-                        oGlobalTrade.QuantityTo = oTrade.Amount.ToDouble();
-                        oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
-                    }
-                    else
-                    {
-
-                        oGlobalTrade.From = cur.From;
-                        oGlobalTrade.To = cur.To;
-                        oGlobalTrade.Price = oTrade.Price.ToDouble();
-                        oGlobalTrade.QuantityFrom = oTrade.Amount.ToDouble();
-                        oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
-                    }
-                    oGlobalTrade.InternalExchangeId = oTrade.ClientOrderId;
-                    oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oTrade.Time);
-                    aListTrades.Add(oGlobalTrade);
-                }
-
-            }
 
 
             return aListTrades;

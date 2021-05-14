@@ -95,6 +95,8 @@ namespace OpenWallet.Common
 
             if (sCryptoFrom == "BTXCRD") // Bittrex Credit
                 return 0;
+            if (sCryptoFrom == "MAX") // shitcoin that has the same name of another coin
+                return 0;
 
             // look in current exchange
             var oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == sCrypto && o.Exchange == globalBalance.Exchange);
@@ -120,6 +122,7 @@ namespace OpenWallet.Common
                 return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
             }
 
+            return 0;
 
             // fallback, look in all exchanges
             oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == sCrypto);

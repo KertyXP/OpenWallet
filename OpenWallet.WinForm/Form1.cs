@@ -139,7 +139,7 @@ namespace OpenWallet.WinForm
 
             foreach (var oTask in aTasks3)
             {
-                var aBalance = oTask.GetAwaiter().GetResult();
+                var aBalance = await oTask;
                 if (aBalance.Any() == false)
                     continue;
 
@@ -166,6 +166,11 @@ namespace OpenWallet.WinForm
 
                 return oGlobalTrade;
             }).OrderBy(l => l.dtTrade).ToList();
+
+            aListTrades2.OrderBy(t => t.Couple).ToList().ForEach(t =>
+            {
+                dgv_trade_day.Rows.Add(t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.dtTrade.ToString("yyyy-MM-dd"));
+            });
 
             var aListTrades3 = aListTrades.GroupBy(l => l.From + "|" + l.To).Select(l =>
             {
