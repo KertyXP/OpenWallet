@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
 using System.Text;
 
 namespace OpenWallet.Common
@@ -24,9 +26,14 @@ namespace OpenWallet.Common
 
         public static double ToDouble(this string s)
         {
-            if (s.Contains(",") && s.Contains("."))
-                s = s.Replace(".", "");
-            return Convert.ToDouble(s.Replace('.', ','));
+            var a = s.Split(',', '.', '\'', ' ').ToList();
+
+            var sIntPart = a.FirstOrDefault();
+            var sDecimalPart = String.Join("", a.Skip(1));
+
+            string sCorrectString = string.IsNullOrEmpty(sDecimalPart) ? sIntPart : $"{sIntPart}.{sDecimalPart}";
+
+            return Convert.ToDouble(sCorrectString, CultureInfo.InvariantCulture);
         }
 
     }
