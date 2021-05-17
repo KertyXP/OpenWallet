@@ -19,6 +19,7 @@ namespace OpentWallet.Logic
     {
         private ExchangeConfig oConfig;
         private const string hostname = "https://ascendex.com";
+        private AscendexAccount oAccount = null;
 
         private WebClient client;
 
@@ -33,6 +34,29 @@ namespace OpentWallet.Logic
         public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
+        }
+
+        private AscendexAccount GetAccount()
+        {
+            if (oAccount != null)
+                return oAccount;
+
+
+            var timestampUtcMillisecond = GetNonce();
+
+            var signature = CalcSignature(timestampUtcMillisecond + "+info", oConfig.SecretKey);
+
+            string sApi = "/api/pro/v1/info";
+
+            client.Headers.Add("x-auth-key", oConfig.ApiKey);
+            client.Headers.Add("x-auth-timestamp", timestampUtcMillisecond);
+            client.Headers.Add("x-auth-signature", signature);
+
+
+            var request = client.DownloadString($"{hostname}{sApi}");
+
+            oAccount = JsonConvert.DeserializeObject<AscendexAccount>(request);
+            return oAccount;
         }
 
         public string CalcSignature(string text, string apiSecret)
@@ -75,26 +99,11 @@ namespace OpentWallet.Logic
 
         public List<GlobalBalance> GetBalance()
         {
+            string sApi = $"/{GetAccount().Data.AccountGroup}/api/pro/v1/cash/balance";
+
             var timestampUtcMillisecond = GetNonce();
 
-            var signature = CalcSignature(timestampUtcMillisecond + "+info", oConfig.SecretKey);
-
-            string sApi = "/api/pro/v1/info";
-
-            client.Headers.Add("x-auth-key", oConfig.ApiKey);
-            client.Headers.Add("x-auth-timestamp", timestampUtcMillisecond);
-            client.Headers.Add("x-auth-signature", signature);
-
-
-            var request = client.DownloadString($"{hostname}{sApi}");
-
-            var account = JsonConvert.DeserializeObject<AscendexAccount>(request);
-
-            sApi = $"/{account.Data.AccountGroup}/api/pro/v1/cash/balance";
-
-            timestampUtcMillisecond = GetNonce();
-
-            signature = CalcSignature(timestampUtcMillisecond + "+balance", oConfig.SecretKey);
+            var signature = CalcSignature(timestampUtcMillisecond + "+balance", oConfig.SecretKey);
 
             client.Headers.Clear();
             client.Headers.Add("x-auth-key", oConfig.ApiKey);
@@ -114,60 +123,135 @@ namespace OpentWallet.Logic
                 Value = b.TotalBalance.ToDouble(),
             }).Where(b => b.Value > 0).ToList();
 
-            //var result = SendRequest<List<Logic.Account>>(GET_ACCOUNT);
-
-            //var oAccount = JsonConvert.DeserializeObject<Account>(result);
-
-            //var result2 = SendRequest<List<Logic.Account>>(GET_ACCOUNT + "/" + oAccount.Data.FirstOrDefault().Id + "/balance");
-            //var oBalance = JsonConvert.DeserializeObject<Balance>(result2);
-
-            //var aGlobalBalance = oBalance.Data.List
-            //    .GroupBy(l => l.Currency)
-            //    .Select(g =>
-            //{
-            //    return new GlobalBalance()
-            //    {
-            //        Exchange = "Huobi",
-            //        Crypto = g.Key,
-            //        Value = g.Sum(f => f.Balance.ToDouble())
-            //    };
-            //})
-            //    .Where(gb => gb.Value > 0)
-            //    .ToList();
-
-            //return aGlobalBalance;
 
         }
-
-        private double GetBtcValue(string Crypto, double Value, List<CurrencySymbolPrice> oCurrencies)
-        {
-            if (Crypto == "BTC")
-                return Value;
-
-
-            var oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == Crypto && o.To == "BTC");
-
-            if (oCryptoFound != null)
-            {
-                return Value * oCryptoFound.Price;
-            }
-
-            var oCryptoFoundUsdtBtc = oCurrencies.FirstOrDefault(o => o.From == "USDT" && o.To == "BTC");
-            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == Crypto && o.To == "USDT");
-
-            if (oCryptoFound != null)
-            {
-                return Value * oCryptoFound.Price * oCryptoFoundUsdtBtc.Price;
-            }
-
-            return 0;
-        }
-
         public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
         {
-            return new List<GlobalTrade>();
+            string sApi = $"/{GetAccount().Data.AccountGroup}/api/pro/v2/order/hist";
+
+            var timestampUtcMillisecond = GetNonce();
+
+            var signature = CalcSignature(timestampUtcMillisecond + "+order/hist", oConfig.SecretKey);
+
+            client.Headers.Clear();
+            client.Headers.Add("x-auth-key", oConfig.ApiKey);
+            client.Headers.Add("x-auth-timestamp", timestampUtcMillisecond);
+            client.Headers.Add("x-auth-signature", signature);
+
+            var request2 = client.DownloadString($"{hostname}{sApi}?account=cash");
+
+            var balance = JsonConvert.DeserializeObject<AscendexOrderHistory>(request2);
+
+            List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache);
+
+            foreach (var oOrderHistory in balance.Data)
+            {
+
+                if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHistory.SeqNum))
+                {
+                    continue;
+                }
+                var cur = new CurrencySymbol(oOrderHistory.Symbol.Split('/').FirstOrDefault(), oOrderHistory.Symbol.Split('/').LastOrDefault());
+
+                var oGlobalTrade = new GlobalTrade();
+                oGlobalTrade.Exchange = GetExchangeName;
+                if (oOrderHistory.Side == "Buy")
+                {
+                    oGlobalTrade.From = cur.To;
+                    oGlobalTrade.To = cur.From;
+                    oGlobalTrade.Price = 1 / oOrderHistory.Price.ToDouble();
+                    oGlobalTrade.QuantityTo = oOrderHistory.OrderQty.ToDouble();
+                    oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
+                }
+                else
+                {
+
+                    oGlobalTrade.From = cur.From;
+                    oGlobalTrade.To = cur.To;
+                    oGlobalTrade.Price = oOrderHistory.Price.ToDouble();
+                    oGlobalTrade.QuantityFrom = oOrderHistory.OrderQty.ToDouble();
+                    oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
+                }
+                oGlobalTrade.InternalExchangeId = oOrderHistory.SeqNum;
+                oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.LastExecTime / 1000);
+                aListTrades.Add(oGlobalTrade);
+
+            }
+
+            return aListTrades;
+
+        }
+
+        private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime;
         }
     }
+
+
+    public partial class AscendexOrderHistory
+    {
+        [JsonProperty("code")]
+        public long Code { get; set; }
+
+        [JsonProperty("data")]
+        public List<Datum> Data { get; set; }
+    }
+
+    public partial class Datum
+    {
+        [JsonProperty("accountId")]
+        public string AccountId { get; set; }
+
+        [JsonProperty("seqNum")]
+        public string SeqNum { get; set; }
+
+        [JsonProperty("orderId")]
+        public string OrderId { get; set; }
+
+        [JsonProperty("createTime")]
+        public long CreateTime { get; set; }
+
+        [JsonProperty("lastExecTime")]
+        public long LastExecTime { get; set; }
+
+        [JsonProperty("side")]
+        public string Side { get; set; }
+
+        [JsonProperty("symbol")]
+        public string Symbol { get; set; }
+
+        [JsonProperty("orderQty")]
+        public string OrderQty { get; set; }
+
+        [JsonProperty("orderType")]
+        public string OrderType { get; set; }
+
+        [JsonProperty("price")]
+        public string Price { get; set; }
+
+        [JsonProperty("status")]
+        public string Status { get; set; }
+
+        [JsonProperty("stopPrice")]
+        public string StopPrice { get; set; }
+
+        [JsonProperty("fillQty")]
+        public string FillQty { get; set; }
+
+        [JsonProperty("avgFillPrice")]
+        public string AvgFillPrice { get; set; }
+
+        [JsonProperty("fee")]
+        public string Fee { get; set; }
+
+        [JsonProperty("feeAsset")]
+        public string FeeAsset { get; set; }
+    }
+
     public partial class AscendexCurrencies
     {
         [JsonProperty("code")]

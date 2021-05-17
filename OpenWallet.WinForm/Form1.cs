@@ -139,13 +139,20 @@ namespace OpenWallet.WinForm
 
             foreach (var oTask in aTasks3)
             {
-                var aBalance = await oTask;
-                if (aBalance.Any() == false)
-                    continue;
+                try
+                {
+                    var aBalance = await oTask;
+                    if (aBalance.Any() == false)
+                        continue;
 
-                File.WriteAllText("Trades_" + aBalance?.FirstOrDefault()?.Exchange + ".json", JsonConvert.SerializeObject(aBalance));
+                    File.WriteAllText("Trades_" + aBalance?.FirstOrDefault()?.Exchange + ".json", JsonConvert.SerializeObject(aBalance));
 
-                aListTrades.AddRange(aBalance);
+                    aListTrades.AddRange(aBalance);
+                }
+                catch
+                {
+
+                }
             }
 
 
