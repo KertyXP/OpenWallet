@@ -21,6 +21,7 @@ namespace OpentWallet.Logic
 
         private const string hostname = "https://api.bittrex.com"; // put here your secret key
         private const string apiBalance = "/v3/balances"; // put here your secret key
+        private const string apiOrderHistory = "/v3/orders/closed"; // put here your secret key
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
@@ -86,7 +87,7 @@ namespace OpentWallet.Logic
             var dataJsonStr = string.Empty;
             var hash = CalcHash(dataJsonStr);
             var signature = CalcSignature(nonce + sApi + "GET" + hash, oConfig.SecretKey);
-                       
+
 
             WebClient wc = new WebClient();
             wc.Headers.Add("Api-Key", oConfig.ApiKey);
@@ -115,34 +116,78 @@ namespace OpentWallet.Logic
             return oGlobalBalance;
         }
 
-        public partial class BittrexCurrencies
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
         {
-            [JsonProperty("symbol")]
-            public string Symbol { get; set; }
+            string sApi = $"{hostname}{apiOrderHistory}";
+            var nonce = GetNonce();
 
-            [JsonProperty("lastTradeRate")]
-            public string LastTradeRate { get; set; }
 
-            [JsonProperty("bidRate")]
-            public string BidRate { get; set; }
+            var dataJsonStr = string.Empty;
+            var hash = CalcHash(dataJsonStr);
+            var signature = CalcSignature(nonce + sApi + "GET" + hash, oConfig.SecretKey);
 
-            [JsonProperty("askRate")]
-            public string AskRate { get; set; }
+
+            WebClient wc = new WebClient();
+            wc.Headers.Add("Api-Key", oConfig.ApiKey);
+            wc.Headers.Add("Api-Timestamp", nonce);
+            wc.Headers.Add("Api-Signature", signature);
+            wc.Headers.Add("Api-Content-Hash", hash);
+            //wc.Headers.Add("Api-Subaccount-Id", signature);
+            wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+
+            var responseBody = wc.DownloadString($"{hostname}{apiBalance}");
+
+            List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache);
+
+
+            //var balance = JsonConvert.DeserializeObject<AscendexOrderHistory>(request2);
+
+
+            //foreach (var oOrderHistory in balance.Data)
+            //{
+
+            //    if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHistory.SeqNum))
+            //    {
+            //        continue;
+            //    }
+            //    var cur = new CurrencySymbol(oOrderHistory.Symbol.Split('/').FirstOrDefault(), oOrderHistory.Symbol.Split('/').LastOrDefault());
+
+            //    var oGlobalTrade = new GlobalTrade();
+            //    oGlobalTrade.Exchange = GetExchangeName;
+            //    if (oOrderHistory.Side == "Buy")
+            //    {
+            //        oGlobalTrade.From = cur.To;
+            //        oGlobalTrade.To = cur.From;
+            //        oGlobalTrade.Price = 1 / oOrderHistory.Price.ToDouble();
+            //        oGlobalTrade.QuantityTo = oOrderHistory.OrderQty.ToDouble();
+            //        oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
+            //    }
+            //    else
+            //    {
+
+            //        oGlobalTrade.From = cur.From;
+            //        oGlobalTrade.To = cur.To;
+            //        oGlobalTrade.Price = oOrderHistory.Price.ToDouble();
+            //        oGlobalTrade.QuantityFrom = oOrderHistory.OrderQty.ToDouble();
+            //        oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
+            //    }
+            //    oGlobalTrade.InternalExchangeId = oOrderHistory.SeqNum;
+            //    oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.LastExecTime / 1000);
+            //    aListTrades.Add(oGlobalTrade);
+
+            //}
+
+            return aListTrades;
+
         }
 
-        public partial class BittrexBalence
+
+        private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
-            [JsonProperty("currencySymbol")]
-            public string CurrencySymbol { get; set; }
-
-            [JsonProperty("total")]
-            public string Total { get; set; }
-
-            [JsonProperty("available")]
-            public string Available { get; set; }
-
-            [JsonProperty("updatedAt")]
-            public DateTimeOffset UpdatedAt { get; set; }
+            // Unix timestamp is seconds past epoch
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime;
         }
 
         public string CalcSignature(string text, string apiSecret)
@@ -168,9 +213,36 @@ namespace OpentWallet.Logic
             return milliseconds.ToString();
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
-        {
-            return new List<GlobalTrade>();
-        }
+    }
+
+
+    public partial class BittrexCurrencies
+    {
+        [JsonProperty("symbol")]
+        public string Symbol { get; set; }
+
+        [JsonProperty("lastTradeRate")]
+        public string LastTradeRate { get; set; }
+
+        [JsonProperty("bidRate")]
+        public string BidRate { get; set; }
+
+        [JsonProperty("askRate")]
+        public string AskRate { get; set; }
+    }
+
+    public partial class BittrexBalence
+    {
+        [JsonProperty("currencySymbol")]
+        public string CurrencySymbol { get; set; }
+
+        [JsonProperty("total")]
+        public string Total { get; set; }
+
+        [JsonProperty("available")]
+        public string Available { get; set; }
+
+        [JsonProperty("updatedAt")]
+        public DateTimeOffset UpdatedAt { get; set; }
     }
 }
