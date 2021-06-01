@@ -26,7 +26,8 @@ namespace OpentWallet.Logic
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        public string GetExchangeName => "Kucoin";
+        public string ExchangeCode => "Kucoin";
+        public string ExchangeName => "Kucoin";
 
         public Kucoin()
         {
@@ -50,8 +51,8 @@ namespace OpentWallet.Logic
                 double Price = (kvp.Buy.ToDouble() + kvp.Sell.ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, GetExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, GetExchangeName),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, ExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -103,7 +104,7 @@ namespace OpentWallet.Logic
                 {
                     return new GlobalBalance
                     {
-                        Exchange = GetExchangeName,
+                        Exchange = ExchangeName,
                         Crypto = b.Currency,
                         Value = b.Available.ToDouble(),
                     };

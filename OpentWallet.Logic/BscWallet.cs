@@ -26,7 +26,8 @@ namespace OpentWallet.Logic
         private const string getTrades = "txs?a="; // put here your secret key
         private const string getTradeDetail = "tx"; // put here your secret key
 
-        public string GetExchangeName => "BSC";
+        public string ExchangeCode => "BSC";
+        public string ExchangeName => "BSC";
 
         public BscWallet()
         {
@@ -44,8 +45,8 @@ namespace OpentWallet.Logic
 
                 return new List<CurrencySymbolPrice>()
                     {
-                        new CurrencySymbolPrice(c.Symbol, c.Quotes.FirstOrDefault().Name.ToUpper(), c.Quotes.FirstOrDefault().Price, GetExchangeName),
-                        new CurrencySymbolPriceReverted(c.Symbol, c.Quotes.FirstOrDefault().Name.ToUpper(), c.Quotes.FirstOrDefault().Price, GetExchangeName),
+                        new CurrencySymbolPrice(c.Symbol, c.Quotes.FirstOrDefault().Name.ToUpper(), c.Quotes.FirstOrDefault().Price, ExchangeName),
+                        new CurrencySymbolPriceReverted(c.Symbol, c.Quotes.FirstOrDefault().Name.ToUpper(), c.Quotes.FirstOrDefault().Price, ExchangeName),
                     };
             })
             .SelectMany(o => o)
@@ -82,7 +83,7 @@ namespace OpentWallet.Logic
             var sBnb = Regex.Replace(oSummary, ".*Balance: (.*) BNB.* BNB Value.*", "$1");
             aBalance.Add(new GlobalBalance()
             {
-                Exchange = GetExchangeName,
+                Exchange = ExchangeName,
                 Crypto = "BNB",
                 Value = sBnb.ToDouble()
             });
@@ -92,7 +93,7 @@ namespace OpentWallet.Logic
                 var oAmount = oToken.Descendants("span").Where(x => x.Attributes.Contains("class") && x.Attributes["class"].Value.StartsWith("list-amount")).FirstOrDefault().InnerText;
                 aBalance.Add(new GlobalBalance()
                 {
-                    Exchange = GetExchangeName,
+                    Exchange = ExchangeName,
                     Crypto = oAmount.Split(' ').LastOrDefault(),
                     Value = oAmount.Split(' ').FirstOrDefault().Replace(",", "").ToDouble()
                 });
@@ -240,7 +241,7 @@ namespace OpentWallet.Logic
                 oGlobalTrade.Price = dTo / dFrom;
                 oGlobalTrade.InternalExchangeId = oTrade.InternalExchangeId;
                 oGlobalTrade.dtTrade = oTrade.dtTrade;
-                oGlobalTrade.Exchange = GetExchangeName;
+                oGlobalTrade.Exchange = ExchangeName;
                 oTrades.Add(oGlobalTrade);
                 //Name: "data-toggle", Value: "tooltip"
             }

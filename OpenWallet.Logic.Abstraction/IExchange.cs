@@ -7,7 +7,8 @@ namespace OpenWallet.Logic.Abstraction
 {
     public interface IExchange
     {
-        string GetExchangeName { get; }
+        string ExchangeCode { get; }
+        string ExchangeName { get; }
         List<GlobalBalance> GetBalance();
         List<CurrencySymbolPrice> GetCurrencies();
         void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig);

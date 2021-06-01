@@ -18,17 +18,9 @@ namespace OpenWallet.WinForm
 {
     public partial class Form1 : Form
     {
-
-        WhiteBit wb = new WhiteBit();
-        Huobi huobi = new Huobi();
-        Ascendex ascendex = new Ascendex();
-        Bittrex bittrex = new Bittrex();
-        Binance binance = new Binance();
-        Kucoin kucoin = new Kucoin();
-        BscWallet bscWallet = new BscWallet();
-
         public Form1()
         {
+            var oUseless = new UseLess();
             InitializeComponent();
 
         }
@@ -49,7 +41,7 @@ namespace OpenWallet.WinForm
                 {
                     new ExchangeConfig()
                     {
-                        Exchange = "Binance",
+                        ExchangeCode = "Binance",
                         ApiKey = "ApiKey",
                         SecretKey = "SecretKey",
                         AdditionnalKey = ""
@@ -62,16 +54,18 @@ namespace OpenWallet.WinForm
             var type = typeof(IExchange);
             var types = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(s => s.GetTypes())
-                .Where(p => type.IsAssignableFrom(p))
-                .ToList();
+                .Where(p => type.IsAssignableFrom(p) && p.IsClass)
+                .ToList()
+                .Select(t => Activator.CreateInstance(t) as IExchange)
+                .Where(t => t != null);
 
             foreach (var oConfig in oGlobalConfig.aConfigs)
             {
-                var typeExchange = types.FirstOrDefault(t => t.Name == oConfig.Exchange);
+                var typeExchange = types.FirstOrDefault(t => t.ExchangeCode == oConfig.ExchangeCode);
                 if (typeExchange == null)
                     continue; // oops
 
-                var oExchange = Activator.CreateInstance(typeExchange) as IExchange;
+                var oExchange = Activator.CreateInstance(typeExchange.GetType()) as IExchange;
                 if (oExchange == null)
                     continue; // re-oops
 
@@ -130,7 +124,7 @@ namespace OpenWallet.WinForm
 
             var aTasks3 = aEchanges.Select(oExchange =>
             {
-                string sFileName = "Trades_" + oExchange.GetExchangeName + ".json";
+                string sFileName = "Trades_" + oExchange.ExchangeName + ".json";
 
                 var aTrades = File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sFileName)) : new List<GlobalTrade>();
                 return Task.Run(() => oExchange.GetTradeHistory(aTrades));

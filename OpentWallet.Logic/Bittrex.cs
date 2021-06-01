@@ -25,7 +25,8 @@ namespace OpentWallet.Logic
 
         private static readonly HttpClient _httpClient = new HttpClient();
 
-        public string GetExchangeName => "Bittrex";
+        public string ExchangeCode => "Bittrex";
+        public string ExchangeName => "Bittrex";
 
         public Bittrex()
         {
@@ -65,8 +66,8 @@ namespace OpentWallet.Logic
                 double Price = (kvp.AskRate.ToDouble() + kvp.BidRate.ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, GetExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, GetExchangeName),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, ExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -106,7 +107,7 @@ namespace OpentWallet.Logic
             {
                 return new GlobalBalance
                 {
-                    Exchange = GetExchangeName,
+                    Exchange = ExchangeName,
                     Crypto = b.CurrencySymbol,
                     Value = b.Total.ToDouble(),
                 };
@@ -153,7 +154,7 @@ namespace OpentWallet.Logic
             //    var cur = new CurrencySymbol(oOrderHistory.Symbol.Split('/').FirstOrDefault(), oOrderHistory.Symbol.Split('/').LastOrDefault());
 
             //    var oGlobalTrade = new GlobalTrade();
-            //    oGlobalTrade.Exchange = GetExchangeName;
+            //    oGlobalTrade.Exchange = ExchangeName;
             //    if (oOrderHistory.Side == "Buy")
             //    {
             //        oGlobalTrade.From = cur.To;

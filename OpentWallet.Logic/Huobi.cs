@@ -45,7 +45,8 @@ namespace OpentWallet.Logic
 
         private WebClient client;
 
-        public string GetExchangeName => "Huobi";
+        public string ExchangeCode => "Huobi";
+        public string ExchangeName => "Huobi";
 
         public Huobi()
         {
@@ -75,8 +76,8 @@ namespace OpentWallet.Logic
                 {
                     return new List<CurrencySymbolPrice>()
                     {
-                        new CurrencySymbolPrice(oSymbol.From, oSymbol.To, Price, GetExchangeName),
-                        new CurrencySymbolPriceReverted(oSymbol.From, oSymbol.To, Price, GetExchangeName),
+                        new CurrencySymbolPrice(oSymbol.From, oSymbol.To, Price, ExchangeName),
+                        new CurrencySymbolPriceReverted(oSymbol.From, oSymbol.To, Price, ExchangeName),
                     };
                 }
                 return new List<CurrencySymbolPrice>();
@@ -105,7 +106,7 @@ namespace OpentWallet.Logic
                     return null;
                 return new GlobalBalance()
                 {
-                    Exchange = GetExchangeName,
+                    Exchange = ExchangeName,
                     Crypto = g.Key.ToUpper(),
                     Value = val,
                 };

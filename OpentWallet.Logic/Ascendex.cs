@@ -23,7 +23,8 @@ namespace OpentWallet.Logic
 
         private WebClient client;
 
-        public string GetExchangeName => "Ascendex";
+        public string ExchangeCode => "Ascendex";
+        public string ExchangeName => "Ascendex";
 
         public Ascendex()
         {
@@ -89,8 +90,8 @@ namespace OpentWallet.Logic
                 double Price = (kvp.Ask.FirstOrDefault().ToDouble() + kvp.Bid.FirstOrDefault().ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, GetExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, GetExchangeName),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, ExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -118,7 +119,7 @@ namespace OpentWallet.Logic
 
             return balance.Data.Select(b => new GlobalBalance()
             {
-                Exchange = GetExchangeName,
+                Exchange = ExchangeName,
                 Crypto = b.Asset,
                 Value = b.TotalBalance.ToDouble(),
             }).Where(b => b.Value > 0).ToList();
@@ -154,7 +155,7 @@ namespace OpentWallet.Logic
                 var cur = new CurrencySymbol(oOrderHistory.Symbol.Split('/').FirstOrDefault(), oOrderHistory.Symbol.Split('/').LastOrDefault());
 
                 var oGlobalTrade = new GlobalTrade();
-                oGlobalTrade.Exchange = GetExchangeName;
+                oGlobalTrade.Exchange = ExchangeName;
                 if (oOrderHistory.Side == "Buy")
                 {
                     oGlobalTrade.From = cur.To;

@@ -1,21 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace OpenWallet.Common
 {
     public class ExchangeConfig
     {
 
-        [JsonProperty("exchange")]
-        public string Exchange { get; set; }
+        [JsonProperty("exchangeCode")] 
+        public string ExchangeCode { get; set; }
 
-        [JsonProperty("apiKey")]
+        [JsonProperty("apiKey")] 
         public string ApiKey { get; set; }
 
-        [JsonProperty("esecretKey")]
+        [JsonProperty("esecretKey")] 
         public string SecretKey { get; set; }
 
-        [JsonProperty("additionnalKey")]
+        [JsonProperty("additionnalKey")] 
         public string AdditionnalKey { get; set; }
-    }
 
+        [JsonProperty("localParams")] 
+        public JToken LocalParams { get; set; }
+    }
 }

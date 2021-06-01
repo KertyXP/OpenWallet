@@ -24,7 +24,8 @@ namespace OpentWallet.Logic
         string request = "/api/v4/trade-account/balance"; // put here request path. For obtaining trading balance use: /api/v4/trade-account/balance
         string hostname = "https://whitebit.com"; // domain without last slash. Do not use whitebit.com/
 
-        public string GetExchangeName => "WhiteBit";
+        public string ExchangeCode => "WhiteBit";
+        public string ExchangeName => "WhiteBit";
 
         public WhiteBit()
         {
@@ -47,8 +48,8 @@ namespace OpentWallet.Logic
                 double Price = kvp.Value.LastPrice.ToDouble();
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, GetExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, GetExchangeName),
+                    new CurrencySymbolPrice(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, ExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -121,7 +122,7 @@ namespace OpentWallet.Logic
                     break;
                 foreach (var kvpResponse in oHistoryResponse)
                 {
-                    var cur = new CurrencySymbolExchange(kvpResponse.Key.Split('_').FirstOrDefault(), kvpResponse.Key.Split('_').Last(), GetExchangeName);
+                    var cur = new CurrencySymbolExchange(kvpResponse.Key.Split('_').FirstOrDefault(), kvpResponse.Key.Split('_').Last(), ExchangeName);
                     if (cur == null)
                         continue; // oops
 
@@ -135,7 +136,7 @@ namespace OpentWallet.Logic
                         }
 
                         var oGlobalTrade = new GlobalTrade();
-                        oGlobalTrade.Exchange = GetExchangeName;
+                        oGlobalTrade.Exchange = ExchangeName;
                         if (oOrderHistory.Side == Side.Buy)
                         {
                             oGlobalTrade.From = cur.To;
@@ -190,7 +191,7 @@ namespace OpentWallet.Logic
                 return null;
             return new GlobalBalance
             {
-                Exchange = GetExchangeName,
+                Exchange = ExchangeName,
                 Crypto = keyValue.Key,
                 Value = val,
             };
