@@ -37,7 +37,7 @@ namespace OpentWallet.Logic.Binance
         public long IntervalNum { get; set; }
 
         [JsonProperty("limit")]
-        public long Limit { get; set; }
+        public int Limit { get; set; }
     }
 
     public partial class Symbol

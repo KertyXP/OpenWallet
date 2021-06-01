@@ -15,21 +15,6 @@ using OpenWallet.Logic.Abstraction;
 
 namespace OpentWallet.Logic
 {
-    public class CurrenciesToCheck
-    {
-        [JsonProperty("currenciesToCheck")]
-        public List<string> aCurrenciesToCheck { get; set; }
-    }
-
-    public class BinanceCalls
-    {
-        public enum ECalls { accountV3, myTradesV3, ExchangeInfoV3, tickerPriceV3, allPairs }
-        public ECalls eCall { get; set; }
-        public string Api { get; set; }
-        public int Weight { get; set; }
-        public DateTime dtCall { get; set; }
-        public bool PublicApi { get; set; }
-    }
 
     public class BinanceApi : IExchange
     {
@@ -106,6 +91,36 @@ namespace OpentWallet.Logic
 
         }
 
+        internal class LimitCalls
+        {
+            public DateTime StartCount { get; set; }
+            public int Weight { get; set; }
+
+            public static List<LimitCalls> GetLimits(BinanceExchangeInfo ExchangeInfo)
+            {
+                if (ExchangeInfo == null)
+                    return new List<LimitCalls>();
+                return ExchangeInfo.RateLimits.Select(rl =>
+                {
+                    if (rl.Interval == "MINUTE")
+                    {
+                        return new LimitCalls() { StartCount = DateTime.Now.AddMinutes(-rl.IntervalNum), Weight = rl.Limit };
+                    }
+                    if (rl.Interval == "DAY")
+                    {
+                        return new LimitCalls() { StartCount = DateTime.Now.AddDays(-rl.IntervalNum), Weight = rl.Limit };
+                    }
+                    if (rl.Interval == "SECOND")
+                    {
+                        return new LimitCalls() { StartCount = DateTime.Now.AddSeconds(-rl.IntervalNum), Weight = rl.Limit };
+                    }
+                    return null;
+                })
+                .Where(rl => rl != null)
+                .ToList();
+            }
+        }
+
         public T Call<T>(BinanceCalls.ECalls Api, string dataJsonStr) where T : class, new()
         {
 
@@ -114,10 +129,20 @@ namespace OpentWallet.Logic
             if (oCall == null)
                 return new T();
 
-
-            if (ExchangeInfo != null)
+            while (true)
             {
-                ExchangeInfo.RateLimits
+
+                if (LimitCalls.GetLimits(ExchangeInfo).Any(l =>
+                {
+                    return _lastCalls.Where(lc => lc.dtCall >= l.StartCount).Sum(lc => lc.Weight) > l.Weight;
+                }))
+                {
+                    Task.Delay(250).GetAwaiter().GetResult();
+                }
+                else
+                {
+                    break;
+                }
             }
 
             WebClient wc = new WebClient();
@@ -129,8 +154,8 @@ namespace OpentWallet.Logic
                 // nonce is a number that is always higher than the previous request number
                 var nonce = GetNonce();
 
-                string sQueryParam = $"timestamp={nonce}";
-                var signature = CalcSignature($"{sQueryParam}{dataJsonStr}", oConfig.SecretKey);
+                string sQueryParam = $"timestamp={nonce}&{dataJsonStr}";
+                var signature = CalcSignature($"{sQueryParam}", oConfig.SecretKey);
                 sApi += $"?{sQueryParam}&signature={signature}";
             }
             wc.Headers.Add("X-MBX-APIKEY", oConfig.ApiKey);
@@ -219,14 +244,48 @@ namespace OpentWallet.Logic
 
         public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
         {
-            var aTrades = new List<GlobalTrade>();
+            return aCache;
+            var aListTrades = new List<GlobalTrade>();
 
             //if (_oLastBalance == null)
             //{
             //    return new List<GlobalTrade>();
             //}
 
+            foreach (var oPair in ExchangeInfo.Symbols)
+            {
+                if (CurrenciesToCheck.aCurrenciesToCheck.Any(ctc => ctc == oPair.BaseAsset || ctc == oPair.QuoteAsset))
+                {
+                    var oTradeList = Call<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, "symbol=" + oPair.SymbolSymbol);
+                    foreach(var oTradeBinance in oTradeList)
+                    {
 
+                        var oGlobalTrade = new GlobalTrade();
+                        oGlobalTrade.Exchange = ExchangeName;
+                        if (oTradeBinance.IsBuyer)
+                        {
+                            oGlobalTrade.From = oPair.QuoteAsset;
+                            oGlobalTrade.To = oPair.BaseAsset;
+                            oGlobalTrade.Price = 1 / oTradeBinance.Price.ToDouble();
+                            oGlobalTrade.QuantityTo = oTradeBinance.Qty.ToDouble();
+                            oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
+                        }
+                        else
+                        {
+
+                            oGlobalTrade.From = oPair.BaseAsset;
+                            oGlobalTrade.To = oPair.QuoteAsset;
+                            oGlobalTrade.Price = oTradeBinance.Price.ToDouble();
+                            oGlobalTrade.QuantityFrom = oTradeBinance.Qty.ToDouble();
+                            oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
+                        }
+                        oGlobalTrade.InternalExchangeId = oTradeBinance.Id.ToString();
+                        oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oTradeBinance.Time / 1000);
+                        aListTrades.Add(oGlobalTrade);
+
+                    }
+                }
+            }
             //foreach (var oBalance in _oLastBalance.Balances)
             //{
 
@@ -310,7 +369,15 @@ namespace OpentWallet.Logic
             //    }
             //}
 
-            return aTrades;
+            return aListTrades;
+        }
+
+        private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
+        {
+            // Unix timestamp is seconds past epoch
+            System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
+            dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
+            return dtDateTime;
         }
 
         private BinanceExchangeInfo GetExchangeInfo()
@@ -319,126 +386,5 @@ namespace OpentWallet.Logic
             var oExchangeInfo = Call<BinanceExchangeInfo>(BinanceCalls.ECalls.ExchangeInfoV3, string.Empty);
             return oExchangeInfo;
         }
-    }
-    public partial class BinanceTrades
-    {
-        [JsonProperty("symbol")]
-        public string Symbol { get; set; }
-
-        [JsonProperty("id")]
-        public long Id { get; set; }
-
-        [JsonProperty("orderId")]
-        public long OrderId { get; set; }
-
-        [JsonProperty("orderListId")]
-        public long OrderListId { get; set; }
-
-        [JsonProperty("price")]
-        public string Price { get; set; }
-
-        [JsonProperty("qty")]
-        public string Qty { get; set; }
-
-        [JsonProperty("quoteQty")]
-        public string QuoteQty { get; set; }
-
-        [JsonProperty("commission")]
-        public string Commission { get; set; }
-
-        [JsonProperty("commissionAsset")]
-        public string CommissionAsset { get; set; }
-
-        [JsonProperty("time")]
-        public long Time { get; set; }
-
-        [JsonProperty("isBuyer")]
-        public bool IsBuyer { get; set; }
-
-        [JsonProperty("isMaker")]
-        public bool IsMaker { get; set; }
-
-        [JsonProperty("isBestMatch")]
-        public bool IsBestMatch { get; set; }
-    }
-
-    public partial class BinancePair
-    {
-        [JsonProperty("id")]
-        public double Id { get; set; }
-
-        [JsonProperty("symbol")]
-        public string Symbol { get; set; }
-
-        [JsonProperty("base")]
-        public string Base { get; set; }
-
-        [JsonProperty("quote")]
-        public string Quote { get; set; }
-
-        [JsonProperty("isMarginTrade")]
-        public bool IsMarginTrade { get; set; }
-
-        [JsonProperty("isBuyAllowed")]
-        public bool IsBuyAllowed { get; set; }
-
-        [JsonProperty("isSellAllowed")]
-        public bool IsSellAllowed { get; set; }
-    }
-    public class BinanceCurrencies
-    {
-        [JsonProperty("symbol")]
-        public string Symbol { get; set; }
-
-        [JsonProperty("price")]
-        public string Price { get; set; }
-    }
-
-    public partial class BinanceAccount
-    {
-        [JsonProperty("makerCommission")]
-        public long MakerCommission { get; set; }
-
-        [JsonProperty("takerCommission")]
-        public long TakerCommission { get; set; }
-
-        [JsonProperty("buyerCommission")]
-        public long BuyerCommission { get; set; }
-
-        [JsonProperty("sellerCommission")]
-        public long SellerCommission { get; set; }
-
-        [JsonProperty("canTrade")]
-        public bool CanTrade { get; set; }
-
-        [JsonProperty("canWithdraw")]
-        public bool CanWithdraw { get; set; }
-
-        [JsonProperty("canDeposit")]
-        public bool CanDeposit { get; set; }
-
-        [JsonProperty("updateTime")]
-        public long UpdateTime { get; set; }
-
-        [JsonProperty("accountType")]
-        public string AccountType { get; set; }
-
-        [JsonProperty("balances")]
-        public Balance[] Balances { get; set; }
-
-        [JsonProperty("permissions")]
-        public string[] Permissions { get; set; }
-    }
-
-    public partial class Balance
-    {
-        [JsonProperty("asset")]
-        public string Asset { get; set; }
-
-        [JsonProperty("free")]
-        public string Free { get; set; }
-
-        [JsonProperty("locked")]
-        public string Locked { get; set; }
     }
 }
