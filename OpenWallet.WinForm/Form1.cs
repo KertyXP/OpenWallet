@@ -49,6 +49,7 @@ namespace OpenWallet.WinForm
                 };
                 File.WriteAllText("config.json", JsonConvert.SerializeObject(oGlobalConfig));
             }
+            oGlobalConfig.FiatMoneys = oGlobalConfig.FiatMoneys.GroupBy(c => c).Select(c => c.FirstOrDefault()).ToList();
 
             List<IExchange> aEchanges = new List<IExchange>();
             var type = typeof(IExchange);
@@ -101,7 +102,21 @@ namespace OpenWallet.WinForm
                 aAllCurrencies.AddRange(aBalance);
             }
 
-
+            List<CurrencySymbolPrice> aFiatisation = new List<CurrencySymbolPrice>();
+            // fiatisation (needs at least 2 fiats Moneys (first is the fiatisation TO)
+            if (oGlobalConfig.FiatMoneys.Count() > 1)
+            {
+                string sTo = oGlobalConfig.FiatMoneys.FirstOrDefault();
+                aFiatisation = oGlobalConfig.FiatMoneys.Skip(1).Select(fiat =>
+                {
+                    return new CurrencySymbolPrice()
+                    {
+                        From = fiat,
+                        To = sTo,
+                        Price = aAllCurrencies.GetCustomPrice(fiat, sTo)
+                    };
+                }).ToList();
+            }
 
             aAll.ForEach(b =>
             {
@@ -149,6 +164,26 @@ namespace OpenWallet.WinForm
                 }
             }
 
+            aListTrades.ForEach(trade =>
+            {
+                var fiat = aFiatisation.FirstOrDefault(f => f.From == trade.From);
+                if (fiat != null)
+                {
+                    trade.From = fiat.To;
+                    trade.Price = trade.Price / fiat.Price;
+                    trade.QuantityFrom = trade.QuantityFrom * fiat.Price;
+                    return;
+                }
+
+                fiat = aFiatisation.FirstOrDefault(f => f.From == trade.To);
+                if (fiat != null)
+                {
+                    trade.To = fiat.To;
+                    trade.Price = trade.Price * fiat.Price;
+                    trade.QuantityFrom = trade.QuantityFrom / fiat.Price;
+                    return;
+                }
+            });
 
 
             var aListTrades2 = aListTrades.GroupBy(l => l.From + "|" + l.To + "_" + l.dtTrade.ToString("_yyyy-MM-dd")).Select(l =>

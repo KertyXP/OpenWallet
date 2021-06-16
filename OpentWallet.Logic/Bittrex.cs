@@ -136,7 +136,7 @@ namespace OpentWallet.Logic
             //wc.Headers.Add("Api-Subaccount-Id", signature);
             wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
 
-            var responseBody = wc.DownloadString($"{hostname}{apiBalance}");
+            var responseBody = wc.DownloadString($"{sApi}");
 
             List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache);
 

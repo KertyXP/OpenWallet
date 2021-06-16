@@ -26,6 +26,7 @@ namespace OpentWallet.Logic
             new BinanceCalls(){Api = "/api/v3/exchangeInfo", eCall = BinanceCalls.ECalls.ExchangeInfoV3, Weight = 10, PublicApi = true},
             new BinanceCalls(){Api = "/api/v3/ticker/price", eCall = BinanceCalls.ECalls.tickerPriceV3, Weight = 2, PublicApi = true},
             new BinanceCalls(){Api = "/sapi/v1/margin/allPairs", eCall = BinanceCalls.ECalls.allPairs, Weight = 1, PublicApi = true},
+            new BinanceCalls(){Api = "/sapi/v1/lending/project/position/list", eCall = BinanceCalls.ECalls.earnings, Weight = 1},
         };
 
         private BinanceCalls GetCall(BinanceCalls.ECalls eCall) => ListCallsWeight.FirstOrDefault(bc => bc.eCall == eCall);
@@ -154,7 +155,7 @@ namespace OpentWallet.Logic
                 // nonce is a number that is always higher than the previous request number
                 var nonce = GetNonce();
 
-                string sQueryParam = $"timestamp={nonce}&{dataJsonStr}";
+                string sQueryParam = string.IsNullOrEmpty(dataJsonStr) ? $"timestamp={nonce}" : $"{dataJsonStr}&timestamp={nonce}";
                 var signature = CalcSignature($"{sQueryParam}", oConfig.SecretKey);
                 sApi += $"?{sQueryParam}&signature={signature}";
             }
@@ -187,6 +188,7 @@ namespace OpentWallet.Logic
 
         public List<GlobalBalance> GetBalance()
         {
+            var o2 = Call<BinanceAccount>(BinanceCalls.ECalls.earnings, "asset=BNB");
 
 
 

@@ -150,5 +150,38 @@ namespace OpenWallet.Common
 
             return 0;
         }
+        public static double GetCustomPrice(this List<CurrencySymbolPrice> oCurrencies, string sFrom, string sCrypto)
+        {
+            string sCryptoFrom = sFrom.ToUpper();
+            if (sCryptoFrom == sCrypto)
+                return 1;
+
+            // look in current exchange
+            var oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == sCrypto);
+
+            if (oCryptoFound != null)
+            {
+                return oCryptoFound.Price;
+            }
+
+            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "USDT");
+            var oCryptoFoundUsdtToFav = oCurrencies.FirstOrDefault(o => o.From == "USDT" && o.To == sCrypto);
+
+            if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
+            {
+                return oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+            }
+
+            oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "BTC");
+            oCryptoFoundUsdtToFav = oCurrencies.FirstOrDefault(o => o.From == "BTC" && o.To == sCrypto);
+
+            if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
+            {
+                return oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+            }
+
+            return 1;
+
+        }
     }
 }

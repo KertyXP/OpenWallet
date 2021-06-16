@@ -7,8 +7,12 @@ namespace OpenWallet.Common
     {
         [JsonProperty("configs")]
         public List<ExchangeConfig> aConfigs { get; set; }
+
         [JsonProperty("favoriteCurrency")]
-        public string FavoriteCurrency { get; set; }
+        public string FavoriteCurrency { get; set; } = "USDT";
+
+        [JsonProperty("fiatMoneys")]
+        public List<string> FiatMoneys { get; set; } = new List<string>() { "USDT", "EUR", "TUSD", "BUSD", "USD", "DECL" };
     }
 
 }

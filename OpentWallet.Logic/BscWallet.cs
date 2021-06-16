@@ -34,7 +34,7 @@ namespace OpentWallet.Logic
         }
         public List<CurrencySymbolPrice> GetCurrencies()
         {
-
+            return new List<CurrencySymbolPrice>();
             var wc = new WebClient();
             var sResult = wc.DownloadString("https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit=10000&sortBy=market_cap&sortType=desc&convert=usdt&cryptoType=tokens&tagType=all&aux=ath,atl,high24h,low24h,num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,circulating_supply,total_supply,volume_7d,volume_30d");
 
