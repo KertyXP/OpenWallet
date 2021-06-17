@@ -166,21 +166,24 @@ namespace OpenWallet.WinForm
 
             aListTrades.ForEach(trade =>
             {
-                var fiat = aFiatisation.FirstOrDefault(f => f.From == trade.From);
-                if (fiat != null)
+                var fiatFrom = aFiatisation.FirstOrDefault(f => f.From == trade.From);
+                var fiatTo = aFiatisation.FirstOrDefault(f => f.From == trade.To);
+                if (fiatFrom != null && fiatTo != null)
+                    return;
+
+                if (fiatFrom != null)
                 {
-                    trade.From = fiat.To;
-                    trade.Price = trade.Price / fiat.Price;
-                    trade.QuantityFrom = trade.QuantityFrom * fiat.Price;
+                    trade.From = fiatFrom.To;
+                    trade.Price = trade.Price / fiatFrom.Price;
+                    trade.QuantityFrom = trade.QuantityFrom * fiatFrom.Price;
                     return;
                 }
 
-                fiat = aFiatisation.FirstOrDefault(f => f.From == trade.To);
-                if (fiat != null)
+                if (fiatTo != null)
                 {
-                    trade.To = fiat.To;
-                    trade.Price = trade.Price * fiat.Price;
-                    trade.QuantityFrom = trade.QuantityFrom / fiat.Price;
+                    trade.To = fiatTo.To;
+                    trade.Price = trade.Price * fiatTo.Price;
+                    trade.QuantityTo = trade.QuantityTo * fiatTo.Price;
                     return;
                 }
             });

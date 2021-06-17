@@ -140,7 +140,7 @@ namespace OpentWallet.Logic
                 var tr = oDoc.DocumentNode.Descendants("tr").ToList();
 
 
-                foreach(var oRow in tr)
+                foreach (var oRow in tr)
                 {
 
                     var sTradeId = oRow.Descendants("a")
@@ -210,7 +210,21 @@ namespace OpentWallet.Logic
                 var aSwapRoute = oDoc.DocumentNode.Descendants("ul").Where(x => x.Attributes.Contains("id") && x.Attributes["id"].Value == "wrapperContent")
                     .ElementAtOrDefault(1);
                 if (aSwapRoute == null) // happens when the transaction fails
+                {
+                    oTrades.Add(new GlobalTrade()
+                    {
+                        InternalExchangeId = oTrade.InternalExchangeId,
+                        From = "F",
+                        To = "F",
+                        QuantityFrom = 1,
+                        QuantityTo = 1,
+                        Price = 1,
+                        Exchange = ExchangeName
+
+                    });
+
                     continue;
+                }
 
                 string sFrom = aSwapRoute
                     .Descendants("li").FirstOrDefault()

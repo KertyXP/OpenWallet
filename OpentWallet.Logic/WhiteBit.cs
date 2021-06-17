@@ -105,7 +105,7 @@ namespace OpentWallet.Logic
         public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
         {
 
-            List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache);
+            List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache ?? new List<GlobalTrade>());
 
             bool bOrderFoundInCache = false;
 
@@ -114,7 +114,7 @@ namespace OpentWallet.Logic
             {
                 if (bOrderFoundInCache == true)
                 {
-                    return aListTrades;
+                    //return aListTrades;
                 }
 
                 var oHistoryResponse = SendRequest<Dictionary<string, List<OrderHistory>>>("/api/v4/trade-account/executed-history", new PayloadOrderHistory() { Offset = nOffset, Limit = 100 });
@@ -129,7 +129,7 @@ namespace OpentWallet.Logic
                     foreach (var oOrderHistory in kvpResponse.Value)
                     {
 
-                        if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHistory.ClientOrderId))
+                        if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHistory.Id.ToString()))
                         {
                             bOrderFoundInCache = true;
                             continue;
@@ -154,7 +154,7 @@ namespace OpentWallet.Logic
                             oGlobalTrade.QuantityFrom = oOrderHistory.Amount.ToDouble();
                             oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
                         }
-                        oGlobalTrade.InternalExchangeId = oOrderHistory.ClientOrderId;
+                        oGlobalTrade.InternalExchangeId = oOrderHistory.Id.ToString();
                         oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.Time);
                         aListTrades.Add(oGlobalTrade);
 
