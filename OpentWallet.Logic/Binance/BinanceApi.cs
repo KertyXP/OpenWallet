@@ -53,7 +53,7 @@ namespace OpentWallet.Logic
         public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
-            CurrenciesToCheck = JsonConvert.DeserializeObject<CurrenciesToCheck>(oConfig.LocalParams.ToString());
+            CurrenciesToCheck = JsonConvert.DeserializeObject<CurrenciesToCheck>(oConfig.LocalParams?.ToString());
             this.oGlobalConfig = oGlobalConfig;
 
             ExchangeInfo = GetExchangeInfo();

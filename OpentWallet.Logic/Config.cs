@@ -8,6 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xamarin.Essentials;
+
 
 namespace OpentWallet.Logic
 {
@@ -16,14 +18,17 @@ namespace OpentWallet.Logic
         public static GlobalConfig oGlobalConfig = LoadConfig();
         private static GlobalConfig LoadConfig()
         {
-
+            ;
+            string sPath = Path.Combine(Xamarin.Essentials.FileSystem.AppDataDirectory, "config.json");
+            Console.WriteLine(sPath);
             GlobalConfig oConfig = null;
-            if (File.Exists("config.json"))
+            if (File.Exists(sPath))
             {
-                oConfig = JsonConvert.DeserializeObject<GlobalConfig>(File.ReadAllText("config.json"));
+                oConfig = JsonConvert.DeserializeObject<GlobalConfig>(File.ReadAllText(sPath));
             }
             else
             {
+                Directory.CreateDirectory(Path.GetDirectoryName(sPath));
                 oConfig = new GlobalConfig();
                 oConfig.aConfigs = new List<ExchangeConfig>()
                 {
@@ -35,7 +40,7 @@ namespace OpentWallet.Logic
                         AdditionnalKey = ""
                     }
                 };
-                File.WriteAllText("config.json", JsonConvert.SerializeObject(oConfig));
+                File.WriteAllText(sPath, JsonConvert.SerializeObject(oConfig));
             }
             oConfig.FiatMoneys = oConfig.FiatMoneys.GroupBy(c => c).Select(c => c.FirstOrDefault()).ToList();
             return oConfig;

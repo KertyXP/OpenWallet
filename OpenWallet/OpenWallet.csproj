@@ -19,7 +19,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\OpentWallet.Logic\OpentWallet.Logic.csproj" />
     <ProjectReference Include="..\OpenWallet.Common\OpenWallet.Common.csproj" />
     <ProjectReference Include="..\OpenWallet.Logic.Abstraction\OpenWallet.Logic.Abstraction.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\WalletPage.xaml.cs">
+      <DependentUpon>WalletPage.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>
