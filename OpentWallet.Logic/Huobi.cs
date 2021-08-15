@@ -26,8 +26,6 @@ namespace OpentWallet.Logic
         private const string HUOBI_SIGNATURE_METHOD = "HmacSHA256";
         private const int HUOBI_SIGNATURE_VERSION = 2;
 
-        private static readonly HttpClient _httpClient = new HttpClient();
-
 
         private const string GET_CONTRACT_INFO = "/api/v1/contract_contract_info";
         private const string GET_CONTRACT_INDEX = "/api/v1/contract_index";

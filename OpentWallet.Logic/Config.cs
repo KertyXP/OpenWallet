@@ -8,18 +8,17 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Xamarin.Essentials;
 
 
 namespace OpentWallet.Logic
 {
     public class Config
     {
+        private static string sRootPath = "";
         public static GlobalConfig oGlobalConfig = LoadConfig();
         private static GlobalConfig LoadConfig()
         {
-            ;
-            string sPath = Path.Combine(Xamarin.Essentials.FileSystem.AppDataDirectory, "config.json");
+            string sPath = Path.Combine(sRootPath, "config.json");
             Console.WriteLine(sPath);
             GlobalConfig oConfig = null;
             if (File.Exists(sPath))
@@ -46,6 +45,11 @@ namespace OpentWallet.Logic
             return oConfig;
         }
 
+        public static void Init(string sFolderPath)
+        {
+            sRootPath = sFolderPath;
+            //Xamarin.Essentials.FileSystem.AppDataDirectory
+        }
         public static List<IExchange> LoadExchanges()
         {
 
@@ -67,6 +71,9 @@ namespace OpentWallet.Logic
                 var oExchange = Activator.CreateInstance(typeExchange.GetType()) as IExchange;
                 if (oExchange == null)
                     continue; // re-oops
+
+                if(oConfig.IsActive == false)
+                    continue;
 
                 oExchange.Init(Config.oGlobalConfig, oConfig);
                 aExchanges.Add(oExchange);
@@ -122,9 +129,17 @@ namespace OpentWallet.Logic
                 var aBalance = oExchange.GetBalance();
                 foreach (var oBalance in aBalance)
                 {
-                    oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
-                    oBalance.FavCrypto = Config.oGlobalConfig.FavoriteCurrency;
-                    oBalance.FavCryptoValue = aAllCurrencies.GetCustomValue(oBalance, oBalance.FavCrypto);
+                        oBalance.FavCrypto = Config.oGlobalConfig.FavoriteCurrency;
+                    if(oBalance.Exchange == "BSC")
+                    {
+                        //oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
+                        oBalance.FavCryptoValue = aAllCurrencies.GetCustomValueFromBtc(oBalance, oBalance.FavCrypto);
+                    }
+                    else
+                    {
+                        oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
+                        oBalance.FavCryptoValue = aAllCurrencies.GetCustomValue(oBalance, oBalance.FavCrypto);
+                    }
                     aAll.Enqueue(oBalance);
                 }
             })).ToList();

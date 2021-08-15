@@ -10,8 +10,10 @@ namespace OpenWallet.Common
         [JsonProperty("exchangeCode")] 
         public string ExchangeCode { get; set; }
 
-        [JsonProperty("apiKey")] 
+        [JsonProperty("apiKey")]
         public string ApiKey { get; set; }
+        [JsonProperty("isActive")]
+        public bool IsActive { get; set; }
 
         [JsonProperty("esecretKey")] 
         public string SecretKey { get; set; }

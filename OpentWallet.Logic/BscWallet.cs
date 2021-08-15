@@ -34,7 +34,6 @@ namespace OpentWallet.Logic
         }
         public List<CurrencySymbolPrice> GetCurrencies()
         {
-            return new List<CurrencySymbolPrice>();
             var wc = new WebClient();
             var sResult = wc.DownloadString("https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit=10000&sortBy=market_cap&sortType=desc&convert=usdt&cryptoType=tokens&tagType=all&aux=ath,atl,high24h,low24h,num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,circulating_supply,total_supply,volume_7d,volume_30d");
 
@@ -64,6 +63,15 @@ namespace OpentWallet.Logic
         public List<GlobalBalance> GetBalance()
         {
 
+            var wcBnbBtc = new WebClient();
+
+            var sHTMLBnbBtc = wcBnbBtc.DownloadString($"https://freecurrencyrates.com/fr/convert-BNB-BTC");
+            var oDocBnbBtc = new HtmlAgilityPack.HtmlDocument();
+            oDocBnbBtc.LoadHtml(sHTMLBnbBtc);
+            //<input type="text" id="value_from" class="thin cp-input" value="10">
+            var bnbFrom = oDocBnbBtc.DocumentNode.Descendants("input").FirstOrDefault(x => x.Attributes.Contains("id") && x.Attributes["id"].Value == "value_from").Attributes["value"].Value;
+            var btcTo = oDocBnbBtc.DocumentNode.Descendants("input").FirstOrDefault(x => x.Attributes.Contains("id") && x.Attributes["id"].Value == "value_to").Attributes["value"].Value;
+            var bnbBtcPrice = bnbFrom.ToDouble() / btcTo.ToDouble();
             WebClient wc = new WebClient();
             var sHTML = wc.DownloadString($"{host}/{getAddress}/{oConfig.ApiKey}");
 
@@ -85,17 +93,27 @@ namespace OpentWallet.Logic
             {
                 Exchange = ExchangeName,
                 Crypto = "BNB",
-                Value = sBnb.ToDouble()
+                Value = sBnb.ToDouble(),
+                BitCoinValue = sBnb.ToDouble() / bnbBtcPrice
             });
             var aTokens = oDoc.DocumentNode.Descendants("li").Where(x => x.Attributes.Contains("class") && x.Attributes["class"].Value == "list-custom list-custom-BEP-20");
             foreach (var oToken in aTokens)
             {
                 var oAmount = oToken.Descendants("span").Where(x => x.Attributes.Contains("class") && x.Attributes["class"].Value.StartsWith("list-amount")).FirstOrDefault().InnerText;
+                var token = oToken.Descendants("a").FirstOrDefault().Attributes.FirstOrDefault(a => a.Name == "href").Value;
+                token = token.Split('/').LastOrDefault();
+                token = token.Split('?').FirstOrDefault();
+                var oChart = PooCoin.GetChart(token);
+                var LastPrice = oChart.Data.Ethereum.DexTrades.LastOrDefault();
+                var Amount = oAmount.Split(' ').FirstOrDefault().Replace(",", "").ToDouble();
+                var ValueInBtc = (LastPrice?.ClosePrice?.ToDouble() ?? 0) * Amount / bnbBtcPrice;
                 aBalance.Add(new GlobalBalance()
                 {
                     Exchange = ExchangeName,
                     Crypto = oAmount.Split(' ').LastOrDefault(),
-                    Value = oAmount.Split(' ').FirstOrDefault().Replace(",", "").ToDouble()
+                    CryptoId = token,
+                    Value = Amount,
+                    BitCoinValue = ValueInBtc
                 });
             }
 

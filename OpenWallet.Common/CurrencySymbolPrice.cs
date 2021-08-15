@@ -87,6 +87,27 @@ namespace OpenWallet.Common
     {
 
         public static double GetBtcValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance) => oCurrencies.GetCustomValue(globalBalance, "BTC");
+        public static double GetCustomValueFromBtc(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto)
+        {
+            string sCryptoFrom = globalBalance.Crypto.ToUpper();
+
+            if (sCryptoFrom == sCrypto)
+                return globalBalance.Value;
+
+            if (globalBalance.BitCoinValue == 0)
+                return 0;
+
+
+            var oBtcToFav = oCurrencies.FirstOrDefault(o => (o.From == "BTC" || o.From == "WBTC") && o.To == sCrypto);
+
+            if (oBtcToFav != null)
+            {
+                return globalBalance.BitCoinValue * oBtcToFav.Price;
+            }
+
+            return 0;
+
+        }
         public static double GetCustomValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto)
         {
             string sCryptoFrom = globalBalance.Crypto.ToUpper();

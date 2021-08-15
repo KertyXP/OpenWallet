@@ -28,6 +28,8 @@ namespace OpenWallet.WinForm
         private async void Form1_Load(object sender, EventArgs e)
         {
 
+            var test = new PooCoin();
+            Config.Init("");
             var aExchanges = Config.LoadExchanges();
 
             List<CurrencySymbolPrice> aAllCurrencies = Config.GetCurrencries(aExchanges);
