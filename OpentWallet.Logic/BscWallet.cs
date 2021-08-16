@@ -167,6 +167,7 @@ namespace OpentWallet.Logic
                         .LastOrDefault())
                         .FirstOrDefault();
 
+
                     if (sTradeId == null)
                         continue;
 
@@ -195,8 +196,11 @@ namespace OpentWallet.Logic
                 var oCache = aCache.FirstOrDefault(c => c.InternalExchangeId == oTrade.InternalExchangeId);
                 if (oCache != null)
                 {
-                    oTrades.Add(oCache);
-                    continue;
+                    if(oCache.dtTrade != DateTime.MinValue)
+                    {
+                        oTrades.Add(oCache);
+                        continue;
+                    }
                 }
                 string sHTML = string.Empty;
                 while (true)
@@ -220,6 +224,7 @@ namespace OpentWallet.Logic
 
                 var oDoc = new HtmlAgilityPack.HtmlDocument();
                 oDoc.LoadHtml(sHTML);
+
 
                 var aDivs = oDoc.DocumentNode
                     .Descendants("div").Where(d => d.Attributes.Contains("class") && d.Attributes["class"].Value.StartsWith("row align-items-center"))
@@ -256,6 +261,32 @@ namespace OpentWallet.Logic
                 if (sFrom == sTo) // Stack, ignore
                     continue;
 
+
+
+                var sTokenId = oDoc.DocumentNode.Descendants("a")
+                    .Where(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true)
+                    .Select(a => a.Attributes["href"].Value.Split('/')
+                    .LastOrDefault())
+                    .FirstOrDefault()
+                    .Split('?')
+                    .FirstOrDefault();
+                if (string.IsNullOrEmpty(sTokenId)) // happens when the transaction fails
+                {
+                    oTrades.Add(new GlobalTrade()
+                    {
+                        InternalExchangeId = oTrade.InternalExchangeId,
+                        From = "F",
+                        To = "F",
+                        QuantityFrom = 1,
+                        QuantityTo = 1,
+                        Price = 1,
+                        Exchange = ExchangeName
+
+                    });
+
+                    continue;
+                }
+
                 string sFromValue = Regex.Replace(aSwapRoute.InnerText, ".*For ([0-9,.]*).*[ ]+" + sFrom.Replace("(", "\\(").Replace(")", "\\)") + ".*", "$1");
                 string sToValue = Regex.Replace(aSwapRoute.InnerText, ".*For ([0-9,.]*)[ ]+.*" + sTo.Replace("(", "\\(").Replace(")", "\\)") + ".*", "$1");
 
@@ -266,6 +297,7 @@ namespace OpentWallet.Logic
                 string sCryptoTo = Regex.Replace(sTo, ".*\\((.*)\\).*", "$1");
 
                 var oGlobalTrade = new GlobalTrade();
+                oGlobalTrade.CryptoId = sTokenId;
                 oGlobalTrade.From = sCryptoFrom;
                 oGlobalTrade.To = sCryptoTo;
                 oGlobalTrade.QuantityFrom = dFrom;
