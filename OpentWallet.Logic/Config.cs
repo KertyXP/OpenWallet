@@ -227,7 +227,8 @@ namespace OpentWallet.Logic
                 var one = l.FirstOrDefault();
                 var oGlobalTrade = new GlobalTrade();
                 oGlobalTrade.Exchange = one.Exchange;
-                oGlobalTrade.CryptoId = one.CryptoId;
+                oGlobalTrade.CryptoFromId = one.CryptoFromId;
+                oGlobalTrade.CryptoToId = one.CryptoToId;
                 oGlobalTrade.From = one.From;
                 oGlobalTrade.To = one.To;
                 oGlobalTrade.QuantityFrom = l.Sum(m => m.QuantityFrom);
@@ -250,7 +251,8 @@ namespace OpentWallet.Logic
                 var one = l.FirstOrDefault();
                 var oGlobalTrade = new GlobalTrade();
                 oGlobalTrade.Exchange = one.Exchange;
-                oGlobalTrade.CryptoId = one.CryptoId;
+                oGlobalTrade.CryptoFromId = one.CryptoFromId;
+                oGlobalTrade.CryptoToId = one.CryptoToId;
                 oGlobalTrade.From = one.From;
                 oGlobalTrade.To = one.To;
                 oGlobalTrade.QuantityFrom = l.Sum(m => m.QuantityFrom);

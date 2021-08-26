@@ -83,7 +83,7 @@ namespace OpenWallet.WinForm
                     var trade = dgv_trade_day[0, i].Value as GlobalTrade;
                     if(trade != null)
                     {
-                        if(trade.From == oGlobalBalance.Crypto || trade.To == oGlobalBalance.Crypto || trade.CryptoId == oGlobalBalance.CryptoId)
+                        if(trade.CryptoFromId == oGlobalBalance.CryptoId || trade.CryptoToId == oGlobalBalance.CryptoId)
                         {
                             dgv_trade_day.Rows[i].Visible = true;
                         }

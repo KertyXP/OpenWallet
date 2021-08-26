@@ -242,35 +242,55 @@ namespace OpentWallet.Logic
                         QuantityFrom = 1,
                         QuantityTo = 1,
                         Price = 1,
-                        Exchange = ExchangeName
+                        Exchange = ExchangeName,
+                        dtTrade = oTrade.dtTrade
+
 
                     });
 
                     continue;
                 }
 
-                string sFrom = aSwapRoute
+                var tokenFrom = aSwapRoute
                     .Descendants("li").FirstOrDefault()
-                    .Descendants("a").LastOrDefault(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true)
-                    .InnerText;
-                string sTo = aSwapRoute
+                    .Descendants("a").LastOrDefault(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true);
+                var tokenTo = aSwapRoute
                     .Descendants("li").LastOrDefault()
-                    .Descendants("a").LastOrDefault(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true)
-                    .InnerText;
+                    .Descendants("a").LastOrDefault(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true);
 
-                if (sFrom == sTo) // Stack, ignore
+                    var sFrom = tokenFrom.InnerText;
+                    var sTo = tokenTo.InnerText;
+
+                if (tokenFrom.InnerText == tokenTo.InnerText) // Stack, ignore
+                {
+
+                    oTrades.Add(new GlobalTrade()
+                    {
+                        InternalExchangeId = oTrade.InternalExchangeId,
+                        From = sFrom,
+                        To = sTo,
+                        QuantityFrom = 0,
+                        QuantityTo = 0,
+                        Price = 1,
+                        Exchange = ExchangeName,
+                        dtTrade = oTrade.dtTrade
+
+                    });
                     continue;
+                }
 
 
 
-                var sTokenId = oDoc.DocumentNode.Descendants("a")
-                    .Where(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true)
-                    .Select(a => a.Attributes["href"].Value.Split('/')
-                    .LastOrDefault())
-                    .FirstOrDefault()
+                var sTokenIdFrom = tokenFrom.Attributes["href"].Value.Split('/')
+                    .LastOrDefault()
                     .Split('?')
                     .FirstOrDefault();
-                if (string.IsNullOrEmpty(sTokenId)) // happens when the transaction fails
+                var sTokenIdTo = tokenTo.Attributes["href"].Value.Split('/')
+                    .LastOrDefault()
+                    .Split('?')
+                    .FirstOrDefault();
+
+                if (string.IsNullOrEmpty(sTokenIdFrom)) // happens when the transaction fails
                 {
                     oTrades.Add(new GlobalTrade()
                     {
@@ -297,7 +317,8 @@ namespace OpentWallet.Logic
                 string sCryptoTo = Regex.Replace(sTo, ".*\\((.*)\\).*", "$1");
 
                 var oGlobalTrade = new GlobalTrade();
-                oGlobalTrade.CryptoId = sTokenId;
+                oGlobalTrade.CryptoFromId = sTokenIdFrom;
+                oGlobalTrade.CryptoToId = sTokenIdTo;
                 oGlobalTrade.From = sCryptoFrom;
                 oGlobalTrade.To = sCryptoTo;
                 oGlobalTrade.QuantityFrom = dFrom;

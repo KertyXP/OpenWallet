@@ -16,7 +16,8 @@ namespace OpenWallet.Common
             To = to;
         }
 
-        public string CryptoId { get; set; }
+        public string CryptoFromId { get; set; }
+        public string CryptoToId { get; set; }
         public string From { get; set; }
         public string To { get; set; }
         public string Couple => string.Compare(From, To) > 0 ? $"{From}_{To}" : $"{To}_{From}";
