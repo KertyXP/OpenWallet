@@ -109,7 +109,7 @@ namespace OpentWallet.Logic.Binance
         public string TickSize { get; set; }
 
         [JsonProperty("multiplierUp", NullValueHandling = NullValueHandling.Ignore)]
-        public long? MultiplierUp { get; set; }
+        public double? MultiplierUp { get; set; }
 
         [JsonProperty("multiplierDown", NullValueHandling = NullValueHandling.Ignore)]
         public string MultiplierDown { get; set; }

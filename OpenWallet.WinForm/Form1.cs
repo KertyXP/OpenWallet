@@ -28,24 +28,23 @@ namespace OpenWallet.WinForm
         private async void Form1_Load(object sender, EventArgs e)
         {
 
-            var test = new PooCoin();
             Config.Init("");
             var aExchanges = Config.LoadExchanges();
 
             List<CurrencySymbolPrice> aAllCurrencies = Config.GetCurrencries(aExchanges);
 
-            var aAll = await Config.GetBalances(aExchanges, aAllCurrencies);
+            List<GlobalBalance> aAllBalances = await Config.GetBalances(aExchanges, aAllCurrencies);
 
-            InsertCurrentBalanceInGrid(aAll);
+            InsertCurrentBalanceInGrid(aAllBalances);
 
 
-            List<GlobalTrade> aListTrades = await Config.LoadTrades(aExchanges, aAllCurrencies);
+            List<GlobalTrade> aListTrades = await Config.LoadTrades(aExchanges, aAllBalances, aAllCurrencies);
 
 
 
             Config.ConvertTradesToDailyTrades(aListTrades).ForEach(t =>
             {
-                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.dtTrade.ToString("yyyy-MM-dd"));
+                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.dtTrade.ToString("yyyy-MM-dd"), t.QuantityBack);
             });
 
 
@@ -66,8 +65,8 @@ namespace OpenWallet.WinForm
             var dTotalSumBtc = aAll.Sum(a => a.BitCoinValue);
             var dTotalSum = aAll.Sum(a => a.FavCryptoValue);
 
-            dgv_Balance.Columns[4].HeaderText = Config.oGlobalConfig.FavoriteCurrency;
-            dgv_Balance.Rows.Insert(0, "TOTAL", Config.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSumBtc, dTotalSum);
+            dgv_Balance.Columns[5].HeaderText = Config.oGlobalConfig.FavoriteCurrency;
+            dgv_Balance.Rows.Insert(0, null, "TOTAL", Config.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSumBtc, dTotalSum);
         }
 
         private void dataGridView1_SelectionChanged(object sender, EventArgs e)
@@ -83,7 +82,8 @@ namespace OpenWallet.WinForm
                     var trade = dgv_trade_day[0, i].Value as GlobalTrade;
                     if(trade != null)
                     {
-                        if(trade.CryptoFromId == oGlobalBalance.CryptoId || trade.CryptoToId == oGlobalBalance.CryptoId)
+                        if((string.IsNullOrEmpty(oGlobalBalance.CryptoId) == false && (trade.CryptoFromId == oGlobalBalance.CryptoId || trade.CryptoToId == oGlobalBalance.CryptoId))
+                            || trade.To == oGlobalBalance.Crypto || trade.From == oGlobalBalance.Crypto)
                         {
                             dgv_trade_day.Rows[i].Visible = true;
                         }

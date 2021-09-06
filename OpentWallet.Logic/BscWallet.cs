@@ -18,6 +18,7 @@ namespace OpentWallet.Logic
 {
     public class BscWallet : IExchange
     {
+        ExchangeConfig IExchange.oConfig { get; set; }
         private ExchangeConfig oConfig;
         private GlobalConfig oGlobalConfig;
 
@@ -34,23 +35,24 @@ namespace OpentWallet.Logic
         }
         public List<CurrencySymbolPrice> GetCurrencies()
         {
-            var wc = new WebClient();
-            var sResult = wc.DownloadString("https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit=10000&sortBy=market_cap&sortType=desc&convert=usdt&cryptoType=tokens&tagType=all&aux=ath,atl,high24h,low24h,num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,circulating_supply,total_supply,volume_7d,volume_30d");
+            return new List<CurrencySymbolPrice>();
+            //var wc = new WebClient();
+            //var sResult = wc.DownloadString("https://api.coinmarketcap.com/data-api/v3/cryptocurrency/listing?start=1&limit=10000&sortBy=market_cap&sortType=desc&convert=usdt&cryptoType=tokens&tagType=all&aux=ath,atl,high24h,low24h,num_market_pairs,cmc_rank,date_added,tags,platform,max_supply,circulating_supply,total_supply,volume_7d,volume_30d");
 
-            var oBcd = JsonConvert.DeserializeObject<BscTicker>(sResult);
+            //var oBcd = JsonConvert.DeserializeObject<BscTicker>(sResult);
 
-            return oBcd.Data.CryptoCurrencyList.Select(c =>
-            {
+            //return oBcd.Data.CryptoCurrencyList.Select(c =>
+            //{
 
-                return new List<CurrencySymbolPrice>()
-                    {
-                        new CurrencySymbolPrice(c.Symbol, c.Quotes.FirstOrDefault().Name.ToUpper(), c.Quotes.FirstOrDefault().Price, ExchangeName),
-                        new CurrencySymbolPriceReverted(c.Symbol, c.Quotes.FirstOrDefault().Name.ToUpper(), c.Quotes.FirstOrDefault().Price, ExchangeName),
-                    };
-            })
-            .SelectMany(o => o)
-            .Where(o => o != null)
-            .ToList();
+            //    return new List<CurrencySymbolPrice>()
+            //        {
+            //            new CurrencySymbolPrice(c.Symbol, c.Quotes.FirstOrDefault().Name.ToUpper(), c.Quotes.FirstOrDefault().Price, ExchangeName),
+            //            new CurrencySymbolPriceReverted(c.Symbol, c.Quotes.FirstOrDefault().Name.ToUpper(), c.Quotes.FirstOrDefault().Price, ExchangeName),
+            //        };
+            //})
+            //.SelectMany(o => o)
+            //.Where(o => o != null)
+            //.ToList();
         }
 
         public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
@@ -133,7 +135,7 @@ namespace OpentWallet.Logic
             return aBalance;
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
             var oTempTrades = new List<GlobalTrade>();
             var oTrades = new List<GlobalTrade>();

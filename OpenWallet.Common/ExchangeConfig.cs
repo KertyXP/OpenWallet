@@ -21,7 +21,10 @@ namespace OpenWallet.Common
         [JsonProperty("additionnalKey")] 
         public string AdditionnalKey { get; set; }
 
-        [JsonProperty("localParams")] 
+        [JsonProperty("localParams")]
         public JToken LocalParams { get; set; }
+
+        [JsonProperty("currenciesToIgnore")]
+        public List<string> CurrenciesToIgnore { get; set; }
     }
 }

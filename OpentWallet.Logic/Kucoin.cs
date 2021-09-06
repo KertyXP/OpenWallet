@@ -18,6 +18,7 @@ namespace OpentWallet.Logic
     {
         private ExchangeConfig oConfig;
         private GlobalConfig oGlobalConfig;
+        ExchangeConfig IExchange.oConfig { get; set; }
 
         private const string apiVersion = "2"; // put here your public key
 
@@ -138,7 +139,7 @@ namespace OpentWallet.Logic
             return milliseconds.ToString();
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
             return new List<GlobalTrade>();
         }

@@ -15,6 +15,7 @@ namespace OpenWallet.Common
         public string InternalExchangeId { get; set; }
         public double QuantityFrom { get; set; }
         public double QuantityTo { get; set; }
+        public double QuantityBack { get; set; }
         public DateTime dtTrade { get; set; }
 
 

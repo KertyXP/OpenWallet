@@ -75,6 +75,7 @@ namespace OpentWallet.Logic
                 if(oConfig.IsActive == false)
                     continue;
 
+                oExchange.oConfig = oConfig;
                 oExchange.Init(Config.oGlobalConfig, oConfig);
                 aExchanges.Add(oExchange);
             }
@@ -129,6 +130,9 @@ namespace OpentWallet.Logic
                 var aBalance = oExchange.GetBalance();
                 foreach (var oBalance in aBalance)
                 {
+                    if (oExchange.oConfig.CurrenciesToIgnore?.Any(c => c == oBalance.Crypto) == true)
+                        continue;
+
                         oBalance.FavCrypto = Config.oGlobalConfig.FavoriteCurrency;
                     if(oBalance.Exchange == "BSC")
                     {
@@ -152,7 +156,7 @@ namespace OpentWallet.Logic
             return aAll.ToList();
         }
 
-        public static async Task<List<GlobalTrade>> LoadTrades(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
+        public static async Task<List<GlobalTrade>> LoadTrades(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
         {
 
             List<CurrencySymbolPrice> aFiatisation = Config.LoadFiatisation(aAllCurrencies);
@@ -162,7 +166,7 @@ namespace OpentWallet.Logic
                 string sFileName = "Trades_" + oExchange.ExchangeName + ".json";
 
                 var aTrades = File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sFileName)) : new List<GlobalTrade>();
-                return Task.Run(() => oExchange.GetTradeHistory(aTrades));
+                return Task.Run(() => oExchange.GetTradeHistory(aTrades, aAllBalances));
             }).ToList();
             List<GlobalTrade> aListTrades = new List<GlobalTrade>();
 
@@ -174,7 +178,8 @@ namespace OpentWallet.Logic
                     if (aBalance.Any() == false)
                         continue;
 
-                    File.WriteAllText("Trades_" + aBalance?.FirstOrDefault()?.Exchange + ".json", JsonConvert.SerializeObject(aBalance));
+                    var sJson = JsonConvert.SerializeObject(aBalance);
+                    File.WriteAllText("Trades_" + aBalance?.FirstOrDefault()?.Exchange + ".json", sJson);
 
                     aListTrades.AddRange(aBalance);
                 }
@@ -184,10 +189,17 @@ namespace OpentWallet.Logic
                 }
             }
 
+            aListTrades = aListTrades.OrderByDescending(t => t.dtTrade).ToList();
+
 
             aListTrades.ForEach(trade =>
             {
                 FiatiseOneTrade(trade, aFiatisation);
+            });
+
+            aListTrades.ForEach(trade =>
+            {
+                CalculGainBack(trade, aAllCurrencies);
             });
 
             return aListTrades;
@@ -195,6 +207,11 @@ namespace OpentWallet.Logic
 
         }
 
+        private static void CalculGainBack(GlobalTrade oTrade, List<CurrencySymbolPrice> aAllCurrencies)
+        {
+            var oCurrencyCouple = aAllCurrencies.FirstOrDefault(c => c.From == oTrade.To && c.To == oTrade.From && c.Exchange == oTrade.Exchange);
+            oTrade.QuantityBack = oTrade.QuantityTo * oCurrencyCouple?.Price ?? 0;
+        }
         private static void FiatiseOneTrade(GlobalTrade oTrade, List<CurrencySymbolPrice> aFiatisation)
         {
             var fiatFrom = aFiatisation.FirstOrDefault(f => f.From == oTrade.From);
@@ -227,6 +244,7 @@ namespace OpentWallet.Logic
                 var one = l.FirstOrDefault();
                 var oGlobalTrade = new GlobalTrade();
                 oGlobalTrade.Exchange = one.Exchange;
+                oGlobalTrade.QuantityBack = one.QuantityBack;
                 oGlobalTrade.CryptoFromId = one.CryptoFromId;
                 oGlobalTrade.CryptoToId = one.CryptoToId;
                 oGlobalTrade.From = one.From;
@@ -252,6 +270,7 @@ namespace OpentWallet.Logic
                 var oGlobalTrade = new GlobalTrade();
                 oGlobalTrade.Exchange = one.Exchange;
                 oGlobalTrade.CryptoFromId = one.CryptoFromId;
+                oGlobalTrade.QuantityBack = one.QuantityBack;
                 oGlobalTrade.CryptoToId = one.CryptoToId;
                 oGlobalTrade.From = one.From;
                 oGlobalTrade.To = one.To;

@@ -16,6 +16,7 @@ namespace OpentWallet.Logic
 {
     public class Bittrex : IExchange
     {
+        ExchangeConfig IExchange.oConfig { get; set; }
         private ExchangeConfig oConfig;
         private GlobalConfig oGlobalConfig;
 
@@ -117,7 +118,7 @@ namespace OpentWallet.Logic
             return oGlobalBalance;
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
             string sApi = $"{hostname}{apiOrderHistory}";
             var nonce = GetNonce();

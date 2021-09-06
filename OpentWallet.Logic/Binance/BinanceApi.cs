@@ -18,6 +18,7 @@ namespace OpentWallet.Logic
 
     public class BinanceApi : IExchange
     {
+        ExchangeConfig IExchange.oConfig { get; set; }
 
         private static List<BinanceCalls> ListCallsWeight = new List<BinanceCalls>()
         {
@@ -132,6 +133,8 @@ namespace OpentWallet.Logic
 
             while (true)
             {
+                if (Api == BinanceCalls.ECalls.ExchangeInfoV3)
+                    break;
 
                 if (LimitCalls.GetLimits(ExchangeInfo).Any(l =>
                 {
@@ -188,7 +191,7 @@ namespace OpentWallet.Logic
 
         public List<GlobalBalance> GetBalance()
         {
-            var o2 = Call<BinanceAccount>(BinanceCalls.ECalls.earnings, "asset=BNB");
+            //var o2 = Call<BinanceAccount>(BinanceCalls.ECalls.earnings, "asset=BNB");
 
 
 
@@ -244,136 +247,89 @@ namespace OpentWallet.Logic
             return milliseconds.ToString();
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
-            return aCache;
-            var aListTrades = new List<GlobalTrade>();
+            //return aCache;
+            var aListTrades = new List<GlobalTrade>(aCache);
 
             //if (_oLastBalance == null)
             //{
             //    return new List<GlobalTrade>();
             //}
 
-            foreach (var oPair in ExchangeInfo.Symbols)
+            // pair from cache
+            var aSymbols = aCache.GroupBy(c => c.Couple).Select(c => c.FirstOrDefault()).ToList();
+            foreach (var oPair in aSymbols)
             {
-                if (CurrenciesToCheck.aCurrenciesToCheck.Any(ctc => ctc == oPair.BaseAsset || ctc == oPair.QuoteAsset))
+                var aTrades = GetTradesFromCurrencies(oPair.From, oPair.To);
+                aListTrades.AddRange(aTrades);
+            }
+
+            var aAllSymbols = ExchangeInfo.Symbols.OrderBy(s => s.SymbolSymbol).ToList();
+
+            // pair from current balance
+            foreach (var oPair in aAllSymbols)
+            {
+                if(oPair.BaseAsset == "THETA" || oPair.QuoteAsset == "THETA")
                 {
-                    var oTradeList = Call<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, "symbol=" + oPair.SymbolSymbol);
-                    foreach(var oTradeBinance in oTradeList)
+
+                    if (aAllBalances.Any(ctc => ctc.Crypto == oPair.BaseAsset || ctc.Crypto == oPair.QuoteAsset))
                     {
-
-                        var oGlobalTrade = new GlobalTrade();
-                        oGlobalTrade.Exchange = ExchangeName;
-                        if (oTradeBinance.IsBuyer)
-                        {
-                            oGlobalTrade.From = oPair.QuoteAsset;
-                            oGlobalTrade.To = oPair.BaseAsset;
-                            oGlobalTrade.Price = 1 / oTradeBinance.Price.ToDouble();
-                            oGlobalTrade.QuantityTo = oTradeBinance.Qty.ToDouble();
-                            oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
-                        }
-                        else
-                        {
-
-                            oGlobalTrade.From = oPair.BaseAsset;
-                            oGlobalTrade.To = oPair.QuoteAsset;
-                            oGlobalTrade.Price = oTradeBinance.Price.ToDouble();
-                            oGlobalTrade.QuantityFrom = oTradeBinance.Qty.ToDouble();
-                            oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
-                        }
-                        oGlobalTrade.InternalExchangeId = oTradeBinance.Id.ToString();
-                        oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oTradeBinance.Time / 1000);
-                        aListTrades.Add(oGlobalTrade);
+                        var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
+                        aListTrades.AddRange(aTrades.Where(t => aTrades.Any(t2 => t2.InternalExchangeId == t.InternalExchangeId) == false));
 
                     }
                 }
             }
-            //foreach (var oBalance in _oLastBalance.Balances)
+
+            // pair defined in config
+            //foreach (var oPair in ExchangeInfo.Symbols)
             //{
-
-
-            //    var cur = CurrencySymbol.AutoDiscoverCurrencySymbol(oBalance.Asset);
-            //    if (cur == null)
-            //        continue; // oops
-
-
-            //    var nonce = GetNonce();
-
-
-            //    var dataJsonStr = string.Empty;
-
-            //    string sQueryParam = $"timestamp={nonce}";
-
-            //    var signature = CalcSignature($"{sQueryParam}{dataJsonStr}", oConfig.SecretKey);
-
-            //    string sApi = $"{hostname}{apiOrdersHistory}?{sQueryParam}&signature={signature}";
-
-
-            //    WebClient wc = new WebClient();
-            //    wc.Headers.Add("X-MBX-APIKEY", oConfig.ApiKey);
-            //    //wc.Headers.Add("Api-Subaccount-Id", signature);
-            //    wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-            //    string responseBody = string.Empty;
-            //    try
+            //    if (CurrenciesToCheck.aCurrenciesToCheck.Any(ctc => ctc == oPair.BaseAsset || ctc == oPair.QuoteAsset))
             //    {
+            //        var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
+            //            aListTrades.AddRange(aTrades);
 
-            //        responseBody = wc.DownloadString($"{sApi}");
-
-
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        continue;
-            //    }
-            //    try
-            //    {
-
-            //        var oBinanceTrades = JsonConvert.DeserializeObject<List<BinanceTrades>>(responseBody);
-
-            //        List<GlobalTrade> oGlobalBalance = oBinanceTrades.Select(oOrderHistory =>
-            //                {
-
-            //                    var oGlobalTrade = new GlobalTrade();
-            //                    //oGlobalTrade.Exchange = ExchangeName;
-            //                    //if (oOrderHistory.IsBuyer == true)
-            //                    //{
-            //                    //    oGlobalTrade.From = cur.To;
-            //                    //    oGlobalTrade.To = cur.From;
-            //                    //    oGlobalTrade.Price = 1 / oOrderHistory.Price.ToDouble();
-            //                    //    oGlobalTrade.QuantityTo = oOrderHistory.Amount.ToDouble();
-            //                    //    oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
-            //                    //}
-            //                    //else
-            //                    //{
-
-            //                    //    oGlobalTrade.From = cur.From;
-            //                    //    oGlobalTrade.To = cur.To;
-            //                    //    oGlobalTrade.Price = oOrderHistory.Price.ToDouble();
-            //                    //    oGlobalTrade.QuantityFrom = oOrderHistory.Amount.ToDouble();
-            //                    //    oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
-            //                    //}
-            //                    //oGlobalTrade.InternalExchangeId = oOrderHistory.ClientOrderId;
-            //                    //oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.Time);
-            //                    //aListTrades.Add(oGlobalTrade);
-            //                    return oGlobalTrade;
-            //                }
-            //            )
-            //            .Where(gb => gb != null)
-            //            //.Where(gb => gb.Value > 0)
-            //            .ToList();
-
-            //        return oGlobalBalance;
-
-            //    }
-            //    catch (Exception ex)
-            //    {
-            //        return new List<GlobalTrade>();
             //    }
             //}
 
             return aListTrades;
         }
 
+        private List<GlobalTrade> GetTradesFromCurrencies(string sFrom, string sTo)
+        {
+            var aListTrades = new List<GlobalTrade>();
+            var oTradeList = Call<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, $"symbol={sFrom}{sTo}");// + oPair.SymbolSymbol);
+            foreach (var oTradeBinance in oTradeList)
+            {
+
+                var oGlobalTrade = new GlobalTrade();
+                oGlobalTrade.Exchange = ExchangeName;
+                if (oTradeBinance.IsBuyer)
+                {
+                    oGlobalTrade.From = sTo;
+                    oGlobalTrade.To = sFrom;
+                    oGlobalTrade.Price = 1 / oTradeBinance.Price.ToDouble();
+                    oGlobalTrade.QuantityTo = oTradeBinance.Qty.ToDouble();
+                    oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
+                }
+                else
+                {
+
+                    oGlobalTrade.From = sFrom;
+                    oGlobalTrade.To = sTo;
+                    oGlobalTrade.Price = oTradeBinance.Price.ToDouble();
+                    oGlobalTrade.QuantityFrom = oTradeBinance.Qty.ToDouble();
+                    oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
+                }
+                oGlobalTrade.InternalExchangeId = oTradeBinance.Id.ToString();
+                oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oTradeBinance.Time / 1000);
+                aListTrades.Add(oGlobalTrade);
+
+            }
+
+            return aListTrades;
+        }
         private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch

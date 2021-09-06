@@ -9,9 +9,11 @@ namespace OpenWallet.Logic.Abstraction
     {
         string ExchangeCode { get; }
         string ExchangeName { get; }
+        ExchangeConfig oConfig { get; set; }
         List<GlobalBalance> GetBalance();
         List<CurrencySymbolPrice> GetCurrencies();
         void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig);
-        List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache);
+        List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances);
     }
+
 }

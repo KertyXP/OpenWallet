@@ -17,6 +17,7 @@ namespace OpentWallet.Logic
 {
     public partial class WhiteBit : IExchange
     {
+        ExchangeConfig IExchange.oConfig { get; set; }
         private ExchangeConfig oConfig;
         private GlobalConfig oGlobalConfig;
 
@@ -102,7 +103,7 @@ namespace OpentWallet.Logic
 
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
 
             List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache ?? new List<GlobalTrade>());

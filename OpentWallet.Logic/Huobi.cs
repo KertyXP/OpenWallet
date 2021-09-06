@@ -19,6 +19,7 @@ namespace OpentWallet.Logic
     {
         private ExchangeConfig oConfig;
         private GlobalConfig oGlobalConfig;
+        ExchangeConfig IExchange.oConfig { get; set; }
 
         private readonly string hostname = "https://api.huobi.pro";
         private readonly string HUOBI_HOST = "api.huobi.pro";
@@ -324,7 +325,7 @@ namespace OpentWallet.Logic
             return UrlEncode(sign);
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
             return new List<GlobalTrade>();
         }

@@ -26,6 +26,8 @@ namespace OpentWallet.Logic
         public string ExchangeCode => "Ascendex";
         public string ExchangeName => "Ascendex";
 
+        ExchangeConfig IExchange.oConfig { get; set; }
+
         public Ascendex()
         {
             client = new WebClient();
@@ -126,7 +128,7 @@ namespace OpentWallet.Logic
 
 
         }
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache)
+        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
             string sApi = $"/{GetAccount().Data.AccountGroup}/api/pro/v2/order/hist";
 
