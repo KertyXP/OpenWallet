@@ -6,21 +6,25 @@ namespace OpenWallet.Common
 
     public class CurrencySymbol
     {
+        public string Couple { get; internal set; }
+
         public CurrencySymbol()
         {
 
         }
-        public CurrencySymbol(string from, string to)
+        public CurrencySymbol(string from, string to, string couple)
         {
             From = from;
             To = to;
+            Couple = couple;
         }
+
+
 
         public string CryptoFromId { get; set; }
         public string CryptoToId { get; set; }
         public string From { get; set; }
         public string To { get; set; }
-        public string Couple => string.Compare(From, To) > 0 ? $"{From}_{To}" : $"{To}_{From}";
 
         private static List<string> aSymbols = new List<string>(){
             "BUSDS", "USDC", "TUSD", "USDT", "BUSD", "BTC", "ETH", "BNB", "PAX"};
@@ -28,18 +32,18 @@ namespace OpenWallet.Common
         {
             if (sSymbolToParse.Length == 6)
             {
-                return new CurrencySymbol(sSymbolToParse.Substring(0, 3), sSymbolToParse.Substring(3, 3));
+                return new CurrencySymbol(sSymbolToParse.Substring(0, 3), sSymbolToParse.Substring(3, 3), sSymbolToParse);
             }
             foreach (var sSymbol in aSymbols)
             {
                     var l = sSymbol.Length;
                 if (sSymbolToParse.EndsWith(sSymbol))
                 {
-                    return new CurrencySymbol(sSymbolToParse.Substring(0, sSymbolToParse.Length - l), sSymbolToParse.Substring(sSymbolToParse.Length - l, l));
+                    return new CurrencySymbol(sSymbolToParse.Substring(0, sSymbolToParse.Length - l), sSymbolToParse.Substring(sSymbolToParse.Length - l, l), sSymbolToParse);
                 }
                 if(sSymbolToParse.StartsWith(sSymbol))
                 {
-                    return new CurrencySymbol(sSymbolToParse.Substring(0, l), sSymbolToParse.Substring(l));
+                    return new CurrencySymbol(sSymbolToParse.Substring(0, l), sSymbolToParse.Substring(l), sSymbolToParse);
                 }
             }
             return null;
@@ -52,7 +56,7 @@ namespace OpenWallet.Common
         {
 
         }
-        public CurrencySymbolExchange(string from, string to, string exchange) : base(from, to)
+        public CurrencySymbolExchange(string from, string to, string couple, string exchange) : base(from, to, couple)
         {
             Exchange = exchange;
         }
@@ -68,7 +72,7 @@ namespace OpenWallet.Common
         {
 
         }
-        public CurrencySymbolPrice(string from, string to, double price, string exchange) : base(from, to, exchange)
+        public CurrencySymbolPrice(string from, string to, double price, string couple, string exchange) : base(from, to, couple, exchange)
         {
             Price = price;
         }
@@ -80,7 +84,7 @@ namespace OpenWallet.Common
 
     public class CurrencySymbolPriceReverted : CurrencySymbolPrice
     {
-        public CurrencySymbolPriceReverted(string from, string to, double price, string exchange) : base(to, from, 1 / price, exchange)
+        public CurrencySymbolPriceReverted(string from, string to, double price, string couple, string exchange) : base(to, from, 1 / price, couple, exchange)
         {
         }
     }

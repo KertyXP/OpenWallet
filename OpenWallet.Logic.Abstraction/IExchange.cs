@@ -14,6 +14,7 @@ namespace OpenWallet.Logic.Abstraction
         List<CurrencySymbolPrice> GetCurrencies();
         void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig);
         List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances);
+        string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy);
     }
 
 }

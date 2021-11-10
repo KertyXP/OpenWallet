@@ -49,8 +49,8 @@ namespace OpentWallet.Logic
                 double Price = kvp.Value.LastPrice.ToDouble();
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, ExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, ExchangeName),
+                    new CurrencySymbolPrice(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, kvp.Key, ExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, kvp.Key, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -123,7 +123,7 @@ namespace OpentWallet.Logic
                     break;
                 foreach (var kvpResponse in oHistoryResponse)
                 {
-                    var cur = new CurrencySymbolExchange(kvpResponse.Key.Split('_').FirstOrDefault(), kvpResponse.Key.Split('_').Last(), ExchangeName);
+                    var cur = new CurrencySymbolExchange(kvpResponse.Key.Split('_').FirstOrDefault(), kvpResponse.Key.Split('_').Last(), kvpResponse.Key, ExchangeName);
                     if (cur == null)
                         continue; // oops
 
@@ -336,6 +336,11 @@ namespace OpentWallet.Logic
                 .TotalMilliseconds;
 
             return milliseconds.ToString();
+        }
+
+        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        {
+            throw new NotImplementedException();
         }
     }
 }

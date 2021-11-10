@@ -28,6 +28,7 @@ namespace OpentWallet.Logic
             new BinanceCalls(){Api = "/api/v3/ticker/price", eCall = BinanceCalls.ECalls.tickerPriceV3, Weight = 2, PublicApi = true},
             new BinanceCalls(){Api = "/sapi/v1/margin/allPairs", eCall = BinanceCalls.ECalls.allPairs, Weight = 1, PublicApi = true},
             new BinanceCalls(){Api = "/sapi/v1/lending/project/position/list", eCall = BinanceCalls.ECalls.earnings, Weight = 1},
+            new BinanceCalls(){Api = "/api/v3/order", eCall = BinanceCalls.ECalls.placeOrder, Weight = 1, get = false},
         };
 
         private BinanceCalls GetCall(BinanceCalls.ECalls eCall) => ListCallsWeight.FirstOrDefault(bc => bc.eCall == eCall);
@@ -65,7 +66,7 @@ namespace OpentWallet.Logic
         {
 
             var oCurrencies = Call<List<BinanceCurrencies>>(BinanceCalls.ECalls.tickerPriceV3, string.Empty);
-            var aPairs = Call<List<BinancePair>>(BinanceCalls.ECalls.allPairs, string.Empty).Select(p => new CurrencySymbol(p.Base, p.Quote)).ToList();
+            var aPairs = Call<List<BinancePair>>(BinanceCalls.ECalls.allPairs, string.Empty).Select(p => new CurrencySymbol(p.Base, p.Quote, p.Symbol)).ToList();
 
             return oCurrencies.Select(o =>
             {
@@ -83,8 +84,8 @@ namespace OpentWallet.Logic
                 }
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(cur.From, cur.To, Price, ExchangeName),
-                    new CurrencySymbolPriceReverted(cur.From, cur.To, Price, ExchangeName),
+                    new CurrencySymbolPrice(cur.From, cur.To, Price, cur.Couple, ExchangeName),
+                    new CurrencySymbolPriceReverted(cur.From, cur.To, Price, cur.Couple, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -169,8 +170,17 @@ namespace OpentWallet.Logic
             string responseBody = string.Empty;
             try
             {
+                if (oCall.get)
+                {
+                    responseBody = wc.DownloadString($"{sApi}");
 
-                responseBody = wc.DownloadString($"{sApi}");
+                }
+                else
+                {
+                    //symbol=BTCUSDT&side=SELL&type=LIMIT&quantity=0.01&price=9000&timestamp=
+                    responseBody = wc.UploadString($"{sApi}", "");
+
+                }
                 _lastCalls.Add(new BinanceCalls()
                 {
                     Api = oCall.Api,
@@ -343,6 +353,41 @@ namespace OpentWallet.Logic
 
             var oExchangeInfo = Call<BinanceExchangeInfo>(BinanceCalls.ECalls.ExchangeInfoV3, string.Empty);
             return oExchangeInfo;
+        }
+
+        string QuantityToString(double quantity)
+        {
+
+            string sQuantity = "";
+            var start = 100.0;
+            var decPart = 0;
+            while (true)
+            {
+                if (quantity > start)
+        {
+                    sQuantity = quantity.ToString("F" + decPart);
+                    break;
+        }
+                start /= 10;
+                decPart++;
+            }
+
+            sQuantity = sQuantity.Replace(',', '.').TrimEnd('0', '.');
+            
+            return sQuantity;
+        }
+
+        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        {
+            string sQuantity = QuantityToString(quantity).TrimEnd('0');
+
+            if (string.IsNullOrEmpty(sQuantity))
+                return "NOK :(";
+
+            var oTradeList = Call<BinanceNewOrderResult>(BinanceCalls.ECalls.placeOrder, $"symbol={symbol.Couple}&side={(buy?"BUY":"SELL")}&type=MARKET&quantity={sQuantity}");
+
+            return "ok!";
+
         }
     }
 }

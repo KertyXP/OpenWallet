@@ -52,8 +52,8 @@ namespace OpentWallet.Logic
                 double Price = (kvp.Buy.ToDouble() + kvp.Sell.ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, ExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, ExchangeName),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, kvp.Symbol, ExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, kvp.Symbol, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -142,6 +142,11 @@ namespace OpentWallet.Logic
         public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
             return new List<GlobalTrade>();
+        }
+
+        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        {
+            throw new NotImplementedException();
         }
     }
 

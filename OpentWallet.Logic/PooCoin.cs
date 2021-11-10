@@ -48,14 +48,22 @@ namespace OpentWallet.Logic
             client.Headers.Add("sec-fetch-site", "same-site");
             client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
-            var bResult = client.UploadData("https://chartdata.poocoin.app/", bytes);
+            try
+            {
+                var bResult = client.UploadData("https://chartdata.poocoin.app/", bytes);
 
 
-            string str = Encoding.Default.GetString(bResult);
+                string str = Encoding.Default.GetString(bResult);
 
-            var oChart = JsonConvert.DeserializeObject<PooCoinChart>(str);
+                var oChart = JsonConvert.DeserializeObject<PooCoinChart>(str);
 
-            return oChart;
+                return oChart;
+            }
+
+            catch (Exception ex)
+            {
+                return new PooCoinChart();
+            }
         }
     }
 

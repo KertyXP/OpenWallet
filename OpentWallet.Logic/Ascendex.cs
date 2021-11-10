@@ -92,8 +92,8 @@ namespace OpentWallet.Logic
                 double Price = (kvp.Ask.FirstOrDefault().ToDouble() + kvp.Bid.FirstOrDefault().ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, ExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, ExchangeName),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, kvp.Symbol, ExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, kvp.Symbol, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -154,7 +154,7 @@ namespace OpentWallet.Logic
                 {
                     continue;
                 }
-                var cur = new CurrencySymbol(oOrderHistory.Symbol.Split('/').FirstOrDefault(), oOrderHistory.Symbol.Split('/').LastOrDefault());
+                var cur = new CurrencySymbol(oOrderHistory.Symbol.Split('/').FirstOrDefault(), oOrderHistory.Symbol.Split('/').LastOrDefault(), oOrderHistory.Symbol);
 
                 var oGlobalTrade = new GlobalTrade();
                 oGlobalTrade.Exchange = ExchangeName;
@@ -191,6 +191,11 @@ namespace OpentWallet.Logic
             System.DateTime dtDateTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, System.DateTimeKind.Utc);
             dtDateTime = dtDateTime.AddSeconds(unixTimeStamp).ToLocalTime();
             return dtDateTime;
+        }
+
+        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        {
+            throw new NotImplementedException();
         }
     }
 

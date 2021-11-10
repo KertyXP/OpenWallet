@@ -40,6 +40,7 @@
             this.dataGridViewTextBoxColumn10 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Back = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_Balance = new System.Windows.Forms.DataGridView();
             this.obj = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Exchange = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -56,8 +57,17 @@
             this.dataGridViewTextBoxColumn3 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tabPage3 = new System.Windows.Forms.TabPage();
-            this.Back = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tb_3 = new System.Windows.Forms.TabPage();
+            this.lbl_qtty_to = new System.Windows.Forms.Label();
+            this.lbl_qtty_from = new System.Windows.Forms.Label();
+            this.rad_to = new System.Windows.Forms.RadioButton();
+            this.rad_from = new System.Windows.Forms.RadioButton();
+            this.nud_To = new System.Windows.Forms.NumericUpDown();
+            this.nud_From = new System.Windows.Forms.NumericUpDown();
+            this.lbl_currentPrice = new System.Windows.Forms.Label();
+            this.bt_swap = new System.Windows.Forms.Button();
+            this.cb_to = new System.Windows.Forms.ComboBox();
+            this.cb_From = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -65,13 +75,16 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).BeginInit();
             this.tabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Trades)).BeginInit();
+            this.tb_3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_To)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_From)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
-            this.tabControl1.Controls.Add(this.tabPage3);
+            this.tabControl1.Controls.Add(this.tb_3);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -166,6 +179,11 @@
             // 
             this.Date.HeaderText = "Date";
             this.Date.Name = "Date";
+            // 
+            // Back
+            // 
+            this.Back.HeaderText = "Back";
+            this.Back.Name = "Back";
             // 
             // dgv_Balance
             // 
@@ -290,20 +308,135 @@
             this.dataGridViewTextBoxColumn5.HeaderText = "ValueTo";
             this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
             // 
-            // tabPage3
+            // tb_3
             // 
-            this.tabPage3.Location = new System.Drawing.Point(4, 22);
-            this.tabPage3.Name = "tabPage3";
-            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
-            this.tabPage3.Size = new System.Drawing.Size(1068, 424);
-            this.tabPage3.TabIndex = 2;
-            this.tabPage3.Text = "tabPage3";
-            this.tabPage3.UseVisualStyleBackColor = true;
+            this.tb_3.Controls.Add(this.lbl_qtty_to);
+            this.tb_3.Controls.Add(this.lbl_qtty_from);
+            this.tb_3.Controls.Add(this.rad_to);
+            this.tb_3.Controls.Add(this.rad_from);
+            this.tb_3.Controls.Add(this.nud_To);
+            this.tb_3.Controls.Add(this.nud_From);
+            this.tb_3.Controls.Add(this.lbl_currentPrice);
+            this.tb_3.Controls.Add(this.bt_swap);
+            this.tb_3.Controls.Add(this.cb_to);
+            this.tb_3.Controls.Add(this.cb_From);
+            this.tb_3.Location = new System.Drawing.Point(4, 22);
+            this.tb_3.Name = "tb_3";
+            this.tb_3.Padding = new System.Windows.Forms.Padding(3);
+            this.tb_3.Size = new System.Drawing.Size(1068, 424);
+            this.tb_3.TabIndex = 2;
+            this.tb_3.Text = "---";
+            this.tb_3.UseVisualStyleBackColor = true;
             // 
-            // Back
+            // lbl_qtty_to
             // 
-            this.Back.HeaderText = "Back";
-            this.Back.Name = "Back";
+            this.lbl_qtty_to.AutoSize = true;
+            this.lbl_qtty_to.Location = new System.Drawing.Point(314, 176);
+            this.lbl_qtty_to.Name = "lbl_qtty_to";
+            this.lbl_qtty_to.Size = new System.Drawing.Size(16, 13);
+            this.lbl_qtty_to.TabIndex = 10;
+            this.lbl_qtty_to.Text = "---";
+            // 
+            // lbl_qtty_from
+            // 
+            this.lbl_qtty_from.AutoSize = true;
+            this.lbl_qtty_from.Location = new System.Drawing.Point(81, 176);
+            this.lbl_qtty_from.Name = "lbl_qtty_from";
+            this.lbl_qtty_from.Size = new System.Drawing.Size(16, 13);
+            this.lbl_qtty_from.TabIndex = 9;
+            this.lbl_qtty_from.Text = "---";
+            // 
+            // rad_to
+            // 
+            this.rad_to.AutoSize = true;
+            this.rad_to.Location = new System.Drawing.Point(314, 206);
+            this.rad_to.Name = "rad_to";
+            this.rad_to.Size = new System.Drawing.Size(43, 17);
+            this.rad_to.TabIndex = 8;
+            this.rad_to.TabStop = true;
+            this.rad_to.Text = "Buy";
+            this.rad_to.UseVisualStyleBackColor = true;
+            this.rad_to.CheckedChanged += new System.EventHandler(this.rad_to_CheckedChanged);
+            // 
+            // rad_from
+            // 
+            this.rad_from.AutoSize = true;
+            this.rad_from.Checked = true;
+            this.rad_from.Location = new System.Drawing.Point(81, 206);
+            this.rad_from.Name = "rad_from";
+            this.rad_from.Size = new System.Drawing.Size(43, 17);
+            this.rad_from.TabIndex = 7;
+            this.rad_from.TabStop = true;
+            this.rad_from.Text = "Buy";
+            this.rad_from.UseVisualStyleBackColor = true;
+            this.rad_from.CheckedChanged += new System.EventHandler(this.rad_from_CheckedChanged);
+            // 
+            // nud_To
+            // 
+            this.nud_To.DecimalPlaces = 5;
+            this.nud_To.Enabled = false;
+            this.nud_To.Location = new System.Drawing.Point(314, 153);
+            this.nud_To.Maximum = new decimal(new int[] {
+            100000000,
+            0,
+            0,
+            0});
+            this.nud_To.Name = "nud_To";
+            this.nud_To.Size = new System.Drawing.Size(120, 20);
+            this.nud_To.TabIndex = 6;
+            this.nud_To.ValueChanged += new System.EventHandler(this.nud_To_ValueChanged);
+            // 
+            // nud_From
+            // 
+            this.nud_From.DecimalPlaces = 5;
+            this.nud_From.Location = new System.Drawing.Point(81, 153);
+            this.nud_From.Maximum = new decimal(new int[] {
+            100000000,
+            0,
+            0,
+            0});
+            this.nud_From.Name = "nud_From";
+            this.nud_From.Size = new System.Drawing.Size(120, 20);
+            this.nud_From.TabIndex = 5;
+            this.nud_From.ValueChanged += new System.EventHandler(this.nud_From_ValueChanged);
+            // 
+            // lbl_currentPrice
+            // 
+            this.lbl_currentPrice.AutoSize = true;
+            this.lbl_currentPrice.Location = new System.Drawing.Point(480, 122);
+            this.lbl_currentPrice.Name = "lbl_currentPrice";
+            this.lbl_currentPrice.Size = new System.Drawing.Size(80, 13);
+            this.lbl_currentPrice.TabIndex = 4;
+            this.lbl_currentPrice.Text = "lbl_currentPrice";
+            // 
+            // bt_swap
+            // 
+            this.bt_swap.Location = new System.Drawing.Point(222, 118);
+            this.bt_swap.Name = "bt_swap";
+            this.bt_swap.Size = new System.Drawing.Size(75, 55);
+            this.bt_swap.TabIndex = 2;
+            this.bt_swap.Text = "SWAP";
+            this.bt_swap.UseVisualStyleBackColor = true;
+            this.bt_swap.Click += new System.EventHandler(this.bt_swap_Click);
+            // 
+            // cb_to
+            // 
+            this.cb_to.FormattingEnabled = true;
+            this.cb_to.Location = new System.Drawing.Point(314, 118);
+            this.cb_to.Name = "cb_to";
+            this.cb_to.Size = new System.Drawing.Size(121, 21);
+            this.cb_to.TabIndex = 1;
+            this.cb_to.SelectedIndexChanged += new System.EventHandler(this.cb_to_SelectedIndexChanged);
+            this.cb_to.TextUpdate += new System.EventHandler(this.cb_to_TextUpdate);
+            // 
+            // cb_From
+            // 
+            this.cb_From.FormattingEnabled = true;
+            this.cb_From.Location = new System.Drawing.Point(81, 118);
+            this.cb_From.Name = "cb_From";
+            this.cb_From.Size = new System.Drawing.Size(121, 21);
+            this.cb_From.TabIndex = 0;
+            this.cb_From.SelectedIndexChanged += new System.EventHandler(this.cb_From_SelectedIndexChanged);
             // 
             // Form1
             // 
@@ -321,6 +454,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).EndInit();
             this.tabPage2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Trades)).EndInit();
+            this.tb_3.ResumeLayout(false);
+            this.tb_3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_To)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.nud_From)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -329,7 +466,7 @@
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
-        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.TabPage tb_3;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.DataGridView dgv_Balance;
         private System.Windows.Forms.DataGridViewTextBoxColumn obj;
@@ -356,6 +493,16 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
         private System.Windows.Forms.DataGridViewTextBoxColumn Back;
+        private System.Windows.Forms.Button bt_swap;
+        private System.Windows.Forms.ComboBox cb_to;
+        private System.Windows.Forms.ComboBox cb_From;
+        private System.Windows.Forms.Label lbl_currentPrice;
+        private System.Windows.Forms.NumericUpDown nud_To;
+        private System.Windows.Forms.NumericUpDown nud_From;
+        private System.Windows.Forms.RadioButton rad_to;
+        private System.Windows.Forms.RadioButton rad_from;
+        private System.Windows.Forms.Label lbl_qtty_to;
+        private System.Windows.Forms.Label lbl_qtty_from;
     }
 }
 

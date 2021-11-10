@@ -337,6 +337,11 @@ namespace OpentWallet.Logic
 
             return oTrades;
         }
+
+        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 

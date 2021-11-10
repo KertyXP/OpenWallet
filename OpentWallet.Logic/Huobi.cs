@@ -75,8 +75,8 @@ namespace OpentWallet.Logic
                 {
                     return new List<CurrencySymbolPrice>()
                     {
-                        new CurrencySymbolPrice(oSymbol.From, oSymbol.To, Price, ExchangeName),
-                        new CurrencySymbolPriceReverted(oSymbol.From, oSymbol.To, Price, ExchangeName),
+                        new CurrencySymbolPrice(oSymbol.From, oSymbol.To, Price, kvp.Symbol, ExchangeName),
+                        new CurrencySymbolPriceReverted(oSymbol.From, oSymbol.To, Price, kvp.Symbol, ExchangeName),
                     };
                 }
                 return new List<CurrencySymbolPrice>();
@@ -330,6 +330,10 @@ namespace OpentWallet.Logic
             return new List<GlobalTrade>();
         }
 
+        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 

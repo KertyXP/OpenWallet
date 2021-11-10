@@ -67,8 +67,8 @@ namespace OpentWallet.Logic
                 double Price = (kvp.AskRate.ToDouble() + kvp.BidRate.ToDouble()) / 2;
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, ExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, ExchangeName),
+                    new CurrencySymbolPrice(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, kvp.Symbol, ExchangeName),
+                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('-').FirstOrDefault(), kvp.Symbol.Split('-').Last(), Price, kvp.Symbol, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -215,6 +215,10 @@ namespace OpentWallet.Logic
             return milliseconds.ToString();
         }
 
+        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        {
+            throw new NotImplementedException();
+        }
     }
 
 
