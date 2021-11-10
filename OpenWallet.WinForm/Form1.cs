@@ -33,7 +33,7 @@ namespace OpenWallet.WinForm
         {
 
             Config.Init("");
-             aExchanges = Config.LoadExchanges();
+            aExchanges = Config.LoadExchanges();
 
             aAllCurrencies = Config.GetCurrencries(aExchanges);
 
@@ -113,10 +113,9 @@ namespace OpenWallet.WinForm
             var sFrom = cb_From.Text;
             var sTo = cb_to.Text;
             var pair = aAllCurrencies.FirstOrDefault(c => c.Exchange == "Binance" && c.From.ToUpper() == sFrom.ToUpper() && c.To.ToUpper() == sTo.ToUpper());
-            var pair2 = aAllCurrencies.FirstOrDefault(c => c.Exchange == "Binance" && c.To.ToUpper() == sFrom.ToUpper() && c.From.ToUpper() == sTo.ToUpper());
             lbl_qtty_from.Text = aAllBalances?.FirstOrDefault(c => c.Exchange == "Binance" && c.Crypto.ToUpper() == sFrom.ToUpper())?.Value.ToString();
             lbl_qtty_to.Text = aAllBalances?.FirstOrDefault(c => c.Exchange == "Binance" && c.Crypto.ToUpper() == sTo.ToUpper())?.Value.ToString();
-
+            lbl_couple.Text = pair.Couple;
 
             if (pair == null)
             {
@@ -215,33 +214,19 @@ namespace OpenWallet.WinForm
             //var sFrom = cb_From.Text;
             //var sTo = cb_to.Text;
             var pair = aAllCurrencies.FirstOrDefault(c => c.Exchange == "Binance" && c.From.ToUpper() == cb_From.Text.ToUpper() && c.To.ToUpper() == cb_to.Text.ToUpper());
-            if (pair.Couple.StartsWith(cb_From.Text.ToUpper()))
-            {
-                if (rad_from.Checked)
-                {
-                    //MessageBox.Show($"swap {nud_From.Value} {cb_From.Text} to approx {nud_To.Value} {cb_to.Text}");
-                    oBinanceApi?.PlaceMarketOrder(pair, (double)nud_From.Value, false);
-                }
-                else if (rad_to.Checked)
-                {
-                    //MessageBox.Show($"swap {nud_To.Value} {cb_to.Text} to approx {nud_From.Value} {cb_From.Text}");
-                    oBinanceApi?.PlaceMarketOrder(pair, (double)nud_From.Value, true);
-                }
-            }
-            else if (pair.Couple.StartsWith(cb_to.Text.ToUpper()))
-            {
-                if (rad_from.Checked)
-                {
-                    //MessageBox.Show($"swap {nud_To.Value} {cb_to.Text} to approx {nud_From.Value} {cb_From.Text}");
-                    oBinanceApi?.PlaceMarketOrder(pair, (double)nud_To.Value, true);
-                }
-                else if (rad_to.Checked)
-                {
-                    //MessageBox.Show($"swap {nud_From.Value} {cb_From.Text} to approx {nud_To.Value} {cb_to.Text}");
-                    oBinanceApi?.PlaceMarketOrder(pair, (double)nud_To.Value, false);
-                }
-            }
 
+            bool CoupleOrderRespected = pair.Couple.StartsWith(cb_From.Text.ToUpper());
+            double quantityToSwap = CoupleOrderRespected ? (double)nud_From.Value : (double)nud_To.Value;
+            double quantitySwapApprox = CoupleOrderRespected == false ? (double)nud_From.Value : (double)nud_To.Value;
+            var sellBuy = CoupleOrderRespected == rad_from.Checked ? SellBuy.Sell : SellBuy.Buy;
+
+            bool? bResult = oBinanceApi?.PlaceMarketOrder(pair, quantityToSwap, sellBuy, cb_Test.Checked);
+            string sSuccess = bResult == true ? "Success!" : "FAILURE!!";
+
+            if (CoupleOrderRespected)
+                MessageBox.Show($"{sSuccess} - {sellBuy} {quantityToSwap} {pair.From} with {quantitySwapApprox} {pair.To}");
+            else
+                MessageBox.Show($"{sSuccess} - {sellBuy} {quantityToSwap} {pair.To} with {quantitySwapApprox} {pair.From}");
 
         }
     }

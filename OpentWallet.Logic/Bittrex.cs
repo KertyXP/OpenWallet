@@ -215,7 +215,7 @@ namespace OpentWallet.Logic
             return milliseconds.ToString();
         }
 
-        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        public bool PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
         {
             throw new NotImplementedException();
         }

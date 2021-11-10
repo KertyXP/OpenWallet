@@ -29,6 +29,7 @@ namespace OpentWallet.Logic
             new BinanceCalls(){Api = "/sapi/v1/margin/allPairs", eCall = BinanceCalls.ECalls.allPairs, Weight = 1, PublicApi = true},
             new BinanceCalls(){Api = "/sapi/v1/lending/project/position/list", eCall = BinanceCalls.ECalls.earnings, Weight = 1},
             new BinanceCalls(){Api = "/api/v3/order", eCall = BinanceCalls.ECalls.placeOrder, Weight = 1, get = false},
+            new BinanceCalls(){Api = "/api/v3/order/test", eCall = BinanceCalls.ECalls.placeOrderTest, Weight = 1, get = false},
         };
 
         private BinanceCalls GetCall(BinanceCalls.ECalls eCall) => ListCallsWeight.FirstOrDefault(bc => bc.eCall == eCall);
@@ -65,8 +66,8 @@ namespace OpentWallet.Logic
         public List<CurrencySymbolPrice> GetCurrencies()
         {
 
-            var oCurrencies = Call<List<BinanceCurrencies>>(BinanceCalls.ECalls.tickerPriceV3, string.Empty);
-            var aPairs = Call<List<BinancePair>>(BinanceCalls.ECalls.allPairs, string.Empty).Select(p => new CurrencySymbol(p.Base, p.Quote, p.Symbol)).ToList();
+            var oCurrencies = Call<List<BinanceCurrencies>>(BinanceCalls.ECalls.tickerPriceV3, string.Empty).Payload;
+            var aPairs = Call<List<BinancePair>>(BinanceCalls.ECalls.allPairs, string.Empty).Payload.Select(p => new CurrencySymbol(p.Base, p.Quote, p.Symbol)).ToList();
 
             return oCurrencies.Select(o =>
             {
@@ -124,13 +125,13 @@ namespace OpentWallet.Logic
             }
         }
 
-        public T Call<T>(BinanceCalls.ECalls Api, string dataJsonStr) where T : class, new()
+        public ApiResponse<T> Call<T>(BinanceCalls.ECalls Api, string dataJsonStr) where T : class, new()
         {
 
 
             var oCall = GetCall(Api);
             if (oCall == null)
-                return new T();
+                return new ApiResponse<T>();
 
             while (true)
             {
@@ -188,13 +189,13 @@ namespace OpentWallet.Logic
                     eCall = oCall.eCall,
                     dtCall = DateTime.Now
                 });
-                return JsonConvert.DeserializeObject<T>(responseBody);
+                return new ApiResponse<T>(JsonConvert.DeserializeObject<T>(responseBody));
 
 
             }
             catch (Exception ex)
             {
-                return new T();
+                return new ApiResponse<T>();
             }
 
         }
@@ -205,7 +206,7 @@ namespace OpentWallet.Logic
 
 
 
-            _oLastBalance = Call<BinanceAccount>(BinanceCalls.ECalls.accountV3, string.Empty);
+            _oLastBalance = Call<BinanceAccount>(BinanceCalls.ECalls.accountV3, string.Empty).Payload;
 
 
 
@@ -309,7 +310,7 @@ namespace OpentWallet.Logic
         private List<GlobalTrade> GetTradesFromCurrencies(string sFrom, string sTo)
         {
             var aListTrades = new List<GlobalTrade>();
-            var oTradeList = Call<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, $"symbol={sFrom}{sTo}");// + oPair.SymbolSymbol);
+            var oTradeList = Call<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, $"symbol={sFrom}{sTo}").Payload;// + oPair.SymbolSymbol);
             foreach (var oTradeBinance in oTradeList)
             {
 
@@ -351,12 +352,14 @@ namespace OpentWallet.Logic
         private BinanceExchangeInfo GetExchangeInfo()
         {
 
-            var oExchangeInfo = Call<BinanceExchangeInfo>(BinanceCalls.ECalls.ExchangeInfoV3, string.Empty);
+            var oExchangeInfo = Call<BinanceExchangeInfo>(BinanceCalls.ECalls.ExchangeInfoV3, string.Empty).Payload;
             return oExchangeInfo;
         }
 
-        string QuantityToString(double quantity)
+        string QuantityToString(double quantity, double tick)
         {
+            var d2 = quantity.ToString(tick.ToString().Replace(',','.').Replace('0', '#').Replace('1', '#')).Replace(',', '.');
+            return d2;
 
             string sQuantity = "";
             var start = 100.0;
@@ -372,21 +375,30 @@ namespace OpentWallet.Logic
                 decPart++;
             }
 
-            sQuantity = sQuantity.Replace(',', '.').TrimEnd('0', '.');
+            sQuantity = sQuantity.Replace(',', '.');
+            if (sQuantity.Contains('.'))
+            {
+                sQuantity = sQuantity.TrimEnd('0', '.');
+            }
             
             return sQuantity;
         }
 
-        public string PlaceMarketOrder(CurrencySymbol symbol, double quantity, bool buy)
+        public bool PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
         {
-            string sQuantity = QuantityToString(quantity).TrimEnd('0');
+            var oSymbolFullInfo = ExchangeInfo.Symbols.FirstOrDefault(s => s.SymbolSymbol == symbol.Couple);
+            var tick = oSymbolFullInfo.Filters.FirstOrDefault(f => f.FilterType == "LOT_SIZE")?.StepSize?.ToDouble();
+            string sQuantity = QuantityToString(quantity, tick ?? 1.0);
 
             if (string.IsNullOrEmpty(sQuantity))
-                return "NOK :(";
+                return false;
 
-            var oTradeList = Call<BinanceNewOrderResult>(BinanceCalls.ECalls.placeOrder, $"symbol={symbol.Couple}&side={(buy?"BUY":"SELL")}&type=MARKET&quantity={sQuantity}");
 
-            return "ok!";
+            var oCall = bTest ? BinanceCalls.ECalls.placeOrderTest : BinanceCalls.ECalls.placeOrder;
+
+            var oTradeList = Call<BinanceNewOrderResult>(oCall, $"symbol={symbol.Couple}&side={(SellOrBuy == SellBuy.Buy ? "BUY" : "SELL")}&type=MARKET&quantity={sQuantity}");
+
+            return oTradeList.success;
 
         }
     }

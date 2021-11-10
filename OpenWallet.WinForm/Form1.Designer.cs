@@ -68,6 +68,8 @@
             this.bt_swap = new System.Windows.Forms.Button();
             this.cb_to = new System.Windows.Forms.ComboBox();
             this.cb_From = new System.Windows.Forms.ComboBox();
+            this.cb_Test = new System.Windows.Forms.CheckBox();
+            this.lbl_couple = new System.Windows.Forms.Label();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
@@ -310,6 +312,8 @@
             // 
             // tb_3
             // 
+            this.tb_3.Controls.Add(this.lbl_couple);
+            this.tb_3.Controls.Add(this.cb_Test);
             this.tb_3.Controls.Add(this.lbl_qtty_to);
             this.tb_3.Controls.Add(this.lbl_qtty_from);
             this.tb_3.Controls.Add(this.rad_to);
@@ -325,7 +329,7 @@
             this.tb_3.Padding = new System.Windows.Forms.Padding(3);
             this.tb_3.Size = new System.Drawing.Size(1068, 424);
             this.tb_3.TabIndex = 2;
-            this.tb_3.Text = "---";
+            this.tb_3.Text = "Market Binance";
             this.tb_3.UseVisualStyleBackColor = true;
             // 
             // lbl_qtty_to
@@ -351,10 +355,9 @@
             this.rad_to.AutoSize = true;
             this.rad_to.Location = new System.Drawing.Point(314, 206);
             this.rad_to.Name = "rad_to";
-            this.rad_to.Size = new System.Drawing.Size(43, 17);
+            this.rad_to.Size = new System.Drawing.Size(14, 13);
             this.rad_to.TabIndex = 8;
             this.rad_to.TabStop = true;
-            this.rad_to.Text = "Buy";
             this.rad_to.UseVisualStyleBackColor = true;
             this.rad_to.CheckedChanged += new System.EventHandler(this.rad_to_CheckedChanged);
             // 
@@ -364,10 +367,9 @@
             this.rad_from.Checked = true;
             this.rad_from.Location = new System.Drawing.Point(81, 206);
             this.rad_from.Name = "rad_from";
-            this.rad_from.Size = new System.Drawing.Size(43, 17);
+            this.rad_from.Size = new System.Drawing.Size(14, 13);
             this.rad_from.TabIndex = 7;
             this.rad_from.TabStop = true;
-            this.rad_from.Text = "Buy";
             this.rad_from.UseVisualStyleBackColor = true;
             this.rad_from.CheckedChanged += new System.EventHandler(this.rad_from_CheckedChanged);
             // 
@@ -438,6 +440,27 @@
             this.cb_From.TabIndex = 0;
             this.cb_From.SelectedIndexChanged += new System.EventHandler(this.cb_From_SelectedIndexChanged);
             // 
+            // cb_Test
+            // 
+            this.cb_Test.AutoSize = true;
+            this.cb_Test.Checked = true;
+            this.cb_Test.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cb_Test.Location = new System.Drawing.Point(81, 55);
+            this.cb_Test.Name = "cb_Test";
+            this.cb_Test.Size = new System.Drawing.Size(47, 17);
+            this.cb_Test.TabIndex = 11;
+            this.cb_Test.Text = "Test";
+            this.cb_Test.UseVisualStyleBackColor = true;
+            // 
+            // lbl_couple
+            // 
+            this.lbl_couple.AutoSize = true;
+            this.lbl_couple.Location = new System.Drawing.Point(480, 139);
+            this.lbl_couple.Name = "lbl_couple";
+            this.lbl_couple.Size = new System.Drawing.Size(40, 13);
+            this.lbl_couple.TabIndex = 12;
+            this.lbl_couple.Text = "Couple";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -503,6 +526,8 @@
         private System.Windows.Forms.RadioButton rad_from;
         private System.Windows.Forms.Label lbl_qtty_to;
         private System.Windows.Forms.Label lbl_qtty_from;
+        private System.Windows.Forms.CheckBox cb_Test;
+        private System.Windows.Forms.Label lbl_couple;
     }
 }
 
