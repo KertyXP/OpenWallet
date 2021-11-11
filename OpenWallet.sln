@@ -9,13 +9,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenWallet.iOS", "OpenWalle
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenWallet", "OpenWallet\OpenWallet.csproj", "{059EC4D4-BBED-4DC6-A2BC-8A3AB69E20FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpentWallet.Logic", "OpentWallet.Logic\OpentWallet.Logic.csproj", "{E9DD9836-70D8-4F71-B095-15671C971806}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpentWallet.Logic", "OpentWallet.Logic\OpentWallet.Logic.csproj", "{E9DD9836-70D8-4F71-B095-15671C971806}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenWallet.Common", "OpenWallet.Common\OpenWallet.Common.csproj", "{6E33634F-1931-460D-A933-99B0A08685E6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenWallet.Common", "OpenWallet.Common\OpenWallet.Common.csproj", "{6E33634F-1931-460D-A933-99B0A08685E6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenWallet.Logic.Abstraction", "OpenWallet.Logic.Abstraction\OpenWallet.Logic.Abstraction.csproj", "{B92E873B-5DB1-4871-90CE-A456204A347A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenWallet.Logic.Abstraction", "OpenWallet.Logic.Abstraction\OpenWallet.Logic.Abstraction.csproj", "{B92E873B-5DB1-4871-90CE-A456204A347A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenWallet.WinForm", "OpenWallet.WinForm\OpenWallet.WinForm.csproj", "{B5CC453F-B113-420C-A03D-F4833EE5FFF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenWallet.TradeForm", "OpenWallet.TradeForm\OpenWallet.TradeForm.csproj", "{FE2F2410-A446-488C-A2F2-0E356799D512}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,6 +131,18 @@ Global
 		{B5CC453F-B113-420C-A03D-F4833EE5FFF4}.Release|iPhone.Build.0 = Release|Any CPU
 		{B5CC453F-B113-420C-A03D-F4833EE5FFF4}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
 		{B5CC453F-B113-420C-A03D-F4833EE5FFF4}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Debug|iPhone.ActiveCfg = Debug|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Debug|iPhone.Build.0 = Debug|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Debug|iPhoneSimulator.ActiveCfg = Debug|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Debug|iPhoneSimulator.Build.0 = Debug|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Release|iPhone.ActiveCfg = Release|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Release|iPhone.Build.0 = Release|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Release|iPhoneSimulator.ActiveCfg = Release|Any CPU
+		{FE2F2410-A446-488C-A2F2-0E356799D512}.Release|iPhoneSimulator.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
