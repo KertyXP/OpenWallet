@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OpenWallet.TradeForm
@@ -30,9 +31,16 @@ namespace OpenWallet.TradeForm
 
             Config.Init("");
             aExchanges = Config.LoadExchanges();
+            await RefreshCurrenciesAndBalance();
 
+        }
+
+        private async Task RefreshCurrenciesAndBalance()
+        {
             aAllCurrencies = Config.GetCurrencries(aExchanges);
             aAllBalances = await Config.GetBalances(aExchanges, aAllCurrencies);
+
+            cb_From.Items.Clear();
 
             aAllCurrencies.Where(c => c.Exchange == "Binance").ForEach(c =>
             {
@@ -43,9 +51,7 @@ namespace OpenWallet.TradeForm
                 if (cb_From.Items.Contains(c.From) == false)
                     cb_From.Items.Add(c.From);
             });
-
         }
-
 
         Font myFont = new Font("Aerial", 10, FontStyle.Regular);
 
@@ -75,8 +81,8 @@ namespace OpenWallet.TradeForm
 
         private void calculSwap()
         {
-            nud_From.Enabled = rad_from.Checked;
-            nud_To.Enabled = rad_to.Checked;
+            nud_From.Enabled = true;
+            nud_To.Enabled = false;
             var sFrom = cb_From.Text;
             var sTo = cb_to.Text;
             var pair = aAllCurrencies.FirstOrDefault(c => c.Exchange == "Binance" && c.From.ToUpper() == sFrom.ToUpper() && c.To.ToUpper() == sTo.ToUpper());
@@ -96,27 +102,13 @@ namespace OpenWallet.TradeForm
             nud_From.ValueChanged -= nud_To_ValueChanged;
             nud_To.ValueChanged -= nud_To_ValueChanged;
 
-            if (rad_from.Checked)
+            if (pair == null)
             {
-                if (pair == null)
-                {
-                    nud_To.Value = 0;
-                }
-                else
-                {
-                    nud_To.Value = nud_From.Value * (decimal)pair.Price;
-                }
+                nud_To.Value = 0;
             }
-            else if (rad_to.Checked)
+            else
             {
-                if (pair == null)
-                {
-                    nud_From.Value = 0;
-                }
-                else
-                {
-                    nud_From.Value = nud_To.Value / (decimal)pair.Price;
-                }
+                nud_To.Value = nud_From.Value * (decimal)pair.Price;
             }
 
             nud_To.ValueChanged += nud_To_ValueChanged;
@@ -152,21 +144,6 @@ namespace OpenWallet.TradeForm
             calculSwap();
         }
 
-        private void rad_from_CheckedChanged(object sender, EventArgs e)
-        {
-            if (rad_from.Checked)
-                rad_to.Checked = false;
-            calculSwap();
-        }
-
-        private void rad_to_CheckedChanged(object sender, EventArgs e)
-        {
-
-            if (rad_to.Checked)
-                rad_from.Checked = false;
-            calculSwap();
-        }
-
         private void cb_to_TextUpdate(object sender, EventArgs e)
         {
             calculSwap();
@@ -185,15 +162,12 @@ namespace OpenWallet.TradeForm
             bool CoupleOrderRespected = pair.Couple.StartsWith(cb_From.Text.ToUpper());
             double quantityToSwap = CoupleOrderRespected ? (double)nud_From.Value : (double)nud_To.Value;
             double quantitySwapApprox = CoupleOrderRespected == false ? (double)nud_From.Value : (double)nud_To.Value;
-            var sellBuy = CoupleOrderRespected == rad_from.Checked ? SellBuy.Sell : SellBuy.Buy;
+            var sellBuy = CoupleOrderRespected == true ? SellBuy.Sell : SellBuy.Buy;
 
-            bool? bResult = oBinanceApi?.PlaceMarketOrder(pair, quantityToSwap, sellBuy, cb_Test.Checked);
-            string sSuccess = bResult == true ? "Success!" : "FAILURE!!";
+            var result = oBinanceApi?.PlaceMarketOrder(pair, quantityToSwap, sellBuy, cb_Test.Checked);
+            string sSuccess = result != null ? "Success!" : "FAILURE!!";
 
-            if (CoupleOrderRespected)
-                MessageBox.Show($"{sSuccess} - {sellBuy} {quantityToSwap} {pair.From} with {quantitySwapApprox} {pair.To}");
-            else
-                MessageBox.Show($"{sSuccess} - {sellBuy} {quantityToSwap} {pair.To} with {quantitySwapApprox} {pair.From}");
+            MessageBox.Show($"{sSuccess} - Swapped {result.QuantityFrom} {result.From} with {result.To} {result.QuantityTo}");
 
         }
 
@@ -234,6 +208,22 @@ namespace OpenWallet.TradeForm
                 var cb = sender as ComboBox;
                 cb.TextChanged += cb_TextChanged;
             }
+        }
+
+        private void pb_swap_Click(object sender, EventArgs e)
+        {
+            var sFrom = cb_to.Text;
+            var sTo = cb_From.Text;
+            var sQuantityFrom = nud_To.Value;
+            cb_From.Text = sFrom;
+            cb_to.Text = sTo;
+            nud_From.Value = sQuantityFrom;
+        }
+
+        private void pb_refresh_Click(object sender, EventArgs e)
+        {
+            aAllCurrencies = Config.GetCurrencries(aExchanges);
+            calculSwap();
         }
     }
 }

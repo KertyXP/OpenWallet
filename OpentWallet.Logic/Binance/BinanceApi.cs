@@ -384,21 +384,55 @@ namespace OpentWallet.Logic
             return sQuantity;
         }
 
-        public bool PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
+        public GlobalTrade PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
         {
             var oSymbolFullInfo = ExchangeInfo.Symbols.FirstOrDefault(s => s.SymbolSymbol == symbol.Couple);
             var tick = oSymbolFullInfo.Filters.FirstOrDefault(f => f.FilterType == "LOT_SIZE")?.StepSize?.ToDouble();
             string sQuantity = QuantityToString(quantity, tick ?? 1.0);
 
             if (string.IsNullOrEmpty(sQuantity))
-                return false;
+                return null;
 
 
             var oCall = bTest ? BinanceCalls.ECalls.placeOrderTest : BinanceCalls.ECalls.placeOrder;
 
-            var oTradeList = Call<BinanceNewOrderResult>(oCall, $"symbol={symbol.Couple}&side={(SellOrBuy == SellBuy.Buy ? "BUY" : "SELL")}&type=MARKET&quantity={sQuantity}");
+            var oTradeResponse = Call<BinanceTradeMarketResponse>(oCall, $"symbol={symbol.Couple}&side={(SellOrBuy == SellBuy.Buy ? "BUY" : "SELL")}&type=MARKET&quantity={sQuantity}");
 
-            return oTradeList.success;
+            if(bTest == true)
+            {
+                if(symbol.Couple == "ADAUSDT")
+                {
+                    if(SellOrBuy == SellBuy.Sell)
+                    {
+                        oTradeResponse.Payload = JsonConvert.DeserializeObject<BinanceTradeMarketResponse>("{\"symbol\":\"ADAUSDT\",\"orderId\":2628222193,\"orderListId\":-1,\"clientOrderId\":\"pS7CVFM3cdWhDIpOyGqc2j\",\"transactTime\":1637439625778,\"price\":\"0.00000000\",\"origQty\":\"10.00000000\",\"executedQty\":\"10.00000000\",\"cummulativeQuoteQty\":\"19.04000000\",\"status\":\"FILLED\",\"timeInForce\":\"GTC\",\"type\":\"MARKET\",\"side\":\"SELL\",\"fills\":[{\"price\":\"1.90400000\",\"qty\":\"10.00000000\",\"commission\":\"0.00002392\",\"commissionAsset\":\"BNB\",\"tradeId\":320123814}]}");
+                    }
+                    else
+                    {
+                        oTradeResponse.Payload = JsonConvert.DeserializeObject<BinanceTradeMarketResponse>("{\"symbol\":\"ADAUSDT\",\"orderId\":2628245736,\"orderListId\":-1,\"clientOrderId\":\"xdYJZn2UPkxayFJfN8zepE\",\"transactTime\":1637440243937,\"price\":\"0.00000000\",\"origQty\":\"7.90000000\",\"executedQty\":\"10.00000000\",\"cummulativeQuoteQty\":\"19.04000000\",\"status\":\"FILLED\",\"timeInForce\":\"GTC\",\"type\":\"MARKET\",\"side\":\"BUY\",\"fills\":[{\"price\":\"1.90300000\",\"qty\":\"7.90000000\",\"commission\":\"0.00001884\",\"commissionAsset\":\"BNB\",\"tradeId\":320128037}]}");
+                    }
+                }
+            }
+
+
+            if (oTradeResponse.success )
+            {
+                string quantityFrom = SellOrBuy == SellBuy.Buy ? oTradeResponse.Payload.CummulativeQuoteQty : oTradeResponse.Payload.ExecutedQty;
+                string quantityTo = SellOrBuy == SellBuy.Buy ? oTradeResponse.Payload.ExecutedQty : oTradeResponse.Payload.CummulativeQuoteQty;
+                return new GlobalTrade()
+                {
+                    CryptoFromId = symbol.CryptoFromId,
+                    CryptoToId = symbol.CryptoToId,
+                    dtTrade = DateTime.Now,
+                    Exchange = ExchangeCode,
+                    From = symbol.From,
+                    To = symbol.To,
+                    Price = oTradeResponse.Payload.Price?.ToDouble() ?? 0,
+                    QuantityFrom = quantityFrom?.ToDouble() ?? 0,
+                    QuantityTo = quantityTo?.ToDouble() ?? 0,
+                    InternalExchangeId = oTradeResponse.Payload.ClientOrderId,
+                };
+            }
+            return null;
 
         }
     }

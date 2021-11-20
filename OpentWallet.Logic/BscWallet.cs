@@ -338,7 +338,7 @@ namespace OpentWallet.Logic
             return oTrades;
         }
 
-        public bool PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
+        public GlobalTrade PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
         {
             throw new NotImplementedException();
         }

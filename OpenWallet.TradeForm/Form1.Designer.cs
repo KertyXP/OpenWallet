@@ -33,22 +33,24 @@ namespace OpenWallet.TradeForm
             this.cb_Test = new System.Windows.Forms.CheckBox();
             this.lbl_qtty_to = new System.Windows.Forms.Label();
             this.lbl_qtty_from = new System.Windows.Forms.Label();
-            this.rad_to = new System.Windows.Forms.RadioButton();
-            this.rad_from = new System.Windows.Forms.RadioButton();
             this.nud_To = new System.Windows.Forms.NumericUpDown();
             this.nud_From = new System.Windows.Forms.NumericUpDown();
             this.lbl_currentPrice = new System.Windows.Forms.Label();
             this.bt_swap = new System.Windows.Forms.Button();
             this.cb_to = new System.Windows.Forms.ComboBox();
             this.cb_From = new System.Windows.Forms.ComboBox();
+            this.pb_refresh = new System.Windows.Forms.PictureBox();
+            this.pb_swap = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nud_To)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_From)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_refresh)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_swap)).BeginInit();
             this.SuspendLayout();
             // 
             // lbl_couple
             // 
             this.lbl_couple.AutoSize = true;
-            this.lbl_couple.Location = new System.Drawing.Point(146, 93);
+            this.lbl_couple.Location = new System.Drawing.Point(192, 87);
             this.lbl_couple.Name = "lbl_couple";
             this.lbl_couple.Size = new System.Drawing.Size(40, 13);
             this.lbl_couple.TabIndex = 24;
@@ -59,7 +61,7 @@ namespace OpenWallet.TradeForm
             this.cb_Test.AutoSize = true;
             this.cb_Test.Checked = true;
             this.cb_Test.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cb_Test.Location = new System.Drawing.Point(5, 2);
+            this.cb_Test.Location = new System.Drawing.Point(300, 12);
             this.cb_Test.Name = "cb_Test";
             this.cb_Test.Size = new System.Drawing.Size(47, 17);
             this.cb_Test.TabIndex = 23;
@@ -69,7 +71,7 @@ namespace OpenWallet.TradeForm
             // lbl_qtty_to
             // 
             this.lbl_qtty_to.AutoSize = true;
-            this.lbl_qtty_to.Location = new System.Drawing.Point(228, 149);
+            this.lbl_qtty_to.Location = new System.Drawing.Point(192, 149);
             this.lbl_qtty_to.Name = "lbl_qtty_to";
             this.lbl_qtty_to.Size = new System.Drawing.Size(16, 13);
             this.lbl_qtty_to.TabIndex = 22;
@@ -78,40 +80,17 @@ namespace OpenWallet.TradeForm
             // lbl_qtty_from
             // 
             this.lbl_qtty_from.AutoSize = true;
-            this.lbl_qtty_from.Location = new System.Drawing.Point(228, 30);
+            this.lbl_qtty_from.Location = new System.Drawing.Point(192, 30);
             this.lbl_qtty_from.Name = "lbl_qtty_from";
             this.lbl_qtty_from.Size = new System.Drawing.Size(16, 13);
             this.lbl_qtty_from.TabIndex = 21;
             this.lbl_qtty_from.Text = "---";
             // 
-            // rad_to
-            // 
-            this.rad_to.AutoSize = true;
-            this.rad_to.Location = new System.Drawing.Point(10, 167);
-            this.rad_to.Name = "rad_to";
-            this.rad_to.Size = new System.Drawing.Size(14, 13);
-            this.rad_to.TabIndex = 20;
-            this.rad_to.TabStop = true;
-            this.rad_to.UseVisualStyleBackColor = true;
-            this.rad_to.CheckedChanged += new System.EventHandler(this.cb_to_TextUpdate);
-            // 
-            // rad_from
-            // 
-            this.rad_from.AutoSize = true;
-            this.rad_from.Checked = true;
-            this.rad_from.Location = new System.Drawing.Point(10, 43);
-            this.rad_from.Name = "rad_from";
-            this.rad_from.Size = new System.Drawing.Size(14, 13);
-            this.rad_from.TabIndex = 19;
-            this.rad_from.TabStop = true;
-            this.rad_from.UseVisualStyleBackColor = true;
-            this.rad_from.CheckedChanged += new System.EventHandler(this.rad_from_CheckedChanged);
-            // 
             // nud_To
             // 
             this.nud_To.DecimalPlaces = 5;
             this.nud_To.Enabled = false;
-            this.nud_To.Location = new System.Drawing.Point(48, 181);
+            this.nud_To.Location = new System.Drawing.Point(17, 181);
             this.nud_To.Maximum = new decimal(new int[] {
             100000000,
             0,
@@ -125,7 +104,7 @@ namespace OpenWallet.TradeForm
             // nud_From
             // 
             this.nud_From.DecimalPlaces = 5;
-            this.nud_From.Location = new System.Drawing.Point(48, 57);
+            this.nud_From.Location = new System.Drawing.Point(17, 57);
             this.nud_From.Maximum = new decimal(new int[] {
             100000000,
             0,
@@ -139,7 +118,7 @@ namespace OpenWallet.TradeForm
             // lbl_currentPrice
             // 
             this.lbl_currentPrice.AutoSize = true;
-            this.lbl_currentPrice.Location = new System.Drawing.Point(146, 119);
+            this.lbl_currentPrice.Location = new System.Drawing.Point(192, 113);
             this.lbl_currentPrice.Name = "lbl_currentPrice";
             this.lbl_currentPrice.Size = new System.Drawing.Size(80, 13);
             this.lbl_currentPrice.TabIndex = 16;
@@ -147,7 +126,7 @@ namespace OpenWallet.TradeForm
             // 
             // bt_swap
             // 
-            this.bt_swap.Location = new System.Drawing.Point(48, 90);
+            this.bt_swap.Location = new System.Drawing.Point(58, 90);
             this.bt_swap.Name = "bt_swap";
             this.bt_swap.Size = new System.Drawing.Size(75, 45);
             this.bt_swap.TabIndex = 15;
@@ -158,7 +137,7 @@ namespace OpenWallet.TradeForm
             // cb_to
             // 
             this.cb_to.FormattingEnabled = true;
-            this.cb_to.Location = new System.Drawing.Point(48, 146);
+            this.cb_to.Location = new System.Drawing.Point(17, 146);
             this.cb_to.Name = "cb_to";
             this.cb_to.Size = new System.Drawing.Size(164, 21);
             this.cb_to.TabIndex = 14;
@@ -171,7 +150,7 @@ namespace OpenWallet.TradeForm
             // cb_From
             // 
             this.cb_From.FormattingEnabled = true;
-            this.cb_From.Location = new System.Drawing.Point(48, 22);
+            this.cb_From.Location = new System.Drawing.Point(17, 22);
             this.cb_From.Name = "cb_From";
             this.cb_From.Size = new System.Drawing.Size(164, 21);
             this.cb_From.TabIndex = 13;
@@ -181,17 +160,39 @@ namespace OpenWallet.TradeForm
             this.cb_From.KeyDown += new System.Windows.Forms.KeyEventHandler(this.cb_KeyDown);
             this.cb_From.KeyUp += new System.Windows.Forms.KeyEventHandler(this.cb_KeyUp);
             // 
+            // pb_refresh
+            // 
+            this.pb_refresh.Image = global::OpenWallet.TradeForm.Properties.Resources.refresh;
+            this.pb_refresh.Location = new System.Drawing.Point(151, 98);
+            this.pb_refresh.Name = "pb_refresh";
+            this.pb_refresh.Size = new System.Drawing.Size(28, 28);
+            this.pb_refresh.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pb_refresh.TabIndex = 26;
+            this.pb_refresh.TabStop = false;
+            this.pb_refresh.Click += new System.EventHandler(this.pb_refresh_Click);
+            // 
+            // pb_swap
+            // 
+            this.pb_swap.Image = global::OpenWallet.TradeForm.Properties.Resources.swap;
+            this.pb_swap.Location = new System.Drawing.Point(17, 98);
+            this.pb_swap.Name = "pb_swap";
+            this.pb_swap.Size = new System.Drawing.Size(30, 28);
+            this.pb_swap.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pb_swap.TabIndex = 25;
+            this.pb_swap.TabStop = false;
+            this.pb_swap.Click += new System.EventHandler(this.pb_swap_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(359, 219);
+            this.Controls.Add(this.pb_refresh);
+            this.Controls.Add(this.pb_swap);
             this.Controls.Add(this.lbl_couple);
             this.Controls.Add(this.cb_Test);
             this.Controls.Add(this.lbl_qtty_to);
             this.Controls.Add(this.lbl_qtty_from);
-            this.Controls.Add(this.rad_to);
-            this.Controls.Add(this.rad_from);
             this.Controls.Add(this.nud_To);
             this.Controls.Add(this.nud_From);
             this.Controls.Add(this.lbl_currentPrice);
@@ -203,6 +204,8 @@ namespace OpenWallet.TradeForm
             this.Load += new System.EventHandler(this.Form1_Load);
             ((System.ComponentModel.ISupportInitialize)(this.nud_To)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_From)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_refresh)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_swap)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -214,14 +217,14 @@ namespace OpenWallet.TradeForm
         private System.Windows.Forms.CheckBox cb_Test;
         private System.Windows.Forms.Label lbl_qtty_to;
         private System.Windows.Forms.Label lbl_qtty_from;
-        private System.Windows.Forms.RadioButton rad_to;
-        private System.Windows.Forms.RadioButton rad_from;
         private System.Windows.Forms.NumericUpDown nud_To;
         private System.Windows.Forms.NumericUpDown nud_From;
         private System.Windows.Forms.Label lbl_currentPrice;
         private System.Windows.Forms.Button bt_swap;
         private System.Windows.Forms.ComboBox cb_to;
         private System.Windows.Forms.ComboBox cb_From;
+        private System.Windows.Forms.PictureBox pb_swap;
+        private System.Windows.Forms.PictureBox pb_refresh;
     }
 }
 
