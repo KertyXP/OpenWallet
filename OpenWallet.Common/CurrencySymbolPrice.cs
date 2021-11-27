@@ -114,11 +114,11 @@ namespace OpenWallet.Common
             return 0;
 
         }
-        public static double GetCustomValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto)
+        public static double GetCustomValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto, double? overrideValue = null)
         {
             string sCryptoFrom = globalBalance.Crypto.ToUpper();
             if (sCryptoFrom == sCrypto)
-                return globalBalance.Value;
+                return overrideValue ?? globalBalance.Value;
 
             if (sCryptoFrom == "BTXCRD") // Bittrex Credit
                 return 0;
@@ -130,7 +130,7 @@ namespace OpenWallet.Common
 
             if (oCryptoFound != null)
             {
-                return globalBalance.Value * oCryptoFound.Price;
+                return (overrideValue ?? globalBalance.Value) * oCryptoFound.Price;
             }
 
             oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "USDT" && o.Exchange == globalBalance.Exchange);
@@ -138,7 +138,7 @@ namespace OpenWallet.Common
 
             if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
             {
-                return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+                return (overrideValue ?? globalBalance.Value) * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
             }
 
             oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "BTC" && o.Exchange == globalBalance.Exchange);
@@ -146,7 +146,7 @@ namespace OpenWallet.Common
 
             if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
             {
-                return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+                return (overrideValue ?? globalBalance.Value) * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
             }
 
             return 0;
@@ -156,7 +156,7 @@ namespace OpenWallet.Common
 
             if (oCryptoFound != null)
             {
-                return globalBalance.Value * oCryptoFound.Price;
+                return (overrideValue ?? globalBalance.Value) * oCryptoFound.Price;
             }
 
             oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "USDT");
@@ -164,7 +164,7 @@ namespace OpenWallet.Common
 
             if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
             {
-                return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+                return (overrideValue ?? globalBalance.Value) * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
             }
 
             oCryptoFound = oCurrencies.FirstOrDefault(o => o.From == sCryptoFrom && o.To == "BTC");
@@ -172,7 +172,7 @@ namespace OpenWallet.Common
 
             if (oCryptoFound != null && oCryptoFoundUsdtToFav != null)
             {
-                return globalBalance.Value * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
+                return (overrideValue ?? globalBalance.Value) * oCryptoFound.Price * oCryptoFoundUsdtToFav.Price;
             }
 
             return 0;

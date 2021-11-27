@@ -41,6 +41,7 @@ namespace OpenWallet.TradeForm
             this.cb_From = new System.Windows.Forms.ComboBox();
             this.pb_refresh = new System.Windows.Forms.PictureBox();
             this.pb_swap = new System.Windows.Forms.PictureBox();
+            this.lbl_valueUsdt = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.nud_To)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nud_From)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pb_refresh)).BeginInit();
@@ -99,7 +100,6 @@ namespace OpenWallet.TradeForm
             this.nud_To.Name = "nud_To";
             this.nud_To.Size = new System.Drawing.Size(120, 20);
             this.nud_To.TabIndex = 18;
-            this.nud_To.ValueChanged += new System.EventHandler(this.nud_To_ValueChanged);
             // 
             // nud_From
             // 
@@ -113,7 +113,10 @@ namespace OpenWallet.TradeForm
             this.nud_From.Name = "nud_From";
             this.nud_From.Size = new System.Drawing.Size(120, 20);
             this.nud_From.TabIndex = 17;
-            this.nud_From.ValueChanged += new System.EventHandler(this.nud_From_ValueChanged);
+            this.nud_From.ValueChanged += new System.EventHandler(this.nud_ValueChanged);
+            this.nud_From.KeyDown += new System.Windows.Forms.KeyEventHandler(this.nud_KeyDown);
+            this.nud_From.KeyUp += new System.Windows.Forms.KeyEventHandler(this.nud_KeyUp);
+            this.nud_From.Leave += new System.EventHandler(this.nud_From_Leave);
             // 
             // lbl_currentPrice
             // 
@@ -180,13 +183,23 @@ namespace OpenWallet.TradeForm
             this.pb_swap.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pb_swap.TabIndex = 25;
             this.pb_swap.TabStop = false;
-            this.pb_swap.Click += new System.EventHandler(this.pb_swap_Click);
+            this.pb_swap.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pb_swap_Click);
+            // 
+            // lbl_valueUsdt
+            // 
+            this.lbl_valueUsdt.AutoSize = true;
+            this.lbl_valueUsdt.Location = new System.Drawing.Point(192, 64);
+            this.lbl_valueUsdt.Name = "lbl_valueUsdt";
+            this.lbl_valueUsdt.Size = new System.Drawing.Size(16, 13);
+            this.lbl_valueUsdt.TabIndex = 27;
+            this.lbl_valueUsdt.Text = "---";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(359, 219);
+            this.Controls.Add(this.lbl_valueUsdt);
             this.Controls.Add(this.pb_refresh);
             this.Controls.Add(this.pb_swap);
             this.Controls.Add(this.lbl_couple);
@@ -225,6 +238,7 @@ namespace OpenWallet.TradeForm
         private System.Windows.Forms.ComboBox cb_From;
         private System.Windows.Forms.PictureBox pb_swap;
         private System.Windows.Forms.PictureBox pb_refresh;
+        private System.Windows.Forms.Label lbl_valueUsdt;
     }
 }
 
