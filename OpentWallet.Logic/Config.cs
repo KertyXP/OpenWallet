@@ -72,7 +72,7 @@ namespace OpentWallet.Logic
                 if (oExchange == null)
                     continue; // re-oops
 
-                if(oConfig.IsActive == false)
+                if (oConfig.IsActive == false)
                     continue;
 
                 oExchange.oConfig = oConfig;
@@ -133,8 +133,8 @@ namespace OpentWallet.Logic
                     if (oExchange.oConfig.CurrenciesToIgnore?.Any(c => c == oBalance.Crypto) == true)
                         continue;
 
-                        oBalance.FavCrypto = Config.oGlobalConfig.FavoriteCurrency;
-                    if(oBalance.Exchange == "BSC")
+                    oBalance.FavCrypto = Config.oGlobalConfig.FavoriteCurrency;
+                    if (oBalance.Exchange == "BSC")
                     {
                         //oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
                         oBalance.FavCryptoValue = aAllCurrencies.GetCustomValueFromBtc(oBalance, oBalance.FavCrypto);
@@ -154,6 +154,35 @@ namespace OpentWallet.Logic
             }
 
             return aAll.ToList();
+        }
+        public static List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
+        {
+            List<CurrencySymbolPrice> aFiatisation = Config.LoadFiatisation(aAllCurrencies);
+
+            var aListTrades = aExchanges.Select(oExchange =>
+            {
+                string sFileName = "Trades_" + oExchange.ExchangeName + ".json";
+
+                return File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sFileName)) : new List<GlobalTrade>();
+            })
+                .SelectMany(s => s)
+                .OrderByDescending(s => s.dtTrade)
+                .GroupBy(l => l.InternalExchangeId + l.Exchange)
+                .Select(l => l.FirstOrDefault())
+                .ToList();
+
+
+            aListTrades.ForEach(trade =>
+            {
+                FiatiseOneTrade(trade, aFiatisation);
+            });
+
+            aListTrades.ForEach(trade =>
+            {
+                CalculGainBack(trade, aAllCurrencies);
+            });
+
+            return aListTrades;
         }
 
         public static async Task<List<GlobalTrade>> LoadTrades(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
@@ -189,7 +218,11 @@ namespace OpentWallet.Logic
                 }
             }
 
-            aListTrades = aListTrades.OrderByDescending(t => t.dtTrade).ToList();
+            aListTrades = aListTrades
+                .OrderByDescending(s => s.dtTrade)
+                .GroupBy(l => l.InternalExchangeId + l.Exchange)
+                .Select(l => l.FirstOrDefault())
+                .ToList(); ;
 
 
             aListTrades.ForEach(trade =>
@@ -257,7 +290,7 @@ namespace OpentWallet.Logic
                 oGlobalTrade.Price = oGlobalTrade.QuantityFrom / oGlobalTrade.QuantityTo;
 
                 return oGlobalTrade;
-            }).OrderBy(l => l.dtTrade).OrderBy(t => t.Couple).ToList();
+            }).OrderByDescending(l => l.dtTrade).OrderBy(t => t.Couple).ToList();
 
         }
 

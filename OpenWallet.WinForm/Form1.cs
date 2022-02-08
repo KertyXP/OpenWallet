@@ -42,20 +42,9 @@ namespace OpenWallet.WinForm
             InsertCurrentBalanceInGrid(aAllBalances);
 
 
-            List<GlobalTrade> aListTrades = await Config.LoadTrades(aExchanges, aAllBalances, aAllCurrencies);
+            List<GlobalTrade> aListTrades = Config.LoadTradesFromCacheOnly(aExchanges, aAllBalances, aAllCurrencies);
+            RefreshTrades(aListTrades);
 
-
-
-            Config.ConvertTradesToDailyTrades(aListTrades).ForEach(t =>
-            {
-                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.dtTrade.ToString("yyyy-MM-dd"), t.QuantityBack);
-            });
-
-
-            Config.ConvertTradesToGlobalTrades(aListTrades).ForEach(t =>
-            {
-                dgv_Trades.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo);
-            });
         }
 
         private void InsertCurrentBalanceInGrid(List<GlobalBalance> aAll)
@@ -101,5 +90,27 @@ namespace OpenWallet.WinForm
 
         }
 
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            button1.Enabled = false;
+            List<GlobalTrade> aListTrades = await Config.LoadTrades(aExchanges, aAllBalances, aAllCurrencies);
+            RefreshTrades(aListTrades);
+
+            button1.Enabled = true;
+        }
+
+        private void RefreshTrades(List<GlobalTrade> aListTrades)
+        {
+            Config.ConvertTradesToDailyTrades(aListTrades).ForEach(t =>
+            {
+                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.dtTrade.ToString("yyyy-MM-dd"), t.QuantityBack);
+            });
+
+
+            Config.ConvertTradesToGlobalTrades(aListTrades).ForEach(t =>
+            {
+                dgv_Trades.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo);
+            });
+        }
     }
 }

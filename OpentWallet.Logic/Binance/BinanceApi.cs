@@ -278,31 +278,28 @@ namespace OpentWallet.Logic
 
             var aAllSymbols = ExchangeInfo.Symbols.OrderBy(s => s.SymbolSymbol).ToList();
 
-            // pair from current balance
-            foreach (var oPair in aAllSymbols)
-            {
-                if(oPair.BaseAsset == "THETA" || oPair.QuoteAsset == "THETA")
-                {
-
-                    if (aAllBalances.Any(ctc => ctc.Crypto == oPair.BaseAsset || ctc.Crypto == oPair.QuoteAsset))
-                    {
-                        var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
-                        aListTrades.AddRange(aTrades.Where(t => aTrades.Any(t2 => t2.InternalExchangeId == t.InternalExchangeId) == false));
-
-                    }
-                }
-            }
-
-            // pair defined in config
-            //foreach (var oPair in ExchangeInfo.Symbols)
+            //// pair from current balance
+            //foreach (var oPair in aAllSymbols)
             //{
-            //    if (CurrenciesToCheck.aCurrenciesToCheck.Any(ctc => ctc == oPair.BaseAsset || ctc == oPair.QuoteAsset))
+            //    if (aAllBalances.Any(ctc => ctc.Crypto == oPair.BaseAsset || ctc.Crypto == oPair.QuoteAsset))
             //    {
             //        var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
-            //            aListTrades.AddRange(aTrades);
+            //        aListTrades.AddRange(aTrades.Where(t => aTrades.Any(t2 => t2.InternalExchangeId == t.InternalExchangeId) == false));
 
             //    }
             //}
+
+            //return aListTrades;
+            // pair defined in config
+            foreach (var oPair in ExchangeInfo.Symbols)
+            {
+                if (CurrenciesToCheck.aCurrenciesToCheck.Any(ctc => ctc == oPair.BaseAsset || ctc == oPair.QuoteAsset))
+                {
+                    var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
+                    aListTrades.AddRange(aTrades);
+
+                }
+            }
 
             return aListTrades;
         }
@@ -358,7 +355,7 @@ namespace OpentWallet.Logic
 
         string QuantityToString(double quantity, double tick)
         {
-            var d2 = quantity.ToString(tick.ToString().Replace(',','.').Replace('0', '#').Replace('1', '#')).Replace(',', '.');
+            var d2 = quantity.ToString(tick.ToString().Replace(',', '.').Replace('0', '#').Replace('1', '#')).Replace(',', '.');
             return d2;
 
             string sQuantity = "";
@@ -367,10 +364,10 @@ namespace OpentWallet.Logic
             while (true)
             {
                 if (quantity > start)
-        {
+                {
                     sQuantity = quantity.ToString("F" + decPart);
                     break;
-        }
+                }
                 start /= 10;
                 decPart++;
             }
@@ -380,7 +377,7 @@ namespace OpentWallet.Logic
             {
                 sQuantity = sQuantity.TrimEnd('0', '.');
             }
-            
+
             return sQuantity;
         }
 
@@ -398,11 +395,11 @@ namespace OpentWallet.Logic
 
             var oTradeResponse = Call<BinanceTradeMarketResponse>(oCall, $"symbol={symbol.Couple}&side={(SellOrBuy == SellBuy.Buy ? "BUY" : "SELL")}&type=MARKET&quantity={sQuantity}");
 
-            if(bTest == true)
+            if (bTest == true)
             {
-                if(symbol.Couple == "ADAUSDT")
+                if (symbol.Couple == "ADAUSDT")
                 {
-                    if(SellOrBuy == SellBuy.Sell)
+                    if (SellOrBuy == SellBuy.Sell)
                     {
                         oTradeResponse.Payload = JsonConvert.DeserializeObject<BinanceTradeMarketResponse>("{\"symbol\":\"ADAUSDT\",\"orderId\":2628222193,\"orderListId\":-1,\"clientOrderId\":\"pS7CVFM3cdWhDIpOyGqc2j\",\"transactTime\":1637439625778,\"price\":\"0.00000000\",\"origQty\":\"10.00000000\",\"executedQty\":\"10.00000000\",\"cummulativeQuoteQty\":\"19.04000000\",\"status\":\"FILLED\",\"timeInForce\":\"GTC\",\"type\":\"MARKET\",\"side\":\"SELL\",\"fills\":[{\"price\":\"1.90400000\",\"qty\":\"10.00000000\",\"commission\":\"0.00002392\",\"commissionAsset\":\"BNB\",\"tradeId\":320123814}]}");
                     }
@@ -414,7 +411,7 @@ namespace OpentWallet.Logic
             }
 
 
-            if (oTradeResponse.success )
+            if (oTradeResponse.success)
             {
                 string quantityFrom = SellOrBuy == SellBuy.Buy ? oTradeResponse.Payload.CummulativeQuoteQty : oTradeResponse.Payload.ExecutedQty;
                 string quantityTo = SellOrBuy == SellBuy.Buy ? oTradeResponse.Payload.ExecutedQty : oTradeResponse.Payload.CummulativeQuoteQty;
