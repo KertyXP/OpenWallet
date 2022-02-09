@@ -28,6 +28,8 @@ namespace OpentWallet.Logic
             new BinanceCalls(){Api = "/api/v3/ticker/price", eCall = BinanceCalls.ECalls.tickerPriceV3, Weight = 2, PublicApi = true},
             new BinanceCalls(){Api = "/sapi/v1/margin/allPairs", eCall = BinanceCalls.ECalls.allPairs, Weight = 1, PublicApi = true},
             new BinanceCalls(){Api = "/sapi/v1/lending/project/position/list", eCall = BinanceCalls.ECalls.earnings, Weight = 1},
+            new BinanceCalls(){Api = "/sapi/v1/lending/project/list", eCall = BinanceCalls.ECalls.lendingProjectList, Weight = 1},
+            //new BinanceCalls(){Api = "/sapi/v1/lending/daily/token/position", eCall = BinanceCalls.ECalls.earnings, Weight = 1},
             new BinanceCalls(){Api = "/api/v3/order", eCall = BinanceCalls.ECalls.placeOrder, Weight = 1, get = false},
             new BinanceCalls(){Api = "/api/v3/order/test", eCall = BinanceCalls.ECalls.placeOrderTest, Weight = 1, get = false},
         };
@@ -202,34 +204,32 @@ namespace OpentWallet.Logic
 
         public List<GlobalBalance> GetBalance()
         {
-            //var o2 = Call<BinanceAccount>(BinanceCalls.ECalls.earnings, "asset=BNB");
-
-
+            // no way actually to get the earn account
+            //var o2 = Call<BinanceAccount>(BinanceCalls.ECalls.earnings, "asset=ADA");
+            //var o3 = Call<BinanceAccount>(BinanceCalls.ECalls.lendingProjectList, "type=CUSTOMIZED_FIXED");
 
             _oLastBalance = Call<BinanceAccount>(BinanceCalls.ECalls.accountV3, string.Empty).Payload;
-
-
 
             try
             {
 
 
                 List<GlobalBalance> oGlobalBalance = _oLastBalance.Balances.Select(b =>
-                {
-                    double val = b.Free.ToDouble() + b.Locked.ToDouble();
-                    if (val == 0)
-                        return null;
-                    return new GlobalBalance
                     {
-                        Exchange = ExchangeName,
-                        Crypto = b.Asset,
-                        Value = val,
-                    };
-                }
-                    )
-                    .Where(gb => gb != null)
-                    .Where(gb => gb.Value > 0)
-                    .ToList();
+                        double val = b.Free.ToDouble() + b.Locked.ToDouble();
+                        if (val == 0)
+                            return null;
+                        return new GlobalBalance
+                        {
+                            Exchange = ExchangeName,
+                            Crypto = b.Asset,
+                            Value = val,
+                        };
+                    }
+                )
+                .Where(gb => gb != null)
+                .Where(gb => gb.Value > 0)
+                .ToList();
 
                 return oGlobalBalance;
 

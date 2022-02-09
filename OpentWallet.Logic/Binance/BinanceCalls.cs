@@ -4,7 +4,7 @@ namespace OpentWallet.Logic
 {
     public class BinanceCalls
     {
-        public enum ECalls { accountV3, myTradesV3, ExchangeInfoV3, tickerPriceV3, allPairs, earnings, placeOrder, placeOrderTest }
+        public enum ECalls { accountV3, myTradesV3, ExchangeInfoV3, tickerPriceV3, allPairs, earnings, lendingProjectList, placeOrder, placeOrderTest }
         public ECalls eCall { get; set; }
         public string Api { get; set; }
         public int Weight { get; set; }

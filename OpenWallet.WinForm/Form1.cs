@@ -21,6 +21,7 @@ namespace OpenWallet.WinForm
         List<CurrencySymbolPrice> aAllCurrencies;
         List<GlobalBalance> aAllBalances;
         List<IExchange> aExchanges;
+        List<GlobalTrade> aListTrades;
 
         public Form1()
         {
@@ -42,13 +43,57 @@ namespace OpenWallet.WinForm
             InsertCurrentBalanceInGrid(aAllBalances);
 
 
-            List<GlobalTrade> aListTrades = Config.LoadTradesFromCacheOnly(aExchanges, aAllBalances, aAllCurrencies);
+            aListTrades = Config.LoadTradesFromCacheOnly(aExchanges, aAllBalances, aAllCurrencies);
             RefreshTrades(aListTrades);
 
         }
 
+        private void HistoryWalletToTrade(GlobalTrade tradeToMoveTo)
+        {
+            var aNewBalance = JsonConvert.DeserializeObject<List<GlobalBalance>>(JsonConvert.SerializeObject(aAllBalances));
+
+            foreach (var oTrade in aListTrades)
+            {
+                if (oTrade.Exchange + oTrade.InternalExchangeId == tradeToMoveTo.Exchange + tradeToMoveTo.InternalExchangeId)
+                    break;
+
+                var from = aNewBalance.FirstOrDefault(b => b.Crypto == oTrade.From);
+                var to = aNewBalance.FirstOrDefault(b => b.Crypto == oTrade.To);
+                if (from == null)
+                {
+                    from = new GlobalBalance()
+                    {
+                        Crypto = oTrade.From,
+                        Value = 0,
+                        Exchange = oTrade.Exchange,
+                        CryptoId = oTrade.CryptoFromId
+                    };
+                    aNewBalance.Add(from);
+                }
+                if (to == null)
+                {
+                    to = new GlobalBalance()
+                    {
+                        Crypto = oTrade.To,
+                        Value = 0,
+                        Exchange = oTrade.Exchange,
+                        CryptoId = oTrade.CryptoToId
+                    };
+                    aNewBalance.Add(to);
+                }
+                from.Value += oTrade.QuantityFrom;
+                to.Value -= oTrade.QuantityTo;
+            }
+
+
+            aNewBalance = Config.SetBitcoinFavCryptoValue(aExchanges, aAllCurrencies, aNewBalance);
+
+            InsertCurrentBalanceInGrid(aNewBalance);
+        }
+
         private void InsertCurrentBalanceInGrid(List<GlobalBalance> aAll)
         {
+            dgv_Balance.Rows.Clear();
             foreach (var b in aAll)
             {
                 dgv_Balance.Rows.Add(b, b.Exchange, b.Crypto, b.Value, b.BitCoinValue, b.FavCryptoValue);
@@ -66,6 +111,7 @@ namespace OpenWallet.WinForm
         {
             if (this.dgv_Balance.SelectedRows.Count <= 0)
                 return;
+            return;
 
             var oGlobalBalance = this.dgv_Balance.SelectedRows[0].Cells[0].Value as GlobalBalance;
             if (oGlobalBalance != null)
@@ -93,7 +139,9 @@ namespace OpenWallet.WinForm
         private async void button1_Click(object sender, EventArgs e)
         {
             button1.Enabled = false;
-            List<GlobalTrade> aListTrades = await Config.LoadTrades(aExchanges, aAllBalances, aAllCurrencies);
+            List<GlobalTrade> aListTrades2 = await Config.LoadTrades(aExchanges, aAllBalances, aAllCurrencies);
+            aListTrades.Clear();
+            aListTrades.AddRange(aListTrades2);
             RefreshTrades(aListTrades);
 
             button1.Enabled = true;
@@ -111,6 +159,13 @@ namespace OpenWallet.WinForm
             {
                 dgv_Trades.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo);
             });
+        }
+
+
+        private void dgv_trade_day_SelectionChanged(object sender, EventArgs e)
+        {
+            GlobalTrade t = (GlobalTrade)(sender as DataGridView).SelectedRows[0].Cells[0].Value;
+            HistoryWalletToTrade(t);
         }
     }
 }
