@@ -48,7 +48,7 @@ namespace OpentWallet.Logic
         private BinanceAccount _oLastBalance;
         public string ExchangeName => "Binance";
         public string ExchangeCode => "Binance";
-        public CurrenciesToCheck CurrenciesToCheck;
+        public BinanceLocalParams LocalParam;
 
         public BinanceApi()
         {
@@ -58,7 +58,7 @@ namespace OpentWallet.Logic
         public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
-            CurrenciesToCheck = JsonConvert.DeserializeObject<CurrenciesToCheck>(oConfig.LocalParams?.ToString());
+            LocalParam = JsonConvert.DeserializeObject<BinanceLocalParams>(oConfig.LocalParams?.ToString());
             this.oGlobalConfig = oGlobalConfig;
 
             ExchangeInfo = GetExchangeInfo();
@@ -269,12 +269,24 @@ namespace OpentWallet.Logic
             //}
 
             // pair from cache
-            var aSymbols = aCache.GroupBy(c => c.Couple).Select(c => c.FirstOrDefault()).ToList();
-            foreach (var oPair in aSymbols)
+            //var aSymbols = aCache.GroupBy(c => c.Couple).Select(c => c.FirstOrDefault()).ToList();
+            //foreach (var oPair in aSymbols)
+            //{
+            //    var aTrades = GetTradesFromCurrencies(oPair.From, oPair.To);
+            //    aListTrades.AddRange(aTrades);
+            //}
+
+            if (LocalParam.aPairsToCheck?.Any() == true)
             {
-                var aTrades = GetTradesFromCurrencies(oPair.From, oPair.To);
-                aListTrades.AddRange(aTrades);
+
+                // pair from config
+                foreach (var oPair in LocalParam.aPairsToCheck)
+                {
+                    var aTrades = GetTradesFromCurrencies(oPair.Split('_').First(), oPair.Split('_').Last());
+                    aListTrades.AddRange(aTrades);
+                }
             }
+
 
             var aAllSymbols = ExchangeInfo.Symbols.OrderBy(s => s.SymbolSymbol).ToList();
 
@@ -291,13 +303,17 @@ namespace OpentWallet.Logic
 
             //return aListTrades;
             // pair defined in config
-            foreach (var oPair in ExchangeInfo.Symbols)
+            if(LocalParam.checkcurrenciesToCheck)
             {
-                if (CurrenciesToCheck.aCurrenciesToCheck.Any(ctc => ctc == oPair.BaseAsset || ctc == oPair.QuoteAsset))
-                {
-                    var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
-                    aListTrades.AddRange(aTrades);
 
+                foreach (var oPair in ExchangeInfo.Symbols)
+                {
+                    if (LocalParam.aCurrenciesToCheck.Any(ctc => ctc == oPair.BaseAsset || ctc == oPair.QuoteAsset))
+                    {
+                        var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
+                        aListTrades.AddRange(aTrades);
+
+                    }
                 }
             }
 

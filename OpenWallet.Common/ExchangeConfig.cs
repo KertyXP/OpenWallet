@@ -26,5 +26,6 @@ namespace OpenWallet.Common
 
         [JsonProperty("currenciesToIgnore")]
         public List<string> CurrenciesToIgnore { get; set; }
+
     }
 }
