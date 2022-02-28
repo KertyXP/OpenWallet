@@ -135,29 +135,24 @@ namespace OpentWallet.Logic
                             bOrderFoundInCache = true;
                             continue;
                         }
-
-                        var oGlobalTrade = new GlobalTrade();
-                        oGlobalTrade.Exchange = ExchangeName;
+                        GlobalTrade globalTrade = null;
                         if (oOrderHistory.Side == Side.Buy)
                         {
-                            oGlobalTrade.From = cur.To;
-                            oGlobalTrade.To = cur.From;
-                            oGlobalTrade.Price = 1 / oOrderHistory.Price.ToDouble();
-                            oGlobalTrade.QuantityTo = oOrderHistory.Amount.ToDouble();
-                            oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
+                            globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
+
+                            globalTrade.QuantityTo = oOrderHistory.Amount.ToDouble();
+                            globalTrade.QuantityFrom = globalTrade.QuantityTo / globalTrade.Price;
                         }
                         else
                         {
+                            globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
 
-                            oGlobalTrade.From = cur.From;
-                            oGlobalTrade.To = cur.To;
-                            oGlobalTrade.Price = oOrderHistory.Price.ToDouble();
-                            oGlobalTrade.QuantityFrom = oOrderHistory.Amount.ToDouble();
-                            oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
+                            globalTrade.QuantityFrom = oOrderHistory.Amount.ToDouble();
+                            globalTrade.QuantityTo = globalTrade.QuantityFrom * globalTrade.Price;
                         }
-                        oGlobalTrade.InternalExchangeId = oOrderHistory.Id.ToString();
-                        oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.Time);
-                        aListTrades.Add(oGlobalTrade);
+                        globalTrade.InternalExchangeId = oOrderHistory.Id.ToString();
+                        globalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.Time);
+                        aListTrades.Add(globalTrade);
 
                     }
                 }

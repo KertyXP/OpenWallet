@@ -8,7 +8,7 @@ namespace OpenWallet.Common
 
     public class GlobalTrade : CurrencySymbolPrice
     {
-        public GlobalTrade()
+        public GlobalTrade(string from, string to, double price, string couple, string exchange) : base(from, to, price, couple, exchange)
         {
         }
 

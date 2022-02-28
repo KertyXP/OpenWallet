@@ -87,7 +87,7 @@ namespace OpentWallet.Logic
                 }
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(cur.From, cur.To, Price, cur.Couple, ExchangeName),
+                    new CurrencySymbolPrice(cur.From, cur.To, Price,  cur.Couple, ExchangeName),
                     new CurrencySymbolPriceReverted(cur.From, cur.To, Price, cur.Couple, ExchangeName),
                 };
             })
@@ -326,29 +326,22 @@ namespace OpentWallet.Logic
             var oTradeList = Call<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, $"symbol={sFrom}{sTo}").Payload;// + oPair.SymbolSymbol);
             foreach (var oTradeBinance in oTradeList)
             {
-
-                var oGlobalTrade = new GlobalTrade();
-                oGlobalTrade.Exchange = ExchangeName;
+                GlobalTrade globalTrade = null;
                 if (oTradeBinance.IsBuyer)
                 {
-                    oGlobalTrade.From = sTo;
-                    oGlobalTrade.To = sFrom;
-                    oGlobalTrade.Price = 1 / oTradeBinance.Price.ToDouble();
-                    oGlobalTrade.QuantityTo = oTradeBinance.Qty.ToDouble();
-                    oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
+                    globalTrade = new GlobalTrade(sTo, sFrom, oTradeBinance.Price.ToDouble(), oTradeBinance.Symbol, ExchangeName);
+                    globalTrade.QuantityTo = oTradeBinance.Qty.ToDouble();
+                    globalTrade.QuantityFrom = globalTrade.QuantityTo / globalTrade.Price;
                 }
                 else
                 {
-
-                    oGlobalTrade.From = sFrom;
-                    oGlobalTrade.To = sTo;
-                    oGlobalTrade.Price = oTradeBinance.Price.ToDouble();
-                    oGlobalTrade.QuantityFrom = oTradeBinance.Qty.ToDouble();
-                    oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
+                    globalTrade = new GlobalTrade(sFrom, sTo, oTradeBinance.Price.ToDouble(), oTradeBinance.Symbol, ExchangeName);
+                    globalTrade.QuantityFrom = oTradeBinance.Qty.ToDouble();
+                    globalTrade.QuantityTo = globalTrade.QuantityFrom * globalTrade.Price;
                 }
-                oGlobalTrade.InternalExchangeId = oTradeBinance.Id.ToString();
-                oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oTradeBinance.Time / 1000);
-                aListTrades.Add(oGlobalTrade);
+                globalTrade.InternalExchangeId = oTradeBinance.Id.ToString();
+                globalTrade.dtTrade = UnixTimeStampToDateTime(oTradeBinance.Time / 1000);
+                aListTrades.Add(globalTrade);
 
             }
 
@@ -431,15 +424,11 @@ namespace OpentWallet.Logic
             {
                 string quantityFrom = SellOrBuy == SellBuy.Buy ? oTradeResponse.Payload.CummulativeQuoteQty : oTradeResponse.Payload.ExecutedQty;
                 string quantityTo = SellOrBuy == SellBuy.Buy ? oTradeResponse.Payload.ExecutedQty : oTradeResponse.Payload.CummulativeQuoteQty;
-                return new GlobalTrade()
+                return new GlobalTrade(symbol.From, symbol.To, oTradeResponse.Payload.Price?.ToDouble() ?? 0, symbol.Couple, ExchangeCode)
                 {
                     CryptoFromId = symbol.CryptoFromId,
                     CryptoToId = symbol.CryptoToId,
                     dtTrade = DateTime.Now,
-                    Exchange = ExchangeCode,
-                    From = symbol.From,
-                    To = symbol.To,
-                    Price = oTradeResponse.Payload.Price?.ToDouble() ?? 0,
                     QuantityFrom = quantityFrom?.ToDouble() ?? 0,
                     QuantityTo = quantityTo?.ToDouble() ?? 0,
                     InternalExchangeId = oTradeResponse.Payload.ClientOrderId,

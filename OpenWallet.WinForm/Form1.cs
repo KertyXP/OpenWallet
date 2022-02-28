@@ -18,10 +18,11 @@ namespace OpenWallet.WinForm
 {
     public partial class Form1 : Form
     {
-        List<CurrencySymbolPrice> aAllCurrencies;
-        List<GlobalBalance> aAllBalances;
-        List<IExchange> aExchanges;
-        List<GlobalTrade> aListTrades;
+        List<CurrencySymbolPrice> allCurrencies;
+        List<GlobalBalance> balances;
+        List<IExchange> exchanges;
+        List<GlobalTrade> trades;
+        List<List<GlobalTrade>> groupTrades;
 
         public Form1()
         {
@@ -34,25 +35,28 @@ namespace OpenWallet.WinForm
         {
 
             Config.Init("");
-            aExchanges = Config.LoadExchanges();
+            exchanges = Config.LoadExchanges();
 
-            aAllCurrencies = Config.GetCurrencries(aExchanges);
+            allCurrencies = Config.GetCurrencries(exchanges);
 
-            aAllBalances = await Config.GetBalances(aExchanges, aAllCurrencies);
+            balances = await Config.GetBalances(exchanges, allCurrencies);
 
-            InsertCurrentBalanceInGrid(aAllBalances);
+            InsertCurrentBalanceInGrid(balances);
 
 
-            aListTrades = Config.LoadTradesFromCacheOnly(aExchanges, aAllBalances, aAllCurrencies);
-            RefreshTrades(aListTrades);
+            trades = Config.LoadTradesFromCacheOnly(exchanges, balances, allCurrencies);
+
+            groupTrades = Config.LoadGroupTrade();
+
+            RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
         }
 
         private void HistoryWalletToTrade(GlobalTrade tradeToMoveTo)
         {
-            var aNewBalance = JsonConvert.DeserializeObject<List<GlobalBalance>>(JsonConvert.SerializeObject(aAllBalances));
+            var aNewBalance = JsonConvert.DeserializeObject<List<GlobalBalance>>(JsonConvert.SerializeObject(balances));
 
-            foreach (var oTrade in aListTrades)
+            foreach (var oTrade in trades)
             {
                 if (oTrade.Exchange + oTrade.InternalExchangeId == tradeToMoveTo.Exchange + tradeToMoveTo.InternalExchangeId)
                     break;
@@ -86,7 +90,7 @@ namespace OpenWallet.WinForm
             }
 
 
-            aNewBalance = Config.SetBitcoinFavCryptoValue(aExchanges, aAllCurrencies, aNewBalance);
+            aNewBalance = Config.SetBitcoinFavCryptoValue(exchanges, allCurrencies, aNewBalance);
 
             InsertCurrentBalanceInGrid(aNewBalance);
         }
@@ -139,10 +143,10 @@ namespace OpenWallet.WinForm
         private async void button1_Click(object sender, EventArgs e)
         {
             button1.Enabled = false;
-            List<GlobalTrade> aListTrades2 = await Config.LoadTrades(aExchanges, aAllBalances, aAllCurrencies);
-            aListTrades.Clear();
-            aListTrades.AddRange(aListTrades2);
-            RefreshTrades(aListTrades);
+            List<GlobalTrade> aListTrades2 = await Config.LoadTrades(exchanges, balances, allCurrencies);
+            trades.Clear();
+            trades.AddRange(aListTrades2);
+            RefreshTrades(trades);
 
             button1.Enabled = true;
         }
@@ -151,7 +155,7 @@ namespace OpenWallet.WinForm
         {
             Config.ConvertTradesToDailyTrades(aListTrades).ForEach(t =>
             {
-                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.dtTrade.ToString("yyyy-MM-dd"), t.QuantityBack);
+                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.RealPrice, t.dtTrade.ToString("yyyy-MM-dd"), t.QuantityBack);
             });
 
 
@@ -166,6 +170,19 @@ namespace OpenWallet.WinForm
         {
             GlobalTrade t = (GlobalTrade)(sender as DataGridView).SelectedRows[0].Cells[0].Value;
             HistoryWalletToTrade(t);
+        }
+
+        private void bt_group_Click(object sender, EventArgs e)
+        {
+            var group = new List<GlobalTrade>();
+            foreach(DataGridViewRow row in dgv_trade_day.SelectedRows)
+            {
+                var trade = row.Cells[0].Value as GlobalTrade;
+                group.Add(trade);
+            }
+
+            groupTrades.Add(group);
+            Config.SaveGroupTrade(groupTrades);
         }
     }
 }

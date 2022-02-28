@@ -45,6 +45,22 @@ namespace OpentWallet.Logic
             return oConfig;
         }
 
+        public static List<List<GlobalTrade>> LoadGroupTrade()
+        {
+            string sFileName = "GroupTrades.json";
+
+            var groupTrades = File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<List<GlobalTrade>>>(File.ReadAllText(sFileName)) : new List<List<GlobalTrade>>();
+
+            return groupTrades;
+        }
+        public static void SaveGroupTrade(List<List<GlobalTrade>> groupTrades)
+        {
+            string sFileName = "GroupTrades.json";
+            string json = JsonConvert.SerializeObject(groupTrades);
+
+            File.WriteAllText(sFileName, json);
+        }
+
         public static void Init(string sFolderPath)
         {
             sRootPath = sFolderPath;
@@ -108,12 +124,7 @@ namespace OpentWallet.Logic
                 string sTo = Config.oGlobalConfig.FiatMoneys.FirstOrDefault();
                 aFiatisation = Config.oGlobalConfig.FiatMoneys.Skip(1).Select(fiat =>
                 {
-                    return new CurrencySymbolPrice()
-                    {
-                        From = fiat,
-                        To = sTo,
-                        Price = aAllCurrencies.GetCustomPrice(fiat, sTo)
-                    };
+                    return new CurrencySymbolPrice(fiat, sTo, aAllCurrencies.GetCustomPrice(fiat, sTo), string.Empty, string.Empty);
                 }).ToList();
             }
 
@@ -291,19 +302,15 @@ namespace OpentWallet.Logic
             return aListTrades.GroupBy(l => l.From + "|" + l.To + "_" + l.dtTrade.ToString("_yyyy-MM-dd")).Select(l =>
             {
                 var one = l.FirstOrDefault();
-                var oGlobalTrade = new GlobalTrade();
-                oGlobalTrade.Exchange = one.Exchange;
+                double price = one.Couple.StartsWith(one.From) ? one.QuantityTo / one.QuantityFrom : one.QuantityFrom / one.QuantityTo;
+                var oGlobalTrade = new GlobalTrade(one.From, one.To, price, one.Couple, one.Exchange);
                 oGlobalTrade.QuantityBack = one.QuantityBack;
                 oGlobalTrade.CryptoFromId = one.CryptoFromId;
                 oGlobalTrade.CryptoToId = one.CryptoToId;
-                oGlobalTrade.From = one.From;
-                oGlobalTrade.To = one.To;
                 oGlobalTrade.QuantityFrom = l.Sum(m => m.QuantityFrom);
                 oGlobalTrade.QuantityTo = l.Sum(m => m.QuantityTo);
                 oGlobalTrade.InternalExchangeId = one.InternalExchangeId;
                 oGlobalTrade.dtTrade = one.dtTrade;
-
-                oGlobalTrade.Price = oGlobalTrade.QuantityFrom / oGlobalTrade.QuantityTo;
 
                 return oGlobalTrade;
             }).OrderByDescending(l => l.dtTrade).OrderBy(t => t.Couple).ToList();
@@ -316,19 +323,14 @@ namespace OpentWallet.Logic
             return aListTrades.GroupBy(l => l.From + "|" + l.To).Select(l =>
             {
                 var one = l.FirstOrDefault();
-                var oGlobalTrade = new GlobalTrade();
-                oGlobalTrade.Exchange = one.Exchange;
+                var oGlobalTrade = new GlobalTrade(one.From, one.To, l.Sum(m => m.QuantityFrom) / l.Sum(m => m.QuantityTo), one.Couple, one.Exchange);
                 oGlobalTrade.CryptoFromId = one.CryptoFromId;
                 oGlobalTrade.QuantityBack = one.QuantityBack;
                 oGlobalTrade.CryptoToId = one.CryptoToId;
-                oGlobalTrade.From = one.From;
-                oGlobalTrade.To = one.To;
                 oGlobalTrade.QuantityFrom = l.Sum(m => m.QuantityFrom);
                 oGlobalTrade.QuantityTo = l.Sum(m => m.QuantityTo);
                 oGlobalTrade.InternalExchangeId = one.InternalExchangeId;
                 oGlobalTrade.dtTrade = one.dtTrade;
-
-                oGlobalTrade.Price = oGlobalTrade.QuantityFrom / oGlobalTrade.QuantityTo;
 
                 return oGlobalTrade;
             }).OrderBy(l => l.From).OrderBy(t => t.Couple).ToList();

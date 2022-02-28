@@ -179,7 +179,7 @@ namespace OpentWallet.Logic
 
                     var dt = DateTime.ParseExact(oDate, "yyyy-MM-dd H:mm:ss", CultureInfo.InvariantCulture.DateTimeFormat).ToLocalTime();
 
-                    oTempTrades.Add(new GlobalTrade()
+                    oTempTrades.Add(new GlobalTrade(string.Empty, string.Empty, 0f, string.Empty, ExchangeName)
                     {
                         InternalExchangeId = sTradeId,
                         dtTrade = dt
@@ -236,15 +236,11 @@ namespace OpentWallet.Logic
                     .ElementAtOrDefault(1);
                 if (aSwapRoute == null) // happens when the transaction fails
                 {
-                    oTrades.Add(new GlobalTrade()
+                    oTrades.Add(new GlobalTrade("F", "F", 1, "F_F", ExchangeName)
                     {
                         InternalExchangeId = oTrade.InternalExchangeId,
-                        From = "F",
-                        To = "F",
                         QuantityFrom = 1,
                         QuantityTo = 1,
-                        Price = 1,
-                        Exchange = ExchangeName,
                         dtTrade = oTrade.dtTrade
 
 
@@ -266,15 +262,11 @@ namespace OpentWallet.Logic
                 if (tokenFrom.InnerText == tokenTo.InnerText) // Stack, ignore
                 {
 
-                    oTrades.Add(new GlobalTrade()
+                    oTrades.Add(new GlobalTrade(sFrom, sTo, 1, sFrom + "_" + sTo, ExchangeCode)
                     {
                         InternalExchangeId = oTrade.InternalExchangeId,
-                        From = sFrom,
-                        To = sTo,
                         QuantityFrom = 0,
                         QuantityTo = 0,
-                        Price = 1,
-                        Exchange = ExchangeName,
                         dtTrade = oTrade.dtTrade
 
                     });
@@ -294,16 +286,11 @@ namespace OpentWallet.Logic
 
                 if (string.IsNullOrEmpty(sTokenIdFrom)) // happens when the transaction fails
                 {
-                    oTrades.Add(new GlobalTrade()
+                    oTrades.Add(new GlobalTrade("F", "F", 1, "F_F", ExchangeCode)
                     {
                         InternalExchangeId = oTrade.InternalExchangeId,
-                        From = "F",
-                        To = "F",
                         QuantityFrom = 1,
                         QuantityTo = 1,
-                        Price = 1,
-                        Exchange = ExchangeName
-
                     });
 
                     continue;
@@ -318,17 +305,13 @@ namespace OpentWallet.Logic
                 string sCryptoFrom = Regex.Replace(sFrom, ".*\\((.*)\\).*", "$1");
                 string sCryptoTo = Regex.Replace(sTo, ".*\\((.*)\\).*", "$1");
 
-                var oGlobalTrade = new GlobalTrade();
+                var oGlobalTrade = new GlobalTrade(sCryptoFrom, sCryptoTo, dTo / dFrom, sCryptoFrom + "_" + sCryptoTo, ExchangeCode);
                 oGlobalTrade.CryptoFromId = sTokenIdFrom;
                 oGlobalTrade.CryptoToId = sTokenIdTo;
-                oGlobalTrade.From = sCryptoFrom;
-                oGlobalTrade.To = sCryptoTo;
                 oGlobalTrade.QuantityFrom = dFrom;
                 oGlobalTrade.QuantityTo = dTo;
-                oGlobalTrade.Price = dTo / dFrom;
                 oGlobalTrade.InternalExchangeId = oTrade.InternalExchangeId;
                 oGlobalTrade.dtTrade = oTrade.dtTrade;
-                oGlobalTrade.Exchange = ExchangeName;
                 oTrades.Add(oGlobalTrade);
                 //Name: "data-toggle", Value: "tooltip"
             }

@@ -68,23 +68,21 @@ namespace OpenWallet.Common
 
     public class CurrencySymbolPrice : CurrencySymbolExchange
     {
-        public CurrencySymbolPrice()
+        public CurrencySymbolPrice(string from, string to, double realPrice, string couple, string exchange) : base(from, to, couple, exchange)
         {
-
-        }
-        public CurrencySymbolPrice(string from, string to, double price, string couple, string exchange) : base(from, to, couple, exchange)
-        {
-            Price = price;
+            RealPrice = realPrice;
+            Price = couple.StartsWith(from) ? realPrice : 1 / realPrice;
         }
 
         public double Price { get; set; }
+        public double RealPrice { get; set; }
 
 
     }
 
     public class CurrencySymbolPriceReverted : CurrencySymbolPrice
     {
-        public CurrencySymbolPriceReverted(string from, string to, double price, string couple, string exchange) : base(to, from, 1 / price, couple, exchange)
+        public CurrencySymbolPriceReverted(string from, string to, double realPrice, string couple, string exchange) : base(to, from, realPrice, couple, exchange)
         {
         }
     }
