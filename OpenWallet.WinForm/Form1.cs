@@ -153,16 +153,22 @@ namespace OpenWallet.WinForm
 
         private void RefreshTrades(List<GlobalTrade> aListTrades)
         {
-            Config.ConvertTradesToDailyTrades(aListTrades).ForEach(t =>
+            var tradeToShow = aListTrades.Where(t => groupTrades.SelectMany(g => g).Any(gt => gt.InternalExchangeId == t.InternalExchangeId) == false);
+            dgv_trade_day.Rows.Clear();
+            tradeToShow.ForEach(t =>
             {
                 dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.RealPrice, t.dtTrade.ToString("yyyy-MM-dd"), t.QuantityBack);
             });
 
-
-            Config.ConvertTradesToGlobalTrades(aListTrades).ForEach(t =>
+            groupTrades.ForEach(g => 
             {
-                dgv_Trades.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo);
+                var from = g.FirstOrDefault()?.From;
+                var to = g.FirstOrDefault()?.To;
+                var quantityFrom =  g.Where(t => t.To == from).Sum(t => t.QuantityTo) - g.Where(t => t.From == from).Sum(t => t.QuantityFrom);
+                var quantityTo = g.Where(t => t.To == to).Sum(t => t.QuantityTo) - g.Where(t => t.From == to).Sum(t => t.QuantityFrom);
+                dgv_group.Rows.Add(g, from, quantityFrom, to, quantityTo, g.FirstOrDefault().dtTrade.ToString("yyyy-MM-dd"));
             });
+
         }
 
 
@@ -183,6 +189,8 @@ namespace OpenWallet.WinForm
 
             groupTrades.Add(group);
             Config.SaveGroupTrade(groupTrades);
+            RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
         }
+
     }
 }
