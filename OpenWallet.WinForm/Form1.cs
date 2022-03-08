@@ -160,6 +160,7 @@ namespace OpenWallet.WinForm
                 dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.RealPrice, t.dtTrade.ToString("yyyy-MM-dd"), t.QuantityBack);
             });
 
+            dgv_group.Rows.Clear();
             groupTrades.ForEach(g => 
             {
                 var from = g.FirstOrDefault()?.From;
