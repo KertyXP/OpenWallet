@@ -38,9 +38,14 @@
             this.Count = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ValueBtc = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CustomValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
+            this.dgv_group = new System.Windows.Forms.DataGridView();
+            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dataGridViewTextBoxColumn15 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_trade_day = new System.Windows.Forms.DataGridView();
             this.obj2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -52,25 +57,24 @@
             this.price = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Back = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgv_group = new System.Windows.Forms.DataGridView();
-            this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn15 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.cb_Pair = new System.Windows.Forms.ComboBox();
+            this.lbl_preview_group = new System.Windows.Forms.Label();
+            this.bt_ungroup = new System.Windows.Forms.Button();
+            this.bt_regroup = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).BeginInit();
+            this.tableLayoutPanel3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_group)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_trade_day)).BeginInit();
             this.tableLayoutPanel2.SuspendLayout();
             this.panel1.SuspendLayout();
-            this.tableLayoutPanel3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_trade_day)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_group)).BeginInit();
             this.SuspendLayout();
             // 
             // bt_group
             // 
-            this.bt_group.Location = new System.Drawing.Point(493, 3);
+            this.bt_group.Location = new System.Drawing.Point(505, 3);
             this.bt_group.Name = "bt_group";
             this.bt_group.Size = new System.Drawing.Size(58, 23);
             this.bt_group.TabIndex = 2;
@@ -162,31 +166,6 @@
             this.CustomValue.Name = "CustomValue";
             this.CustomValue.ReadOnly = true;
             // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.panel1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel1, 0, 1);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 2;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(1096, 513);
-            this.tableLayoutPanel2.TabIndex = 3;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.bt_group);
-            this.panel1.Controls.Add(this.button1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1090, 44);
-            this.panel1.TabIndex = 0;
-            // 
             // tableLayoutPanel3
             // 
             this.tableLayoutPanel3.ColumnCount = 1;
@@ -202,8 +181,68 @@
             this.tableLayoutPanel3.Size = new System.Drawing.Size(594, 451);
             this.tableLayoutPanel3.TabIndex = 2;
             // 
+            // dgv_group
+            // 
+            this.dgv_group.AllowUserToAddRows = false;
+            this.dgv_group.AllowUserToDeleteRows = false;
+            this.dgv_group.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgv_group.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.dataGridViewTextBoxColumn1,
+            this.dataGridViewTextBoxColumn4,
+            this.dataGridViewTextBoxColumn5,
+            this.dataGridViewTextBoxColumn12,
+            this.dataGridViewTextBoxColumn13,
+            this.dataGridViewTextBoxColumn15});
+            this.dgv_group.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgv_group.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dgv_group.Location = new System.Drawing.Point(3, 228);
+            this.dgv_group.Name = "dgv_group";
+            this.dgv_group.ReadOnly = true;
+            this.dgv_group.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgv_group.Size = new System.Drawing.Size(588, 220);
+            this.dgv_group.TabIndex = 6;
+            // 
+            // dataGridViewTextBoxColumn1
+            // 
+            this.dataGridViewTextBoxColumn1.HeaderText = "obj2";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.ReadOnly = true;
+            this.dataGridViewTextBoxColumn1.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            this.dataGridViewTextBoxColumn4.HeaderText = "CryptoFrom";
+            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn5
+            // 
+            this.dataGridViewTextBoxColumn5.HeaderText = "CountFrom";
+            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            this.dataGridViewTextBoxColumn5.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn12
+            // 
+            this.dataGridViewTextBoxColumn12.HeaderText = "CryptoTo";
+            this.dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
+            this.dataGridViewTextBoxColumn12.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn13
+            // 
+            this.dataGridViewTextBoxColumn13.HeaderText = "ValueTo";
+            this.dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
+            this.dataGridViewTextBoxColumn13.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn15
+            // 
+            this.dataGridViewTextBoxColumn15.HeaderText = "Date";
+            this.dataGridViewTextBoxColumn15.Name = "dataGridViewTextBoxColumn15";
+            this.dataGridViewTextBoxColumn15.ReadOnly = true;
+            // 
             // dgv_trade_day
             // 
+            this.dgv_trade_day.AllowUserToAddRows = false;
+            this.dgv_trade_day.AllowUserToDeleteRows = false;
             this.dgv_trade_day.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgv_trade_day.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.obj2,
@@ -223,6 +262,7 @@
             this.dgv_trade_day.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgv_trade_day.Size = new System.Drawing.Size(588, 219);
             this.dgv_trade_day.TabIndex = 5;
+            this.dgv_trade_day.SelectionChanged += new System.EventHandler(this.dgv_trade_day_SelectionChanged_1);
             // 
             // obj2
             // 
@@ -277,54 +317,71 @@
             this.Back.HeaderText = "Back";
             this.Back.Name = "Back";
             // 
-            // dgv_group
+            // tableLayoutPanel2
             // 
-            this.dgv_group.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgv_group.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.dataGridViewTextBoxColumn1,
-            this.dataGridViewTextBoxColumn4,
-            this.dataGridViewTextBoxColumn5,
-            this.dataGridViewTextBoxColumn12,
-            this.dataGridViewTextBoxColumn13,
-            this.dataGridViewTextBoxColumn15});
-            this.dgv_group.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgv_group.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dgv_group.Location = new System.Drawing.Point(3, 228);
-            this.dgv_group.Name = "dgv_group";
-            this.dgv_group.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_group.Size = new System.Drawing.Size(588, 220);
-            this.dgv_group.TabIndex = 6;
+            this.tableLayoutPanel2.ColumnCount = 1;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Controls.Add(this.panel1, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel1, 0, 1);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1096, 513);
+            this.tableLayoutPanel2.TabIndex = 3;
             // 
-            // dataGridViewTextBoxColumn1
+            // panel1
             // 
-            this.dataGridViewTextBoxColumn1.HeaderText = "obj2";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.Visible = false;
+            this.panel1.Controls.Add(this.bt_regroup);
+            this.panel1.Controls.Add(this.cb_Pair);
+            this.panel1.Controls.Add(this.lbl_preview_group);
+            this.panel1.Controls.Add(this.bt_ungroup);
+            this.panel1.Controls.Add(this.bt_group);
+            this.panel1.Controls.Add(this.button1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(3, 3);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1090, 44);
+            this.panel1.TabIndex = 0;
             // 
-            // dataGridViewTextBoxColumn4
+            // cb_Pair
             // 
-            this.dataGridViewTextBoxColumn4.HeaderText = "CryptoFrom";
-            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.cb_Pair.FormattingEnabled = true;
+            this.cb_Pair.Location = new System.Drawing.Point(678, 4);
+            this.cb_Pair.Name = "cb_Pair";
+            this.cb_Pair.Size = new System.Drawing.Size(121, 21);
+            this.cb_Pair.TabIndex = 5;
+            this.cb_Pair.SelectedIndexChanged += new System.EventHandler(this.cb_Pair_SelectedIndexChanged);
             // 
-            // dataGridViewTextBoxColumn5
+            // lbl_preview_group
             // 
-            this.dataGridViewTextBoxColumn5.HeaderText = "CountFrom";
-            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            this.lbl_preview_group.AutoSize = true;
+            this.lbl_preview_group.Location = new System.Drawing.Point(502, 29);
+            this.lbl_preview_group.Name = "lbl_preview_group";
+            this.lbl_preview_group.Size = new System.Drawing.Size(0, 13);
+            this.lbl_preview_group.TabIndex = 4;
             // 
-            // dataGridViewTextBoxColumn12
+            // bt_ungroup
             // 
-            this.dataGridViewTextBoxColumn12.HeaderText = "CryptoTo";
-            this.dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
+            this.bt_ungroup.Location = new System.Drawing.Point(592, 0);
+            this.bt_ungroup.Name = "bt_ungroup";
+            this.bt_ungroup.Size = new System.Drawing.Size(58, 23);
+            this.bt_ungroup.TabIndex = 3;
+            this.bt_ungroup.Text = "Ungroup";
+            this.bt_ungroup.UseVisualStyleBackColor = true;
+            this.bt_ungroup.Click += new System.EventHandler(this.bt_ungroup_Click);
             // 
-            // dataGridViewTextBoxColumn13
+            // bt_regroup
             // 
-            this.dataGridViewTextBoxColumn13.HeaderText = "ValueTo";
-            this.dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
-            // 
-            // dataGridViewTextBoxColumn15
-            // 
-            this.dataGridViewTextBoxColumn15.HeaderText = "Date";
-            this.dataGridViewTextBoxColumn15.Name = "dataGridViewTextBoxColumn15";
+            this.bt_regroup.Location = new System.Drawing.Point(1018, 4);
+            this.bt_regroup.Name = "bt_regroup";
+            this.bt_regroup.Size = new System.Drawing.Size(63, 23);
+            this.bt_regroup.TabIndex = 6;
+            this.bt_regroup.Text = "Re-Group";
+            this.bt_regroup.UseVisualStyleBackColor = true;
+            this.bt_regroup.Click += new System.EventHandler(this.bt_regroup_Click);
             // 
             // Form1
             // 
@@ -337,11 +394,12 @@
             this.Load += new System.EventHandler(this.Form1_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).EndInit();
+            this.tableLayoutPanel3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_group)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dgv_trade_day)).EndInit();
             this.tableLayoutPanel2.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
-            this.tableLayoutPanel3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_trade_day)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgv_group)).EndInit();
+            this.panel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -378,6 +436,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn price;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
         private System.Windows.Forms.DataGridViewTextBoxColumn Back;
+        private System.Windows.Forms.Button bt_ungroup;
+        private System.Windows.Forms.Label lbl_preview_group;
+        private System.Windows.Forms.ComboBox cb_Pair;
+        private System.Windows.Forms.Button bt_regroup;
     }
 }
 

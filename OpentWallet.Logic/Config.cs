@@ -50,7 +50,20 @@ namespace OpentWallet.Logic
             string sFileName = "GroupTrades.json";
 
             var groupTrades = File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<List<GlobalTrade>>>(File.ReadAllText(sFileName)) : new List<List<GlobalTrade>>();
+            for(int i = groupTrades.Count - 1; i > 0; i--)
+            {
+                for(int j = i - 1; i >= 0; i--)
+                {
+                    if (i == j)
+                        continue;
 
+                    if(groupTrades[i].Any(gtSource => groupTrades[j].Any(gtDest => gtDest.InternalExchangeId == gtSource.InternalExchangeId)))
+                    {
+                        groupTrades.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
             return groupTrades;
         }
         public static void SaveGroupTrade(List<List<GlobalTrade>> groupTrades)
@@ -283,7 +296,7 @@ namespace OpentWallet.Logic
             {
                 oTrade.From = fiatFrom.To;
                 oTrade.Price = oTrade.Price / fiatFrom.Price;
-                oTrade.QuantityFrom = oTrade.QuantityFrom * fiatFrom.Price;
+                oTrade.QuantityFrom = oTrade.QuantityFrom / fiatFrom.Price;
                 return;
             }
 
@@ -291,7 +304,7 @@ namespace OpentWallet.Logic
             {
                 oTrade.To = fiatTo.To;
                 oTrade.Price = oTrade.Price * fiatTo.Price;
-                oTrade.QuantityTo = oTrade.QuantityTo * fiatTo.Price;
+                oTrade.QuantityTo = oTrade.QuantityTo / fiatTo.Price;
                 return;
             }
         }

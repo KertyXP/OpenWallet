@@ -41,16 +41,16 @@ namespace OpentWallet.Logic
         public List<CurrencySymbolPrice> GetCurrencies()
         {
             WebClient wc = new WebClient();
-            var sData = wc.DownloadString($"{hostname}/api/v4/public/ticker");
+            var sData = wc.DownloadString($"{hostname}/api/v2/public/ticker");
 
-            var oWhiteBitCurrencies = JsonConvert.DeserializeObject<Dictionary<string, WhiteBitCurrencies>>(sData);
-            return oWhiteBitCurrencies.Select(kvp =>
+            var oWhiteBitCurrencies = JsonConvert.DeserializeObject<BinanceTradeMarketResponse>(sData);
+            return oWhiteBitCurrencies.Result.Select(result =>
             {
-                double Price = kvp.Value.LastPrice.ToDouble();
+                double Price = result.LastPrice.ToDouble();
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, kvp.Key, ExchangeName),
-                    new CurrencySymbolPriceReverted(kvp.Key.Split('_').FirstOrDefault(), kvp.Key.Split('_').Last(), Price, kvp.Key, ExchangeName),
+                    new CurrencySymbolPrice(result.TradingPairs.Split('_').FirstOrDefault(), result.TradingPairs.Split('_').Last(), Price, result.TradingPairs, ExchangeName),
+                    new CurrencySymbolPriceReverted(result.TradingPairs.Split('_').FirstOrDefault(), result.TradingPairs.Split('_').Last(), Price, result.TradingPairs, ExchangeName),
                 };
             })
             .SelectMany(o => o)
@@ -229,28 +229,43 @@ namespace OpentWallet.Logic
 
         public enum Side { Buy, Sell };
 
-        public partial class WhiteBitCurrencies
+        public partial class BinanceTradeMarketResponse
         {
-            [JsonProperty("base_id")]
-            public long BaseId { get; set; }
+            [JsonProperty("success")]
+            public bool Success { get; set; }
 
-            [JsonProperty("quote_id")]
-            public long QuoteId { get; set; }
+            [JsonProperty("message")]
+            public object Message { get; set; }
 
-            [JsonProperty("last_price")]
+            [JsonProperty("result")]
+            public Result[] Result { get; set; }
+        }
+
+        public partial class Result
+        {
+            [JsonProperty("lastUpdateTimestamp")]
+            public DateTimeOffset LastUpdateTimestamp { get; set; }
+
+            [JsonProperty("tradingPairs")]
+            public string TradingPairs { get; set; }
+
+            [JsonProperty("lastPrice")]
             public string LastPrice { get; set; }
 
-            [JsonProperty("quote_volume")]
-            public string QuoteVolume { get; set; }
+            [JsonProperty("lowestAsk")]
+            public string LowestAsk { get; set; }
 
-            [JsonProperty("base_volume")]
-            public string BaseVolume { get; set; }
+            [JsonProperty("highestBid")]
+            public string HighestBid { get; set; }
 
-            [JsonProperty("isFrozen")]
-            public bool IsFrozen { get; set; }
+            [JsonProperty("baseVolume24h")]
+            public string BaseVolume24H { get; set; }
 
-            [JsonProperty("change")]
-            public string Change { get; set; }
+            [JsonProperty("quoteVolume24h")]
+            public string QuoteVolume24H { get; set; }
+
+            [JsonProperty("tradesEnabled")]
+            public bool TradesEnabled { get; set; }
         }
 
         public partial class Balance
