@@ -39,7 +39,7 @@ namespace OpenWallet.WinForm
 
             allCurrencies = Config.GetCurrencries(exchanges);
 
-            balances = await Config.GetBalances(exchanges, allCurrencies);
+            balances = Config.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
 
             InsertCurrentBalanceInGrid(balances);
 
@@ -95,20 +95,21 @@ namespace OpenWallet.WinForm
             InsertCurrentBalanceInGrid(aNewBalance);
         }
 
+        const int dgvBalanceCustom = 4;
+
         private void InsertCurrentBalanceInGrid(List<GlobalBalance> aAll)
         {
             dgv_Balance.Rows.Clear();
             foreach (var b in aAll)
             {
-                dgv_Balance.Rows.Add(b, b.Exchange, b.Crypto, b.Value, b.BitCoinValue, b.FavCryptoValue);
+                dgv_Balance.Rows.Add(b, b.Exchange, b.Crypto, b.Value, b.FavCryptoValue);
             }
 
 
-            var dTotalSumBtc = aAll.Sum(a => a.BitCoinValue);
             var dTotalSum = aAll.Sum(a => a.FavCryptoValue);
 
-            dgv_Balance.Columns[5].HeaderText = Config.oGlobalConfig.FavoriteCurrency;
-            dgv_Balance.Rows.Insert(0, null, "TOTAL", Config.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSumBtc, dTotalSum);
+            dgv_Balance.Columns[dgvBalanceCustom].HeaderText = Config.oGlobalConfig.FavoriteCurrency;
+            dgv_Balance.Rows.Insert(0, null, "TOTAL", Config.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSum);
         }
 
         private void dataGridView1_SelectionChanged(object sender, EventArgs e)
@@ -140,15 +141,28 @@ namespace OpenWallet.WinForm
 
         }
 
-        private async void button1_Click(object sender, EventArgs e)
+        private async void bt_refreshBalance_Click(object sender, EventArgs e)
         {
-            button1.Enabled = false;
+            bt_refreshBalance.Enabled = false;
+
+            balances = await Config.GetBalances(exchanges, allCurrencies);
+
+            InsertCurrentBalanceInGrid(balances);
+            bt_refreshBalance.Enabled = true;
+        }
+
+
+        private async void bt_refreshTrade_Click(object sender, EventArgs e)
+        {
+
+            bt_refreshTrade.Enabled = false;
+
             List<GlobalTrade> aListTrades2 = await Config.LoadTrades(exchanges, balances, allCurrencies);
             trades.Clear();
             trades.AddRange(aListTrades2);
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
-            button1.Enabled = true;
+            bt_refreshTrade.Enabled = true;
         }
 
         private string _pairSelected = "<All>";
@@ -199,13 +213,32 @@ namespace OpenWallet.WinForm
 
         private void RefreshTrades(List<GlobalTrade> aListTrades)
         {
-            var tradeToShow = aListTrades.Where(t => groupTrades.SelectMany(g => g).Any(gt => gt.InternalExchangeId == t.InternalExchangeId) == false);
+            var tradeToShow = aListTrades;
             dgv_trade_day.Rows.Clear();
             tradeToShow.ForEach(t =>
             {
-                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, t.dtTrade.ToString("yyyy-MM-dd"));
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.BackColor = 
-                t.IsBuy ? Color.FromArgb(255, 200, 255, 200) : Color.FromArgb(255, 255, 200, 200);
+                bool tradeIsGroupped = groupTrades.SelectMany(g => g).Any(gt => gt.InternalExchangeId == t.InternalExchangeId);
+               
+                if (tradeIsGroupped && cb_HideGroupped.Checked)
+                        return;
+
+                var sellStateBackColor = t.IsBuy ? Color.FromArgb(255, 200, 255, 200) : Color.FromArgb(255, 255, 200, 200);
+                var groupStateForeColor = tradeIsGroupped ? SystemColors.GrayText : SystemColors.ControlText;
+
+                var currentPrice = allCurrencies.FirstOrDefault(c => c.Couple == t.Couple).RealPrice;
+                var delta = currentPrice / t.RealPrice * 100 - 100;
+
+                var isProfitable = (delta > 0 && t.IsBuy) || (delta < 0 && t.IsBuy == false);
+                var deltaColor = isProfitable ? Color.FromArgb(255, 180, 255, 180) : Color.FromArgb(255, 255, 180, 180);
+
+                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, delta.ToString("00.##"), t.dtTrade.ToString("yyyy-MM-dd"));
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.BackColor = sellStateBackColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.BackColor = deltaColor;
+
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[3].Style.ForeColor = groupStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[4].Style.ForeColor = groupStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[5].Style.ForeColor = groupStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[6].Style.ForeColor = groupStateForeColor;
             });
 
 
@@ -320,5 +353,12 @@ namespace OpenWallet.WinForm
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
         }
+
+        private void cb_HideGroup_CheckedChanged(object sender, EventArgs e)
+        {
+            RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
+        }
+
+
     }
 }

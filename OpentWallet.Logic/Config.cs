@@ -178,6 +178,10 @@ namespace OpentWallet.Logic
             var aTasks = aExchanges.Select(oExchange => Task.Run(() =>
             {
                 var aBalance = oExchange.GetBalance();
+
+                var sJson = JsonConvert.SerializeObject(aBalance);
+                File.WriteAllText("Balance" + oExchange.ExchangeCode + ".json", sJson);
+
                 aBalance = SetBitcoinFavCryptoValue(aExchanges, aAllCurrencies, aBalance);
                 foreach (var oBalance in aBalance)
                 {
@@ -193,8 +197,29 @@ namespace OpentWallet.Logic
                 await oTask;
             }
 
+
+
             return aAll.ToList();
         }
+        public static List<GlobalBalance> LoadBalancesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
+        {
+
+            ConcurrentQueue<GlobalBalance> aAll = new ConcurrentQueue<GlobalBalance>();
+
+
+                var aBalance = aExchanges.Select(oExchange =>
+                {
+                    string sFileName = "Balance" + oExchange.ExchangeCode + ".json";
+
+                    return File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<GlobalBalance>>(File.ReadAllText(sFileName)) : new List<GlobalBalance>();
+                }).SelectMany(b => b).ToList();
+
+
+            aBalance = SetBitcoinFavCryptoValue(aExchanges, aAllCurrencies, aBalance);
+
+            return aBalance;
+        }
+
         public static List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
         {
             List<CurrencySymbolPrice> aFiatisation = Config.LoadFiatisation(aAllCurrencies);
