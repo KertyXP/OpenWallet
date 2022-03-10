@@ -47,6 +47,12 @@
             this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn15 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_trade_day = new System.Windows.Forms.DataGridView();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.bt_regroup = new System.Windows.Forms.Button();
+            this.cb_Pair = new System.Windows.Forms.ComboBox();
+            this.lbl_preview_group = new System.Windows.Forms.Label();
+            this.bt_ungroup = new System.Windows.Forms.Button();
             this.obj2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -56,13 +62,6 @@
             this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.price = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Back = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.cb_Pair = new System.Windows.Forms.ComboBox();
-            this.lbl_preview_group = new System.Windows.Forms.Label();
-            this.bt_ungroup = new System.Windows.Forms.Button();
-            this.bt_regroup = new System.Windows.Forms.Button();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
@@ -253,8 +252,7 @@
             this.dataGridViewTextBoxColumn10,
             this.dataGridViewTextBoxColumn11,
             this.price,
-            this.Date,
-            this.Back});
+            this.Date});
             this.dgv_trade_day.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgv_trade_day.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dgv_trade_day.Location = new System.Drawing.Point(3, 3);
@@ -263,6 +261,72 @@
             this.dgv_trade_day.Size = new System.Drawing.Size(588, 219);
             this.dgv_trade_day.TabIndex = 5;
             this.dgv_trade_day.SelectionChanged += new System.EventHandler(this.dgv_trade_day_SelectionChanged_1);
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 1;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Controls.Add(this.panel1, 0, 0);
+            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel1, 0, 1);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1096, 513);
+            this.tableLayoutPanel2.TabIndex = 3;
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.bt_regroup);
+            this.panel1.Controls.Add(this.cb_Pair);
+            this.panel1.Controls.Add(this.lbl_preview_group);
+            this.panel1.Controls.Add(this.bt_ungroup);
+            this.panel1.Controls.Add(this.bt_group);
+            this.panel1.Controls.Add(this.button1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(3, 3);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1090, 44);
+            this.panel1.TabIndex = 0;
+            // 
+            // bt_regroup
+            // 
+            this.bt_regroup.Location = new System.Drawing.Point(1018, 4);
+            this.bt_regroup.Name = "bt_regroup";
+            this.bt_regroup.Size = new System.Drawing.Size(63, 23);
+            this.bt_regroup.TabIndex = 6;
+            this.bt_regroup.Text = "Re-Group";
+            this.bt_regroup.UseVisualStyleBackColor = true;
+            this.bt_regroup.Click += new System.EventHandler(this.bt_regroup_Click);
+            // 
+            // cb_Pair
+            // 
+            this.cb_Pair.FormattingEnabled = true;
+            this.cb_Pair.Location = new System.Drawing.Point(678, 4);
+            this.cb_Pair.Name = "cb_Pair";
+            this.cb_Pair.Size = new System.Drawing.Size(121, 21);
+            this.cb_Pair.TabIndex = 5;
+            this.cb_Pair.SelectedIndexChanged += new System.EventHandler(this.cb_Pair_SelectedIndexChanged);
+            // 
+            // lbl_preview_group
+            // 
+            this.lbl_preview_group.AutoSize = true;
+            this.lbl_preview_group.Location = new System.Drawing.Point(502, 29);
+            this.lbl_preview_group.Name = "lbl_preview_group";
+            this.lbl_preview_group.Size = new System.Drawing.Size(0, 13);
+            this.lbl_preview_group.TabIndex = 4;
+            // 
+            // bt_ungroup
+            // 
+            this.bt_ungroup.Location = new System.Drawing.Point(592, 0);
+            this.bt_ungroup.Name = "bt_ungroup";
+            this.bt_ungroup.Size = new System.Drawing.Size(58, 23);
+            this.bt_ungroup.TabIndex = 3;
+            this.bt_ungroup.Text = "Ungroup";
+            this.bt_ungroup.UseVisualStyleBackColor = true;
+            this.bt_ungroup.Click += new System.EventHandler(this.bt_ungroup_Click);
             // 
             // obj2
             // 
@@ -312,77 +376,6 @@
             this.Date.HeaderText = "Date";
             this.Date.Name = "Date";
             // 
-            // Back
-            // 
-            this.Back.HeaderText = "Back";
-            this.Back.Name = "Back";
-            // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.ColumnCount = 1;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Controls.Add(this.panel1, 0, 0);
-            this.tableLayoutPanel2.Controls.Add(this.tableLayoutPanel1, 0, 1);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 2;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(1096, 513);
-            this.tableLayoutPanel2.TabIndex = 3;
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.bt_regroup);
-            this.panel1.Controls.Add(this.cb_Pair);
-            this.panel1.Controls.Add(this.lbl_preview_group);
-            this.panel1.Controls.Add(this.bt_ungroup);
-            this.panel1.Controls.Add(this.bt_group);
-            this.panel1.Controls.Add(this.button1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1090, 44);
-            this.panel1.TabIndex = 0;
-            // 
-            // cb_Pair
-            // 
-            this.cb_Pair.FormattingEnabled = true;
-            this.cb_Pair.Location = new System.Drawing.Point(678, 4);
-            this.cb_Pair.Name = "cb_Pair";
-            this.cb_Pair.Size = new System.Drawing.Size(121, 21);
-            this.cb_Pair.TabIndex = 5;
-            this.cb_Pair.SelectedIndexChanged += new System.EventHandler(this.cb_Pair_SelectedIndexChanged);
-            // 
-            // lbl_preview_group
-            // 
-            this.lbl_preview_group.AutoSize = true;
-            this.lbl_preview_group.Location = new System.Drawing.Point(502, 29);
-            this.lbl_preview_group.Name = "lbl_preview_group";
-            this.lbl_preview_group.Size = new System.Drawing.Size(0, 13);
-            this.lbl_preview_group.TabIndex = 4;
-            // 
-            // bt_ungroup
-            // 
-            this.bt_ungroup.Location = new System.Drawing.Point(592, 0);
-            this.bt_ungroup.Name = "bt_ungroup";
-            this.bt_ungroup.Size = new System.Drawing.Size(58, 23);
-            this.bt_ungroup.TabIndex = 3;
-            this.bt_ungroup.Text = "Ungroup";
-            this.bt_ungroup.UseVisualStyleBackColor = true;
-            this.bt_ungroup.Click += new System.EventHandler(this.bt_ungroup_Click);
-            // 
-            // bt_regroup
-            // 
-            this.bt_regroup.Location = new System.Drawing.Point(1018, 4);
-            this.bt_regroup.Name = "bt_regroup";
-            this.bt_regroup.Size = new System.Drawing.Size(63, 23);
-            this.bt_regroup.TabIndex = 6;
-            this.bt_regroup.Text = "Re-Group";
-            this.bt_regroup.UseVisualStyleBackColor = true;
-            this.bt_regroup.Click += new System.EventHandler(this.bt_regroup_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -426,6 +419,10 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn15;
         private System.Windows.Forms.DataGridView dgv_trade_day;
+        private System.Windows.Forms.Button bt_ungroup;
+        private System.Windows.Forms.Label lbl_preview_group;
+        private System.Windows.Forms.ComboBox cb_Pair;
+        private System.Windows.Forms.Button bt_regroup;
         private System.Windows.Forms.DataGridViewTextBoxColumn obj2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
@@ -435,11 +432,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
         private System.Windows.Forms.DataGridViewTextBoxColumn price;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Back;
-        private System.Windows.Forms.Button bt_ungroup;
-        private System.Windows.Forms.Label lbl_preview_group;
-        private System.Windows.Forms.ComboBox cb_Pair;
-        private System.Windows.Forms.Button bt_regroup;
     }
 }
 

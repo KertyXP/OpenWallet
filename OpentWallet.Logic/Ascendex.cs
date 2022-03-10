@@ -161,15 +161,12 @@ namespace OpentWallet.Logic
                 {
 
                     globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
-                    globalTrade.QuantityTo = oOrderHistory.OrderQty.ToDouble();
-                    globalTrade.QuantityFrom = globalTrade.QuantityTo / globalTrade.Price;
+                    globalTrade.SetQuantities(oOrderHistory.OrderQty.ToDouble() / globalTrade.Price, oOrderHistory.OrderQty.ToDouble());
                 }
                 else
                 {
                     globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
-
-                    globalTrade.QuantityFrom = oOrderHistory.OrderQty.ToDouble();
-                    globalTrade.QuantityTo = globalTrade.QuantityFrom * globalTrade.Price;
+                    globalTrade.SetQuantities(oOrderHistory.OrderQty.ToDouble(), oOrderHistory.OrderQty.ToDouble() * globalTrade.Price);
                 }
                 globalTrade.InternalExchangeId = oOrderHistory.SeqNum;
                 globalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.LastExecTime / 1000);

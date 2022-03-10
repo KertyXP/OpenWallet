@@ -86,6 +86,9 @@ namespace OpentWallet.Logic
 
                 var responseBody = wc.UploadString($"{hostname}{sApi}", dataJsonStr);
 
+                if (responseBody == "[]")
+                    return new T();
+
                 try
                 {
                     T oBalance = JsonConvert.DeserializeObject<T>(responseBody);
@@ -139,16 +142,12 @@ namespace OpentWallet.Logic
                         if (oOrderHistory.Side == Side.Buy)
                         {
                             globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
-
-                            globalTrade.QuantityTo = oOrderHistory.Amount.ToDouble();
-                            globalTrade.QuantityFrom = globalTrade.QuantityTo / globalTrade.Price;
+                            globalTrade.SetQuantities(oOrderHistory.Amount.ToDouble() / globalTrade.Price, oOrderHistory.Amount.ToDouble());
                         }
                         else
                         {
                             globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
-
-                            globalTrade.QuantityFrom = oOrderHistory.Amount.ToDouble();
-                            globalTrade.QuantityTo = globalTrade.QuantityFrom * globalTrade.Price;
+                            globalTrade.SetQuantities(oOrderHistory.Amount.ToDouble(), oOrderHistory.Amount.ToDouble() * globalTrade.Price);
                         }
                         globalTrade.InternalExchangeId = oOrderHistory.Id.ToString();
                         globalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.Time);

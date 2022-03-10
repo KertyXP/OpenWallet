@@ -279,11 +279,14 @@ namespace OpentWallet.Logic
 
 
         }
-
+    /// <summary>
+    /// not working
+    /// </summary>
+    /// <param name="oTrade"></param>
+    /// <param name="aAllCurrencies"></param>
         private static void CalculGainBack(GlobalTrade oTrade, List<CurrencySymbolPrice> aAllCurrencies)
         {
             var oCurrencyCouple = aAllCurrencies.FirstOrDefault(c => c.From == oTrade.To && c.To == oTrade.From && c.Exchange == oTrade.Exchange);
-            oTrade.QuantityBack = oTrade.QuantityTo * oCurrencyCouple?.Price ?? 0;
         }
         private static void FiatiseOneTrade(GlobalTrade oTrade, List<CurrencySymbolPrice> aFiatisation)
         {
@@ -296,7 +299,7 @@ namespace OpentWallet.Logic
             {
                 oTrade.From = fiatFrom.To;
                 oTrade.Price = oTrade.Price / fiatFrom.Price;
-                oTrade.QuantityFrom = oTrade.QuantityFrom / fiatFrom.Price;
+                oTrade.SetQuantities(oTrade.QuantityFrom / fiatFrom.Price, oTrade.QuantityTo);
                 return;
             }
 
@@ -304,7 +307,7 @@ namespace OpentWallet.Logic
             {
                 oTrade.To = fiatTo.To;
                 oTrade.Price = oTrade.Price * fiatTo.Price;
-                oTrade.QuantityTo = oTrade.QuantityTo / fiatTo.Price;
+                oTrade.SetQuantities(oTrade.QuantityFrom, oTrade.QuantityTo / fiatTo.Price);
                 return;
             }
         }
@@ -317,11 +320,10 @@ namespace OpentWallet.Logic
                 var one = l.FirstOrDefault();
                 double price = one.Couple.StartsWith(one.From) ? one.QuantityTo / one.QuantityFrom : one.QuantityFrom / one.QuantityTo;
                 var oGlobalTrade = new GlobalTrade(one.From, one.To, price, one.Couple, one.Exchange);
-                oGlobalTrade.QuantityBack = one.QuantityBack;
                 oGlobalTrade.CryptoFromId = one.CryptoFromId;
                 oGlobalTrade.CryptoToId = one.CryptoToId;
-                oGlobalTrade.QuantityFrom = l.Sum(m => m.QuantityFrom);
-                oGlobalTrade.QuantityTo = l.Sum(m => m.QuantityTo);
+                oGlobalTrade.SetQuantities(l.Sum(m => m.QuantityFrom), l.Sum(m => m.QuantityTo));
+
                 oGlobalTrade.InternalExchangeId = one.InternalExchangeId;
                 oGlobalTrade.dtTrade = one.dtTrade;
 
@@ -338,10 +340,8 @@ namespace OpentWallet.Logic
                 var one = l.FirstOrDefault();
                 var oGlobalTrade = new GlobalTrade(one.From, one.To, l.Sum(m => m.QuantityFrom) / l.Sum(m => m.QuantityTo), one.Couple, one.Exchange);
                 oGlobalTrade.CryptoFromId = one.CryptoFromId;
-                oGlobalTrade.QuantityBack = one.QuantityBack;
                 oGlobalTrade.CryptoToId = one.CryptoToId;
-                oGlobalTrade.QuantityFrom = l.Sum(m => m.QuantityFrom);
-                oGlobalTrade.QuantityTo = l.Sum(m => m.QuantityTo);
+                oGlobalTrade.SetQuantities(l.Sum(m => m.QuantityFrom), l.Sum(m => m.QuantityTo));
                 oGlobalTrade.InternalExchangeId = one.InternalExchangeId;
                 oGlobalTrade.dtTrade = one.dtTrade;
 

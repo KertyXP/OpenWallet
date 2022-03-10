@@ -330,14 +330,12 @@ namespace OpentWallet.Logic
                 if (oTradeBinance.IsBuyer)
                 {
                     globalTrade = new GlobalTrade(sTo, sFrom, oTradeBinance.Price.ToDouble(), oTradeBinance.Symbol, ExchangeName);
-                    globalTrade.QuantityTo = oTradeBinance.Qty.ToDouble();
-                    globalTrade.QuantityFrom = globalTrade.QuantityTo / globalTrade.Price;
+                    globalTrade.SetQuantities(oTradeBinance.Qty.ToDouble() / globalTrade.Price, oTradeBinance.Qty.ToDouble());
                 }
                 else
                 {
                     globalTrade = new GlobalTrade(sFrom, sTo, oTradeBinance.Price.ToDouble(), oTradeBinance.Symbol, ExchangeName);
-                    globalTrade.QuantityFrom = oTradeBinance.Qty.ToDouble();
-                    globalTrade.QuantityTo = globalTrade.QuantityFrom * globalTrade.Price;
+                    globalTrade.SetQuantities(oTradeBinance.Qty.ToDouble(), oTradeBinance.Qty.ToDouble() * globalTrade.Price);
                 }
                 globalTrade.InternalExchangeId = oTradeBinance.Id.ToString();
                 globalTrade.dtTrade = UnixTimeStampToDateTime(oTradeBinance.Time / 1000);
@@ -429,10 +427,8 @@ namespace OpentWallet.Logic
                     CryptoFromId = symbol.CryptoFromId,
                     CryptoToId = symbol.CryptoToId,
                     dtTrade = DateTime.Now,
-                    QuantityFrom = quantityFrom?.ToDouble() ?? 0,
-                    QuantityTo = quantityTo?.ToDouble() ?? 0,
                     InternalExchangeId = oTradeResponse.Payload.ClientOrderId,
-                };
+                }.SetQuantities(quantityFrom?.ToDouble() ?? 0, quantityTo?.ToDouble() ?? 0);
             }
             return null;
 

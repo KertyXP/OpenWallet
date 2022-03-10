@@ -12,10 +12,24 @@ namespace OpenWallet.Common
         {
         }
 
+        public GlobalTrade SetQuantities(double from, double to)
+        {
+            QuantityFrom = from;
+            QuantityTo = to;
+            RealQuantityFrom = Couple.StartsWith(From) ? from : to;
+            RealQuantityTo = Couple.StartsWith(To) ? from : to;
+            return this;
+        }
+
         public string InternalExchangeId { get; set; }
         public double QuantityFrom { get; set; }
         public double QuantityTo { get; set; }
-        public double QuantityBack { get; set; }
+
+        [JsonProperty]
+        public double RealQuantityFrom { get; protected set; }
+        [JsonProperty]
+        public double RealQuantityTo { get; protected set; }
+
         public DateTime dtTrade { get; set; }
 
 

@@ -203,7 +203,9 @@ namespace OpenWallet.WinForm
             dgv_trade_day.Rows.Clear();
             tradeToShow.ForEach(t =>
             {
-                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.From, t.QuantityFrom, t.To, t.QuantityTo, t.RealPrice, t.dtTrade.ToString("yyyy-MM-dd"), t.QuantityBack);
+                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, t.dtTrade.ToString("yyyy-MM-dd"));
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.BackColor = 
+                t.IsBuy ? Color.FromArgb(255, 200, 255, 200) : Color.FromArgb(255, 255, 200, 200);
             });
 
 

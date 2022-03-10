@@ -239,12 +239,8 @@ namespace OpentWallet.Logic
                     oTrades.Add(new GlobalTrade("F", "F", 1, "F_F", ExchangeName)
                     {
                         InternalExchangeId = oTrade.InternalExchangeId,
-                        QuantityFrom = 1,
-                        QuantityTo = 1,
                         dtTrade = oTrade.dtTrade
-
-
-                    });
+                    }.SetQuantities(1, 1));
 
                     continue;
                 }
@@ -265,11 +261,9 @@ namespace OpentWallet.Logic
                     oTrades.Add(new GlobalTrade(sFrom, sTo, 1, sFrom + "_" + sTo, ExchangeCode)
                     {
                         InternalExchangeId = oTrade.InternalExchangeId,
-                        QuantityFrom = 0,
-                        QuantityTo = 0,
                         dtTrade = oTrade.dtTrade
 
-                    });
+                    }.SetQuantities(0, 0));
                     continue;
                 }
 
@@ -289,9 +283,7 @@ namespace OpentWallet.Logic
                     oTrades.Add(new GlobalTrade("F", "F", 1, "F_F", ExchangeCode)
                     {
                         InternalExchangeId = oTrade.InternalExchangeId,
-                        QuantityFrom = 1,
-                        QuantityTo = 1,
-                    });
+                    }.SetQuantities(1, 1));
 
                     continue;
                 }
@@ -308,8 +300,7 @@ namespace OpentWallet.Logic
                 var oGlobalTrade = new GlobalTrade(sCryptoFrom, sCryptoTo, dTo / dFrom, sCryptoFrom + "_" + sCryptoTo, ExchangeCode);
                 oGlobalTrade.CryptoFromId = sTokenIdFrom;
                 oGlobalTrade.CryptoToId = sTokenIdTo;
-                oGlobalTrade.QuantityFrom = dFrom;
-                oGlobalTrade.QuantityTo = dTo;
+                oGlobalTrade.SetQuantities(dFrom, dTo);
                 oGlobalTrade.InternalExchangeId = oTrade.InternalExchangeId;
                 oGlobalTrade.dtTrade = oTrade.dtTrade;
                 oTrades.Add(oGlobalTrade);
