@@ -209,6 +209,26 @@ namespace OpenWallet.WinForm
                 }
 
             }
+
+
+            for (int i = 0; i < dgv_group.RowCount; i++)
+            {
+                var trade = dgv_group[0, i].Value as List<GlobalTrade>;
+
+                if (trade.First()?.CustomCouple == _pairSelected || _pairSelected == "<All>")
+                {
+                    dgv_group.Rows[i].Visible = true;
+                }
+                else
+                {
+                    if (dgv_group.Rows[i].Selected)
+                    {
+                        dgv_group.Rows[i].Selected = false;
+                    }
+                    dgv_group.Rows[i].Visible = false;
+                }
+
+            }
         }
 
         private void RefreshTrades(List<GlobalTrade> aListTrades)
@@ -223,6 +243,7 @@ namespace OpenWallet.WinForm
                         return;
 
                 var sellStateBackColor = t.IsBuy ? Color.FromArgb(255, 200, 255, 200) : Color.FromArgb(255, 255, 200, 200);
+                var sellStateBackColorSelected = t.IsBuy ? Color.FromArgb(255, 150, 200, 150) : Color.FromArgb(255, 200, 150, 150);
                 var groupStateForeColor = tradeIsGroupped ? SystemColors.GrayText : SystemColors.ControlText;
 
                 var currentPrice = allCurrencies.FirstOrDefault(c => c.Couple == t.Couple).RealPrice;
@@ -230,10 +251,13 @@ namespace OpenWallet.WinForm
 
                 var isProfitable = (delta > 0 && t.IsBuy) || (delta < 0 && t.IsBuy == false);
                 var deltaColor = isProfitable ? Color.FromArgb(255, 180, 255, 180) : Color.FromArgb(255, 255, 180, 180);
+                var deltaColorSelected = isProfitable ? Color.FromArgb(255, 150, 200, 150) : Color.FromArgb(255, 200, 150, 150);
 
                 dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, delta.ToString("00.##"), t.dtTrade.ToString("yyyy-MM-dd"));
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.BackColor = sellStateBackColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.SelectionBackColor = sellStateBackColorSelected;
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.BackColor = deltaColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.SelectionBackColor = deltaColorSelected;
 
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[3].Style.ForeColor = groupStateForeColor;
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[4].Style.ForeColor = groupStateForeColor;
