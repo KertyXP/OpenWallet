@@ -70,7 +70,7 @@ namespace OpentWallet.Logic
             return oCurrencies.Data.Select(kvp =>
             {
                 double Price = (kvp.Ask + kvp.Bid) / 2;
-                var oSymbol = CurrencySymbol.AutoDiscoverCurrencySymbol(kvp.Symbol.ToUpper());
+                var oSymbol = kvp.Symbol.ToUpper().AutoDiscoverCurrencySymbol();
                 if (oSymbol != null)
                 {
                     return new List<CurrencySymbolPrice>()

@@ -69,17 +69,13 @@ namespace OpentWallet.Logic
         {
 
             var oCurrencies = Call<List<BinanceCurrencies>>(BinanceCalls.ECalls.tickerPriceV3, string.Empty).Payload;
-            var aPairs = Call<List<BinancePair>>(BinanceCalls.ECalls.allPairs, string.Empty).Payload.Select(p => new CurrencySymbol(p.Base, p.Quote, p.Symbol)).ToList();
+            var aPairs = ExchangeInfo.Symbols.Select(p => new CurrencySymbol(p.BaseAsset, p.QuoteAsset, p.SymbolSymbol)).ToList();
 
             return oCurrencies.Select(o =>
             {
                 double Price = o.Price.ToDouble();
 
                 var cur = aPairs.FirstOrDefault(c => c.From + c.To == o.Symbol);
-
-                if (cur == null)
-                    cur = CurrencySymbol.AutoDiscoverCurrencySymbol(o.Symbol);
-
 
                 if (cur == null)
                 {

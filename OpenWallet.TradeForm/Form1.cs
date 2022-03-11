@@ -20,7 +20,6 @@ namespace OpenWallet.TradeForm
 
         public Form1()
         {
-            var oUseless = new UseLess();
             InitializeComponent();
             this.cb_From.DrawMode = DrawMode.OwnerDrawFixed;
             this.cb_to.DrawMode = DrawMode.OwnerDrawFixed;

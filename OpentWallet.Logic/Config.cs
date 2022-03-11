@@ -15,6 +15,12 @@ namespace OpentWallet.Logic
     public class Config
     {
         private static string sRootPath = "";
+
+        public static void Init(string sFolderPath)
+        {
+            sRootPath = sFolderPath;
+        }
+
         public static GlobalConfig oGlobalConfig = LoadConfig();
         private static GlobalConfig LoadConfig()
         {
@@ -29,7 +35,7 @@ namespace OpentWallet.Logic
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(sPath));
                 oConfig = new GlobalConfig();
-                oConfig.aConfigs = new List<ExchangeConfig>()
+                oConfig.configs = new List<ExchangeConfig>()
                 {
                     new ExchangeConfig()
                     {
@@ -50,21 +56,26 @@ namespace OpentWallet.Logic
             string sFileName = "GroupTrades.json";
 
             var groupTrades = File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<List<GlobalTrade>>>(File.ReadAllText(sFileName)) : new List<List<GlobalTrade>>();
-            for(int i = groupTrades.Count - 1; i > 0; i--)
-            {
-                for(int j = i - 1; i >= 0; i--)
-                {
-                    if (i == j)
-                        continue;
+            FilterTradesInSeveralGroups();
+            return groupTrades;
 
-                    if(groupTrades[i].Any(gtSource => groupTrades[j].Any(gtDest => gtDest.InternalExchangeId == gtSource.InternalExchangeId)))
+            void FilterTradesInSeveralGroups()
+            {
+                for (int i = groupTrades.Count - 1; i > 0; i--)
+                {
+                    for (int j = i - 1; i >= 0; i--)
                     {
-                        groupTrades.RemoveAt(i);
-                        break;
+                        if (i == j)
+                            continue;
+
+                        if (groupTrades[i].Any(gtSource => groupTrades[j].Any(gtDest => gtDest.InternalExchangeId == gtSource.InternalExchangeId)))
+                        {
+                            groupTrades.RemoveAt(i);
+                            break;
+                        }
                     }
                 }
             }
-            return groupTrades;
         }
         public static void SaveGroupTrade(List<List<GlobalTrade>> groupTrades)
         {
@@ -74,11 +85,6 @@ namespace OpentWallet.Logic
             File.WriteAllText(sFileName, json);
         }
 
-        public static void Init(string sFolderPath)
-        {
-            sRootPath = sFolderPath;
-            //Xamarin.Essentials.FileSystem.AppDataDirectory
-        }
         public static List<IExchange> LoadExchanges()
         {
 
@@ -91,7 +97,7 @@ namespace OpentWallet.Logic
                 .Select(t => Activator.CreateInstance(t) as IExchange)
                 .Where(t => t != null);
 
-            foreach (var oConfig in Config.oGlobalConfig.aConfigs)
+            foreach (var oConfig in Config.oGlobalConfig.configs)
             {
                 var typeExchange = types.FirstOrDefault(t => t.ExchangeCode == oConfig.ExchangeCode);
                 if (typeExchange == null)
@@ -220,7 +226,7 @@ namespace OpentWallet.Logic
             return aBalance;
         }
 
-        public static List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
+        public static List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
             List<CurrencySymbolPrice> aFiatisation = Config.LoadFiatisation(aAllCurrencies);
 

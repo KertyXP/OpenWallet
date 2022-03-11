@@ -44,7 +44,7 @@ namespace OpenWallet.WinForm
             InsertCurrentBalanceInGrid(balances);
 
 
-            trades = Config.LoadTradesFromCacheOnly(exchanges, balances, allCurrencies);
+            trades = Config.LoadTradesFromCacheOnly(exchanges, allCurrencies);
 
             groupTrades = Config.LoadGroupTrade();
 
@@ -246,7 +246,7 @@ namespace OpenWallet.WinForm
                 var sellStateBackColorSelected = t.IsBuy ? Color.FromArgb(255, 150, 200, 150) : Color.FromArgb(255, 200, 150, 150);
                 var groupStateForeColor = tradeIsGroupped ? SystemColors.GrayText : SystemColors.ControlText;
 
-                var currentPrice = allCurrencies.FirstOrDefault(c => c.Couple == t.Couple).RealPrice;
+                var currentPrice = allCurrencies.FirstOrDefault(c => c.Couple == t.Couple)?.RealPrice ?? 1;
                 var delta = currentPrice / t.RealPrice * 100 - 100;
 
                 var isProfitable = (delta > 0 && t.IsBuy) || (delta < 0 && t.IsBuy == false);
@@ -338,7 +338,7 @@ namespace OpenWallet.WinForm
                 group.Add(trade);
             }
 
-            var couples = group.GroupBy(g => g.Couple).Select(g => g.FirstOrDefault().Couple);
+            var couples = group.GroupBy(g => g.CustomCouple).Select(g => g.FirstOrDefault().CustomCouple);
             if (couples.Count() > 1)
                 return;
 
@@ -352,6 +352,10 @@ namespace OpenWallet.WinForm
 
             foreach (DataGridViewRow row in dgv_group.SelectedRows)
             {
+
+                if (dgv_group.Rows[row.Index].Visible == false)
+                    continue;
+
                 var trade = row.Cells[0].Value as List<GlobalTrade>;
                 groupTrades.Remove(trade);
             }
@@ -367,6 +371,10 @@ namespace OpenWallet.WinForm
             var newGroup = new List<GlobalTrade>();
             foreach (DataGridViewRow row in dgv_group.SelectedRows)
             {
+
+                if (dgv_group.Rows[row.Index].Visible == false)
+                    continue;
+
                 var trade = row.Cells[0].Value as List<GlobalTrade>;
                 newGroup.AddRange(trade);
                 groupTrades.Remove(trade);
