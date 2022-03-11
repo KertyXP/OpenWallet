@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace OpenWallet.Common
+﻿namespace OpenWallet.Common
 {
     public class CurrencySymbol
     {

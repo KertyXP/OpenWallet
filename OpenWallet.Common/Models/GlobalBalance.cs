@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OpenWallet.Common
+﻿namespace OpenWallet.Common
 {
     public class GlobalBalance
     {

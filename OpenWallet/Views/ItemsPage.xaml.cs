@@ -1,14 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-
-using OpenWallet.Models;
-using OpenWallet.Views;
+﻿using Xamarin.Forms;
 using OpenWallet.ViewModels;
 
 namespace OpenWallet.Views

@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace OpenWallet.Models
+﻿namespace OpenWallet.Models
 {
     public class Item
     {

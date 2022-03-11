@@ -1,7 +1,5 @@
 ﻿using OpenWallet.Common;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace OpenWallet.Logic.Abstraction
 {

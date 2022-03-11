@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
+﻿using Xamarin.Forms;
 using OpenWallet.Common;
 using OpenWallet.ViewModels;
 

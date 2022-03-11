@@ -1,8 +1,4 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-
-namespace OpenWallet.Common
+﻿namespace OpenWallet.Common
 {
 
     public class ApiResponse<T> where T: class, new()

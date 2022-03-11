@@ -1,13 +1,9 @@
 ﻿using System;
 using Newtonsoft.Json;
-using System.Net.Http;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 using OpenWallet.Common;
 using System.Net;
 using System.Collections.Generic;
-using Newtonsoft.Json.Converters;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using OpenWallet.ViewModels;
-using OpenWallet.Views;
+﻿using OpenWallet.Views;
 using Xamarin.Forms;
 
 namespace OpenWallet

@@ -1,17 +1,12 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OpentWallet.Logic;
 using OpenWallet.Common;
 using OpenWallet.Logic.Abstraction;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OpenWallet.WinForm
@@ -34,19 +29,19 @@ namespace OpenWallet.WinForm
         private async void Form1_Load(object sender, EventArgs e)
         {
 
-            Config.Init("");
-            exchanges = Config.LoadExchanges();
+            ConfigService.Init("");
+            exchanges = ConfigService.LoadExchanges();
 
-            allCurrencies = Config.GetCurrencries(exchanges);
+            allCurrencies = BalanceService.GetCurrencries(exchanges);
 
-            balances = Config.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
+            balances = BalanceService.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
 
             InsertCurrentBalanceInGrid(balances);
 
 
-            trades = Config.LoadTradesFromCacheOnly(exchanges, allCurrencies);
+            trades = TradeService.LoadTradesFromCacheOnly(exchanges, allCurrencies);
 
-            groupTrades = Config.LoadGroupTrade();
+            groupTrades = TradeService.LoadGroupTrade();
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
@@ -90,7 +85,7 @@ namespace OpenWallet.WinForm
             }
 
 
-            aNewBalance = Config.SetBitcoinFavCryptoValue(exchanges, allCurrencies, aNewBalance);
+            aNewBalance = BalanceService.SetBitcoinFavCryptoValue(exchanges, allCurrencies, aNewBalance);
 
             InsertCurrentBalanceInGrid(aNewBalance);
         }
@@ -108,8 +103,8 @@ namespace OpenWallet.WinForm
 
             var dTotalSum = aAll.Sum(a => a.FavCryptoValue);
 
-            dgv_Balance.Columns[dgvBalanceCustom].HeaderText = Config.oGlobalConfig.FavoriteCurrency;
-            dgv_Balance.Rows.Insert(0, null, "TOTAL", Config.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSum);
+            dgv_Balance.Columns[dgvBalanceCustom].HeaderText = ConfigService.oGlobalConfig.FavoriteCurrency;
+            dgv_Balance.Rows.Insert(0, null, "TOTAL", ConfigService.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSum);
         }
 
         private void dataGridView1_SelectionChanged(object sender, EventArgs e)
@@ -145,7 +140,7 @@ namespace OpenWallet.WinForm
         {
             bt_refreshBalance.Enabled = false;
 
-            balances = await Config.GetBalances(exchanges, allCurrencies);
+            balances = await BalanceService.GetBalances(exchanges, allCurrencies);
 
             InsertCurrentBalanceInGrid(balances);
             bt_refreshBalance.Enabled = true;
@@ -157,7 +152,7 @@ namespace OpenWallet.WinForm
 
             bt_refreshTrade.Enabled = false;
 
-            List<GlobalTrade> aListTrades2 = await Config.LoadTrades(exchanges, balances, allCurrencies);
+            List<GlobalTrade> aListTrades2 = await TradeService.LoadTrades(exchanges, balances, allCurrencies);
             trades.Clear();
             trades.AddRange(aListTrades2);
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
@@ -343,7 +338,7 @@ namespace OpenWallet.WinForm
                 return;
 
             groupTrades.Add(group);
-            Config.SaveGroupTrade(groupTrades);
+            ConfigService.SaveGroupTradeToCache(groupTrades);
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
         }
 
@@ -362,7 +357,7 @@ namespace OpenWallet.WinForm
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
-            Config.SaveGroupTrade(groupTrades);
+            ConfigService.SaveGroupTradeToCache(groupTrades);
         }
 
         private void bt_regroup_Click(object sender, EventArgs e)
@@ -381,7 +376,7 @@ namespace OpenWallet.WinForm
             }
 
             groupTrades.Add(newGroup);
-            Config.SaveGroupTrade(groupTrades);
+            ConfigService.SaveGroupTradeToCache(groupTrades);
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
         }

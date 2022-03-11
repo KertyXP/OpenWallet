@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
-using OpenWallet.Models;
 using Xamarin.Forms;
 
 namespace OpenWallet.ViewModels

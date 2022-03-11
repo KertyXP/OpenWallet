@@ -7,8 +7,6 @@ using System.Threading.Tasks;
 using OpenWallet.Common;
 using System.Net;
 using System.Collections.Generic;
-using Newtonsoft.Json.Converters;
-using System.Globalization;
 using System.Linq;
 using OpentWallet.Logic.Binance;
 using OpenWallet.Logic.Abstraction;

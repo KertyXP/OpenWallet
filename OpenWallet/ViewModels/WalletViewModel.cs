@@ -1,6 +1,5 @@
 ﻿using OpentWallet.Logic;
 using OpenWallet.Common;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
@@ -56,11 +55,11 @@ namespace OpenWallet.ViewModels
                 await Task.Delay(250);
             }
 
-            var aExchanges = Config.LoadExchanges();
+            var aExchanges = ConfigService.LoadExchanges();
 
-            List<CurrencySymbolPrice> aAllCurrencies = Config.GetCurrencries(aExchanges);
+            List<CurrencySymbolPrice> aAllCurrencies = BalanceService.GetCurrencries(aExchanges);
 
-            List<GlobalBalance> aAll = await Config.GetBalances(aExchanges, aAllCurrencies);
+            List<GlobalBalance> aAll = await BalanceService.GetBalances(aExchanges, aAllCurrencies);
 
             aBalances.Clear();
             aAll.ForEach(aBalances.Add);
