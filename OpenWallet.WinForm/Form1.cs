@@ -17,7 +17,7 @@ namespace OpenWallet.WinForm
         List<GlobalBalance> balances;
         List<IExchange> exchanges;
         List<GlobalTrade> trades;
-        List<List<GlobalTrade>> groupTrades;
+        Dictionary<string, List<GlobalTrade>> archiveTrades;
 
         public Form1()
         {
@@ -41,7 +41,7 @@ namespace OpenWallet.WinForm
 
             trades = TradeService.LoadTradesFromCacheOnly(exchanges, allCurrencies);
 
-            groupTrades = TradeService.LoadGroupTrade();
+            archiveTrades = TradeService.LoadArchiveTrade();
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
@@ -206,21 +206,21 @@ namespace OpenWallet.WinForm
             }
 
 
-            for (int i = 0; i < dgv_group.RowCount; i++)
+            for (int i = 0; i < dgv_archive.RowCount; i++)
             {
-                var trade = dgv_group[0, i].Value as List<GlobalTrade>;
+                var trade = dgv_archive[0, i].Value as List<GlobalTrade>;
 
                 if (trade.First()?.CustomCouple == _pairSelected || _pairSelected == "<All>")
                 {
-                    dgv_group.Rows[i].Visible = true;
+                    dgv_archive.Rows[i].Visible = true;
                 }
                 else
                 {
-                    if (dgv_group.Rows[i].Selected)
+                    if (dgv_archive.Rows[i].Selected)
                     {
-                        dgv_group.Rows[i].Selected = false;
+                        dgv_archive.Rows[i].Selected = false;
                     }
-                    dgv_group.Rows[i].Visible = false;
+                    dgv_archive.Rows[i].Visible = false;
                 }
 
             }
@@ -232,14 +232,14 @@ namespace OpenWallet.WinForm
             dgv_trade_day.Rows.Clear();
             tradeToShow.ForEach(t =>
             {
-                bool tradeIsGroupped = groupTrades.SelectMany(g => g).Any(gt => gt.InternalExchangeId == t.InternalExchangeId);
+                bool tradeIsArchiveped = archiveTrades.GetOrDefault(t.CustomCouple)?.Any(g => g.InternalExchangeId == t.InternalExchangeId) == true;
                
-                if (tradeIsGroupped && cb_HideGroupped.Checked)
+                if (tradeIsArchiveped && cb_HideArchiveped.Checked)
                         return;
 
                 var sellStateBackColor = t.IsBuy ? Color.FromArgb(255, 200, 255, 200) : Color.FromArgb(255, 255, 200, 200);
                 var sellStateBackColorSelected = t.IsBuy ? Color.FromArgb(255, 150, 200, 150) : Color.FromArgb(255, 200, 150, 150);
-                var groupStateForeColor = tradeIsGroupped ? SystemColors.GrayText : SystemColors.ControlText;
+                var archiveStateForeColor = tradeIsArchiveped ? SystemColors.GrayText : SystemColors.ControlText;
 
                 var currentPrice = allCurrencies.FirstOrDefault(c => c.Couple == t.Couple)?.RealPrice ?? 1;
                 var delta = currentPrice / t.RealPrice * 100 - 100;
@@ -254,39 +254,43 @@ namespace OpenWallet.WinForm
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.BackColor = deltaColor;
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.SelectionBackColor = deltaColorSelected;
 
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[3].Style.ForeColor = groupStateForeColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[4].Style.ForeColor = groupStateForeColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[5].Style.ForeColor = groupStateForeColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[6].Style.ForeColor = groupStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[3].Style.ForeColor = archiveStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[4].Style.ForeColor = archiveStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[5].Style.ForeColor = archiveStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[6].Style.ForeColor = archiveStateForeColor;
             });
 
 
-            dgv_group.Rows.Clear();
-            groupTrades.Where(g => g?.Any() == true).ForEach(g =>
+            dgv_archive.Rows.Clear();
+            archiveTrades.Select(kvp => kvp.Key).ForEach(g =>
             {
-                var groupTrade = GroupTrades(g);
-                dgv_group.Rows.Add(g, groupTrade.from, groupTrade.quantityFrom, groupTrade.to, groupTrade.quantityTo, g.FirstOrDefault().dtTrade.ToString("yyyy-MM-dd"));
+                var trades = archiveTrades[g];
+                if (trades.Any())
+                {
+                    var archiveTrade = ArchiveTrades(trades);
+                    dgv_archive.Rows.Add(trades, archiveTrade.from, archiveTrade.quantityFrom, archiveTrade.to, archiveTrade.quantityTo, trades.FirstOrDefault().dtTrade.ToString("yyyy-MM-dd"));
+                }
             });
 
             RefreshFilterDropDown();
         }
 
-        internal struct TradeGroupped
+        internal struct TradeArchiveped
         {
 
             public string from, to;
             public double quantityFrom, quantityTo;
         }
-        private static TradeGroupped GroupTrades(List<GlobalTrade> g)
+        private static TradeArchiveped ArchiveTrades(List<GlobalTrade> g)
         {
-            TradeGroupped tradeGroupped;
+            TradeArchiveped tradeArchiveped;
 
-            tradeGroupped.from = g.FirstOrDefault()?.From;
-            tradeGroupped.to = g.FirstOrDefault()?.To;
-            tradeGroupped.quantityFrom = g.Where(t => t.To == tradeGroupped.from).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeGroupped.from).Sum(t => t.QuantityFrom);
-            tradeGroupped.quantityTo = g.Where(t => t.To == tradeGroupped.to).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeGroupped.to).Sum(t => t.QuantityFrom);
+            tradeArchiveped.from = g.FirstOrDefault()?.From;
+            tradeArchiveped.to = g.FirstOrDefault()?.To;
+            tradeArchiveped.quantityFrom = g.Where(t => t.To == tradeArchiveped.from).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchiveped.from).Sum(t => t.QuantityFrom);
+            tradeArchiveped.quantityTo = g.Where(t => t.To == tradeArchiveped.to).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchiveped.to).Sum(t => t.QuantityFrom);
 
-            return tradeGroupped;
+            return tradeArchiveped;
         }
 
         private void dgv_trade_day_SelectionChanged(object sender, EventArgs e)
@@ -299,18 +303,20 @@ namespace OpenWallet.WinForm
         private void dgv_trade_day_SelectionChanged_1(object sender, EventArgs e)
         {
 
-            var group = new List<GlobalTrade>();
+            var archives = new List<GlobalTrade>();
             foreach (DataGridViewRow row in dgv_trade_day.SelectedRows)
             {
                 if (dgv_trade_day.Rows[row.Index].Visible == false)
                     continue;
 
                 var trade = row.Cells[0].Value as GlobalTrade;
-                group.Add(trade);
+                archives.Add(trade);
             }
 
-            var groupTrade = GroupTrades(group);
-            lbl_preview_group.Text = groupTrade.from + " " + groupTrade.quantityFrom + " || " + groupTrade.to + " " + groupTrade.quantityTo;
+            archives.AddRange(archiveTrades.GetOrDefault(archives.FirstOrDefault()?.CustomCouple));
+
+            var archiveTrade = ArchiveTrades(archives);
+            lbl_preview_archive.Text = archiveTrade.from + " " + archiveTrade.quantityFrom + " || " + archiveTrade.to + " " + archiveTrade.quantityTo;
         }
 
         private void cb_Pair_SelectedIndexChanged(object sender, EventArgs e)
@@ -321,71 +327,52 @@ namespace OpenWallet.WinForm
         }
 
 
-        private void bt_group_Click(object sender, EventArgs e)
+        private void bt_archive_Click(object sender, EventArgs e)
         {
-            var group = new List<GlobalTrade>();
+            var archive = new List<GlobalTrade>();
             foreach (DataGridViewRow row in dgv_trade_day.SelectedRows)
             {
                 if (dgv_trade_day.Rows[row.Index].Visible == false)
                     continue;
 
                 var trade = row.Cells[0].Value as GlobalTrade;
-                group.Add(trade);
+                archive.Add(trade);
             }
 
-            var couples = group.GroupBy(g => g.CustomCouple).Select(g => g.FirstOrDefault().CustomCouple);
+            var couples = archive.GroupBy(g => g.CustomCouple).Select(g => g.FirstOrDefault().CustomCouple);
             if (couples.Count() > 1)
                 return;
 
-            groupTrades.Add(group);
-            ConfigService.SaveGroupTradeToCache(groupTrades);
+            var oldArchive = archiveTrades.GetOrDefault(couples.First()) ?? new List<GlobalTrade>();
+            oldArchive.AddRange(archive);
+            archiveTrades.InsertOrUpdate(couples.First(), oldArchive);
+
+            ConfigService.SaveArchiveTradeToCache(archiveTrades);
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
         }
 
-        private void bt_ungroup_Click(object sender, EventArgs e)
+        private void bt_unarchive_Click(object sender, EventArgs e)
         {
 
-            foreach (DataGridViewRow row in dgv_group.SelectedRows)
+            foreach (DataGridViewRow row in dgv_archive.SelectedRows)
             {
 
-                if (dgv_group.Rows[row.Index].Visible == false)
+                if (dgv_archive.Rows[row.Index].Visible == false)
                     continue;
 
                 var trade = row.Cells[0].Value as List<GlobalTrade>;
-                groupTrades.Remove(trade);
+                archiveTrades.Remove(trade.First().CustomCouple);
             }
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
-            ConfigService.SaveGroupTradeToCache(groupTrades);
+            ConfigService.SaveArchiveTradeToCache(archiveTrades);
         }
 
-        private void bt_regroup_Click(object sender, EventArgs e)
-        {
-
-            var newGroup = new List<GlobalTrade>();
-            foreach (DataGridViewRow row in dgv_group.SelectedRows)
-            {
-
-                if (dgv_group.Rows[row.Index].Visible == false)
-                    continue;
-
-                var trade = row.Cells[0].Value as List<GlobalTrade>;
-                newGroup.AddRange(trade);
-                groupTrades.Remove(trade);
-            }
-
-            groupTrades.Add(newGroup);
-            ConfigService.SaveGroupTradeToCache(groupTrades);
-
-            RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
-        }
-
-        private void cb_HideGroup_CheckedChanged(object sender, EventArgs e)
+        private void cb_HideArchive_CheckedChanged(object sender, EventArgs e)
         {
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
         }
-
 
     }
 }

@@ -530,7 +530,7 @@ namespace OpenWallet.Styles
         public const string LaughBeam = "\uf59a";
         public const string LaughSquint = "\uf59b";
         public const string LaughWink = "\uf59c";
-        public const string LayerGroup = "\uf5fd";
+        public const string LayerArchive = "\uf5fd";
         public const string Leaf = "\uf06c";
         public const string Lemon = "\uf094";
         public const string LessThan = "\uf536";
@@ -616,8 +616,8 @@ namespace OpenWallet.Styles
         public const string Newspaper = "\uf1ea";
         public const string NotEqual = "\uf53e";
         public const string NotesMedical = "\uf481";
-        public const string ObjectGroup = "\uf247";
-        public const string ObjectUngroup = "\uf248";
+        public const string ObjectArchive = "\uf247";
+        public const string ObjectUnarchive = "\uf248";
         public const string OilCan = "\uf613";
         public const string Om = "\uf679";
         public const string Otter = "\uf700";

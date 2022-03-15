@@ -97,7 +97,7 @@ namespace OpentWallet.Logic
 
         public List<GlobalBalance> GetBalance()
         {
-            string sApi = $"/{GetAccount().Data.AccountGroup}/api/pro/v1/cash/balance";
+            string sApi = $"/{GetAccount().Data.AccountArchive}/api/pro/v1/cash/balance";
 
             var timestampUtcMillisecond = GetNonce();
 
@@ -125,7 +125,7 @@ namespace OpentWallet.Logic
         }
         public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
-            string sApi = $"/{GetAccount().Data.AccountGroup}/api/pro/v2/order/hist";
+            string sApi = $"/{GetAccount().Data.AccountArchive}/api/pro/v2/order/hist";
 
             var timestampUtcMillisecond = GetNonce();
 
@@ -319,8 +319,8 @@ namespace OpentWallet.Logic
         [JsonProperty("email")]
         public string Email { get; set; }
 
-        [JsonProperty("accountGroup")]
-        public long AccountGroup { get; set; }
+        [JsonProperty("accountArchive")]
+        public long AccountArchive { get; set; }
 
         [JsonProperty("viewPermission")]
         public bool ViewPermission { get; set; }

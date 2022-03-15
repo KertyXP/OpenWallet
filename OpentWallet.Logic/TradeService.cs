@@ -159,26 +159,30 @@ namespace OpentWallet.Logic
             }).OrderBy(l => l.From).OrderBy(t => t.Couple).ToList();
         }
 
-        public static List<List<GlobalTrade>> LoadGroupTrade()
+        public static Dictionary<string, List<GlobalTrade>> LoadArchiveTrade()
         {
-            var groupTrades = ConfigService.LoadGroupTradeFromCache();
 
-            for (int i = groupTrades.Count - 1; i > 0; i--)
-            {
-                for (int j = i - 1; i >= 0; i--)
-                {
-                    if (i == j)
-                        continue;
+            Dictionary<string, List<GlobalTrade>> dicArchives = new Dictionary<string, List<GlobalTrade>>();
 
-                    if (groupTrades[i].Any(gtSource => groupTrades[j].Any(gtDest => gtDest.InternalExchangeId == gtSource.InternalExchangeId)))
-                    {
-                        groupTrades.RemoveAt(i);
-                        break;
-                    }
-                }
-            }
+            dicArchives = ConfigService.LoadArchiveTradeFromCache();
 
-            return groupTrades;
+
+            //for (int i = archiveTrades.Count - 1; i > 0; i--)
+            //{
+            //    for (int j = i - 1; i >= 0; i--)
+            //    {
+            //        if (i == j)
+            //            continue;
+
+            //        if (archiveTrades[i].Any(gtSource => archiveTrades[j].Any(gtDest => gtDest.InternalExchangeId == gtSource.InternalExchangeId)))
+            //        {
+            //            archiveTrades.RemoveAt(i);
+            //            break;
+            //        }
+            //    }
+            //}
+
+            return dicArchives;
 
         }
     }

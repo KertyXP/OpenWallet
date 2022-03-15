@@ -48,20 +48,19 @@ namespace OpentWallet.Logic
             return oConfig;
         }
 
-        public static void SaveGroupTradeToCache(List<List<GlobalTrade>> groupTrades)
+        public static void SaveArchiveTradeToCache(Dictionary<string, List<GlobalTrade>> archiveTrades)
         {
-            string sFileName = "GroupTrades.json";
-            string json = JsonConvert.SerializeObject(groupTrades);
+            string sFileName = "ArchiveTrades.json";
+            string json = JsonConvert.SerializeObject(archiveTrades);
 
             File.WriteAllText(sFileName, json);
         }
 
-
-        public static List<List<GlobalTrade>> LoadGroupTradeFromCache()
+        public static Dictionary<string, List<GlobalTrade>> LoadArchiveTradeFromCache()
         {
-            string sFileName = "GroupTrades.json";
+            string sFileName = "ArchiveTrades.json";
 
-            return File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<List<GlobalTrade>>>(File.ReadAllText(sFileName)) : new List<List<GlobalTrade>>();
+            return File.Exists(sFileName) ? JsonConvert.DeserializeObject<Dictionary<string, List<GlobalTrade>>>(File.ReadAllText(sFileName)) : new Dictionary<string, List<GlobalTrade>>();
         }
 
         public static List<GlobalTrade> LoadTradesFromCache(IExchange exchange)
