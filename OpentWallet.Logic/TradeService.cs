@@ -159,6 +159,24 @@ namespace OpentWallet.Logic
             }).OrderBy(l => l.From).OrderBy(t => t.Couple).ToList();
         }
 
+        public struct TradeArchiveped
+        {
+
+            public string from, to;
+            public double quantityFrom, quantityTo;
+        }
+        public static TradeArchiveped ArchiveTrades(List<GlobalTrade> g)
+        {
+            TradeArchiveped tradeArchiveped;
+
+            tradeArchiveped.from = g.FirstOrDefault()?.From;
+            tradeArchiveped.to = g.FirstOrDefault()?.To;
+            tradeArchiveped.quantityFrom = g.Where(t => t.To == tradeArchiveped.from).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchiveped.from).Sum(t => t.QuantityFrom);
+            tradeArchiveped.quantityTo = g.Where(t => t.To == tradeArchiveped.to).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchiveped.to).Sum(t => t.QuantityFrom);
+
+            return tradeArchiveped;
+        }
+
         public static Dictionary<string, List<GlobalTrade>> LoadArchiveTrade()
         {
 

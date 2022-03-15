@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace OpenWallet.Common
 {
@@ -11,6 +7,9 @@ namespace OpenWallet.Common
 
         public static TValue GetOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dic, TKey key) where TValue : class, new()
         {
+            if (key == null)
+                return default(TValue);
+
             if (dic.ContainsKey(key))
             {
                 return dic[key];

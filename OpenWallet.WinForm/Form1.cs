@@ -26,7 +26,7 @@ namespace OpenWallet.WinForm
 
         }
 
-        private async void Form1_Load(object sender, EventArgs e)
+        private void Form1_Load(object sender, EventArgs e)
         {
 
             ConfigService.Init("");
@@ -47,48 +47,6 @@ namespace OpenWallet.WinForm
 
         }
 
-        private void HistoryWalletToTrade(GlobalTrade tradeToMoveTo)
-        {
-            var aNewBalance = JsonConvert.DeserializeObject<List<GlobalBalance>>(JsonConvert.SerializeObject(balances));
-
-            foreach (var oTrade in trades)
-            {
-                if (oTrade.Exchange + oTrade.InternalExchangeId == tradeToMoveTo.Exchange + tradeToMoveTo.InternalExchangeId)
-                    break;
-
-                var from = aNewBalance.FirstOrDefault(b => b.Crypto == oTrade.From);
-                var to = aNewBalance.FirstOrDefault(b => b.Crypto == oTrade.To);
-                if (from == null)
-                {
-                    from = new GlobalBalance()
-                    {
-                        Crypto = oTrade.From,
-                        Value = 0,
-                        Exchange = oTrade.Exchange,
-                        CryptoId = oTrade.CryptoFromId
-                    };
-                    aNewBalance.Add(from);
-                }
-                if (to == null)
-                {
-                    to = new GlobalBalance()
-                    {
-                        Crypto = oTrade.To,
-                        Value = 0,
-                        Exchange = oTrade.Exchange,
-                        CryptoId = oTrade.CryptoToId
-                    };
-                    aNewBalance.Add(to);
-                }
-                from.Value += oTrade.QuantityFrom;
-                to.Value -= oTrade.QuantityTo;
-            }
-
-
-            aNewBalance = BalanceService.SetBitcoinFavCryptoValue(exchanges, allCurrencies, aNewBalance);
-
-            InsertCurrentBalanceInGrid(aNewBalance);
-        }
 
         const int dgvBalanceCustom = 4;
 
@@ -107,42 +65,15 @@ namespace OpenWallet.WinForm
             dgv_Balance.Rows.Insert(0, null, "TOTAL", ConfigService.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSum);
         }
 
-        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
-        {
-            if (this.dgv_Balance.SelectedRows.Count <= 0)
-                return;
-            return;
-
-            var oGlobalBalance = this.dgv_Balance.SelectedRows[0].Cells[0].Value as GlobalBalance;
-            if (oGlobalBalance != null)
-            {
-                for (int i = 0; i < dgv_trade_day.RowCount; i++)
-                {
-                    var trade = dgv_trade_day[0, i].Value as GlobalTrade;
-                    if (trade != null)
-                    {
-                        if ((string.IsNullOrEmpty(oGlobalBalance.CryptoId) == false && (trade.CryptoFromId == oGlobalBalance.CryptoId || trade.CryptoToId == oGlobalBalance.CryptoId))
-                            || trade.To == oGlobalBalance.Crypto || trade.From == oGlobalBalance.Crypto)
-                        {
-                            dgv_trade_day.Rows[i].Visible = true;
-                        }
-                        else
-                        {
-                            dgv_trade_day.Rows[i].Visible = false;
-                        }
-                    }
-                }
-            }
-
-        }
-
         private async void bt_refreshBalance_Click(object sender, EventArgs e)
         {
             bt_refreshBalance.Enabled = false;
 
+            allCurrencies = BalanceService.GetCurrencries(exchanges);
             balances = await BalanceService.GetBalances(exchanges, allCurrencies);
 
             InsertCurrentBalanceInGrid(balances);
+
             bt_refreshBalance.Enabled = true;
         }
 
@@ -267,7 +198,7 @@ namespace OpenWallet.WinForm
                 var trades = archiveTrades[g];
                 if (trades.Any())
                 {
-                    var archiveTrade = ArchiveTrades(trades);
+                    var archiveTrade = TradeService.ArchiveTrades(trades);
                     dgv_archive.Rows.Add(trades, archiveTrade.from, archiveTrade.quantityFrom, archiveTrade.to, archiveTrade.quantityTo, trades.FirstOrDefault().dtTrade.ToString("yyyy-MM-dd"));
                 }
             });
@@ -275,29 +206,6 @@ namespace OpenWallet.WinForm
             RefreshFilterDropDown();
         }
 
-        internal struct TradeArchiveped
-        {
-
-            public string from, to;
-            public double quantityFrom, quantityTo;
-        }
-        private static TradeArchiveped ArchiveTrades(List<GlobalTrade> g)
-        {
-            TradeArchiveped tradeArchiveped;
-
-            tradeArchiveped.from = g.FirstOrDefault()?.From;
-            tradeArchiveped.to = g.FirstOrDefault()?.To;
-            tradeArchiveped.quantityFrom = g.Where(t => t.To == tradeArchiveped.from).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchiveped.from).Sum(t => t.QuantityFrom);
-            tradeArchiveped.quantityTo = g.Where(t => t.To == tradeArchiveped.to).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchiveped.to).Sum(t => t.QuantityFrom);
-
-            return tradeArchiveped;
-        }
-
-        private void dgv_trade_day_SelectionChanged(object sender, EventArgs e)
-        {
-            GlobalTrade t = (GlobalTrade)(sender as DataGridView).SelectedRows[0].Cells[0].Value;
-            HistoryWalletToTrade(t);
-        }
 
 
         private void dgv_trade_day_SelectionChanged_1(object sender, EventArgs e)
@@ -313,9 +221,9 @@ namespace OpenWallet.WinForm
                 archives.Add(trade);
             }
 
-            archives.AddRange(archiveTrades.GetOrDefault(archives.FirstOrDefault()?.CustomCouple));
+            archives.AddRange(archiveTrades.GetOrDefault(archives.FirstOrDefault()?.CustomCouple) ?? new List<GlobalTrade>());
 
-            var archiveTrade = ArchiveTrades(archives);
+            var archiveTrade = TradeService.ArchiveTrades(archives);
             lbl_preview_archive.Text = archiveTrade.from + " " + archiveTrade.quantityFrom + " || " + archiveTrade.to + " " + archiveTrade.quantityTo;
         }
 
