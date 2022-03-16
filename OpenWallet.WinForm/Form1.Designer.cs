@@ -38,13 +38,21 @@
             this.CustomValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.dgv_archive = new System.Windows.Forms.DataGridView();
+            this.dgv_trade_day = new System.Windows.Forms.DataGridView();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.lbl_prev_2 = new System.Windows.Forms.Label();
+            this.bt_refreshTrade = new System.Windows.Forms.Button();
+            this.lbl_preview_archive = new System.Windows.Forms.Label();
+            this.cb_Pair = new System.Windows.Forms.ComboBox();
+            this.cb_HideArchiveped = new System.Windows.Forms.CheckBox();
+            this.bt_unarchive = new System.Windows.Forms.Button();
+            this.bt_archive = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dataGridViewTextBoxColumn15 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.dgv_trade_day = new System.Windows.Forms.DataGridView();
             this.obj2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -55,15 +63,6 @@
             this.price = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CurrentPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.bt_refreshTrade = new System.Windows.Forms.Button();
-            this.lbl_preview_archive = new System.Windows.Forms.Label();
-            this.cb_Pair = new System.Windows.Forms.ComboBox();
-            this.cb_HideArchiveped = new System.Windows.Forms.CheckBox();
-            this.bt_unarchive = new System.Windows.Forms.Button();
-            this.bt_archive = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.lbl_prev_2 = new System.Windows.Forms.Label();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
@@ -99,7 +98,7 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(1194, 513);
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(1132, 513);
             this.tableLayoutPanel2.TabIndex = 3;
             // 
             // dgv_Balance
@@ -120,8 +119,9 @@
             this.dgv_Balance.Name = "dgv_Balance";
             this.dgv_Balance.ReadOnly = true;
             this.dgv_Balance.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_Balance.Size = new System.Drawing.Size(471, 437);
+            this.dgv_Balance.Size = new System.Drawing.Size(446, 437);
             this.dgv_Balance.TabIndex = 4;
+            this.dgv_Balance.SelectionChanged += new System.EventHandler(this.dgv_Balance_SelectionChanged);
             // 
             // obj
             // 
@@ -161,14 +161,14 @@
             this.tableLayoutPanel3.Controls.Add(this.dgv_archive, 0, 1);
             this.tableLayoutPanel3.Controls.Add(this.dgv_trade_day, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(477, 50);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(452, 50);
             this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(717, 443);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(680, 443);
             this.tableLayoutPanel3.TabIndex = 3;
             // 
             // dgv_archive
@@ -181,53 +181,16 @@
             this.dataGridViewTextBoxColumn4,
             this.dataGridViewTextBoxColumn5,
             this.dataGridViewTextBoxColumn12,
-            this.dataGridViewTextBoxColumn13,
-            this.dataGridViewTextBoxColumn15});
+            this.dataGridViewTextBoxColumn13});
             this.dgv_archive.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgv_archive.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dgv_archive.Location = new System.Drawing.Point(3, 224);
             this.dgv_archive.Name = "dgv_archive";
             this.dgv_archive.ReadOnly = true;
             this.dgv_archive.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_archive.Size = new System.Drawing.Size(711, 216);
+            this.dgv_archive.Size = new System.Drawing.Size(674, 216);
             this.dgv_archive.TabIndex = 6;
-            // 
-            // dataGridViewTextBoxColumn1
-            // 
-            this.dataGridViewTextBoxColumn1.HeaderText = "obj2";
-            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
-            this.dataGridViewTextBoxColumn1.ReadOnly = true;
-            this.dataGridViewTextBoxColumn1.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn4
-            // 
-            this.dataGridViewTextBoxColumn4.HeaderText = "CryptoFrom";
-            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
-            this.dataGridViewTextBoxColumn4.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn5
-            // 
-            this.dataGridViewTextBoxColumn5.HeaderText = "CountFrom";
-            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
-            this.dataGridViewTextBoxColumn5.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn12
-            // 
-            this.dataGridViewTextBoxColumn12.HeaderText = "CryptoTo";
-            this.dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
-            this.dataGridViewTextBoxColumn12.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn13
-            // 
-            this.dataGridViewTextBoxColumn13.HeaderText = "ValueTo";
-            this.dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
-            this.dataGridViewTextBoxColumn13.ReadOnly = true;
-            // 
-            // dataGridViewTextBoxColumn15
-            // 
-            this.dataGridViewTextBoxColumn15.HeaderText = "Date";
-            this.dataGridViewTextBoxColumn15.Name = "dataGridViewTextBoxColumn15";
-            this.dataGridViewTextBoxColumn15.ReadOnly = true;
+            this.dgv_archive.SelectionChanged += new System.EventHandler(this.dgv_archive_SelectionChanged);
             // 
             // dgv_trade_day
             // 
@@ -250,63 +213,10 @@
             this.dgv_trade_day.Location = new System.Drawing.Point(3, 3);
             this.dgv_trade_day.Name = "dgv_trade_day";
             this.dgv_trade_day.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_trade_day.Size = new System.Drawing.Size(711, 215);
+            this.dgv_trade_day.Size = new System.Drawing.Size(674, 215);
             this.dgv_trade_day.TabIndex = 5;
             this.dgv_trade_day.SelectionChanged += new System.EventHandler(this.dgv_trade_day_SelectionChanged_1);
             this.dgv_trade_day.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_trade_day_MouseClick);
-            // 
-            // obj2
-            // 
-            this.obj2.HeaderText = "obj2";
-            this.obj2.Name = "obj2";
-            this.obj2.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn6
-            // 
-            this.dataGridViewTextBoxColumn6.HeaderText = "Exchange";
-            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
-            this.dataGridViewTextBoxColumn6.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn7
-            // 
-            this.dataGridViewTextBoxColumn7.HeaderText = "Couple";
-            this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
-            this.dataGridViewTextBoxColumn7.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn8
-            // 
-            this.dataGridViewTextBoxColumn8.HeaderText = "CryptoFrom";
-            this.dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
-            // 
-            // dataGridViewTextBoxColumn9
-            // 
-            this.dataGridViewTextBoxColumn9.HeaderText = "CountFrom";
-            this.dataGridViewTextBoxColumn9.Name = "dataGridViewTextBoxColumn9";
-            // 
-            // dataGridViewTextBoxColumn10
-            // 
-            this.dataGridViewTextBoxColumn10.HeaderText = "CryptoTo";
-            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
-            // 
-            // dataGridViewTextBoxColumn11
-            // 
-            this.dataGridViewTextBoxColumn11.HeaderText = "ValueTo";
-            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
-            // 
-            // price
-            // 
-            this.price.HeaderText = "price";
-            this.price.Name = "price";
-            // 
-            // CurrentPrice
-            // 
-            this.CurrentPrice.HeaderText = "Cur. Price";
-            this.CurrentPrice.Name = "CurrentPrice";
-            // 
-            // Date
-            // 
-            this.Date.HeaderText = "Date";
-            this.Date.Name = "Date";
             // 
             // panel2
             // 
@@ -318,14 +228,23 @@
             this.panel2.Controls.Add(this.bt_unarchive);
             this.panel2.Controls.Add(this.bt_archive);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(480, 3);
+            this.panel2.Location = new System.Drawing.Point(455, 3);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(711, 44);
+            this.panel2.Size = new System.Drawing.Size(674, 44);
             this.panel2.TabIndex = 5;
+            // 
+            // lbl_prev_2
+            // 
+            this.lbl_prev_2.AutoSize = true;
+            this.lbl_prev_2.Location = new System.Drawing.Point(236, 27);
+            this.lbl_prev_2.Name = "lbl_prev_2";
+            this.lbl_prev_2.Size = new System.Drawing.Size(25, 13);
+            this.lbl_prev_2.TabIndex = 12;
+            this.lbl_prev_2.Text = "      ";
             // 
             // bt_refreshTrade
             // 
-            this.bt_refreshTrade.Location = new System.Drawing.Point(650, 9);
+            this.bt_refreshTrade.Location = new System.Drawing.Point(608, 9);
             this.bt_refreshTrade.Name = "bt_refreshTrade";
             this.bt_refreshTrade.Size = new System.Drawing.Size(58, 23);
             this.bt_refreshTrade.TabIndex = 2;
@@ -366,7 +285,7 @@
             // 
             // bt_unarchive
             // 
-            this.bt_unarchive.Location = new System.Drawing.Point(476, 9);
+            this.bt_unarchive.Location = new System.Drawing.Point(539, 9);
             this.bt_unarchive.Name = "bt_unarchive";
             this.bt_unarchive.Size = new System.Drawing.Size(67, 22);
             this.bt_unarchive.TabIndex = 8;
@@ -390,23 +309,102 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(471, 44);
+            this.panel1.Size = new System.Drawing.Size(446, 44);
             this.panel1.TabIndex = 0;
             // 
-            // lbl_prev_2
+            // dataGridViewTextBoxColumn1
             // 
-            this.lbl_prev_2.AutoSize = true;
-            this.lbl_prev_2.Location = new System.Drawing.Point(236, 27);
-            this.lbl_prev_2.Name = "lbl_prev_2";
-            this.lbl_prev_2.Size = new System.Drawing.Size(25, 13);
-            this.lbl_prev_2.TabIndex = 12;
-            this.lbl_prev_2.Text = "      ";
+            this.dataGridViewTextBoxColumn1.HeaderText = "obj2";
+            this.dataGridViewTextBoxColumn1.Name = "dataGridViewTextBoxColumn1";
+            this.dataGridViewTextBoxColumn1.ReadOnly = true;
+            this.dataGridViewTextBoxColumn1.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn4
+            // 
+            this.dataGridViewTextBoxColumn4.HeaderText = "CryptoFrom";
+            this.dataGridViewTextBoxColumn4.Name = "dataGridViewTextBoxColumn4";
+            this.dataGridViewTextBoxColumn4.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn5
+            // 
+            this.dataGridViewTextBoxColumn5.HeaderText = "CountFrom";
+            this.dataGridViewTextBoxColumn5.Name = "dataGridViewTextBoxColumn5";
+            this.dataGridViewTextBoxColumn5.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn12
+            // 
+            this.dataGridViewTextBoxColumn12.HeaderText = "CryptoTo";
+            this.dataGridViewTextBoxColumn12.Name = "dataGridViewTextBoxColumn12";
+            this.dataGridViewTextBoxColumn12.ReadOnly = true;
+            // 
+            // dataGridViewTextBoxColumn13
+            // 
+            this.dataGridViewTextBoxColumn13.HeaderText = "ValueTo";
+            this.dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
+            this.dataGridViewTextBoxColumn13.ReadOnly = true;
+            // 
+            // obj2
+            // 
+            this.obj2.HeaderText = "obj2";
+            this.obj2.Name = "obj2";
+            this.obj2.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn6
+            // 
+            this.dataGridViewTextBoxColumn6.HeaderText = "Exchange";
+            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
+            this.dataGridViewTextBoxColumn6.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn7
+            // 
+            this.dataGridViewTextBoxColumn7.HeaderText = "Couple";
+            this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            this.dataGridViewTextBoxColumn7.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn8
+            // 
+            this.dataGridViewTextBoxColumn8.HeaderText = "CryptoFrom";
+            this.dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
+            this.dataGridViewTextBoxColumn8.Width = 75;
+            // 
+            // dataGridViewTextBoxColumn9
+            // 
+            this.dataGridViewTextBoxColumn9.HeaderText = "CountFrom";
+            this.dataGridViewTextBoxColumn9.Name = "dataGridViewTextBoxColumn9";
+            // 
+            // dataGridViewTextBoxColumn10
+            // 
+            this.dataGridViewTextBoxColumn10.HeaderText = "CryptoTo";
+            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
+            this.dataGridViewTextBoxColumn10.Width = 75;
+            // 
+            // dataGridViewTextBoxColumn11
+            // 
+            this.dataGridViewTextBoxColumn11.HeaderText = "ValueTo";
+            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
+            // 
+            // price
+            // 
+            this.price.HeaderText = "price";
+            this.price.Name = "price";
+            this.price.Width = 75;
+            // 
+            // CurrentPrice
+            // 
+            this.CurrentPrice.HeaderText = "Cur. Price";
+            this.CurrentPrice.Name = "CurrentPrice";
+            this.CurrentPrice.Width = 85;
+            // 
+            // Date
+            // 
+            this.Date.HeaderText = "Date";
+            this.Date.Name = "Date";
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1194, 513);
+            this.ClientSize = new System.Drawing.Size(1132, 513);
             this.Controls.Add(this.tableLayoutPanel2);
             this.Name = "Form1";
             this.Text = "Form1";
@@ -430,12 +428,6 @@
         private System.Windows.Forms.DataGridView dgv_Balance;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel3;
         private System.Windows.Forms.DataGridView dgv_archive;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn15;
         private System.Windows.Forms.DataGridView dgv_trade_day;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.ComboBox cb_Pair;
@@ -449,6 +441,12 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Crypto;
         private System.Windows.Forms.DataGridViewTextBoxColumn Count;
         private System.Windows.Forms.DataGridViewTextBoxColumn CustomValue;
+        private System.Windows.Forms.Label lbl_prev_2;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn4;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
         private System.Windows.Forms.DataGridViewTextBoxColumn obj2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
@@ -459,7 +457,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn price;
         private System.Windows.Forms.DataGridViewTextBoxColumn CurrentPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
-        private System.Windows.Forms.Label lbl_prev_2;
     }
 }
 

@@ -1,6 +1,7 @@
 ﻿using OpenWallet.Common;
 using OpenWallet.Logic.Abstraction;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -177,31 +178,56 @@ namespace OpentWallet.Logic
             return tradeArchiveped;
         }
 
-        public static Dictionary<string, List<GlobalTrade>> LoadArchiveTrade()
+        public static IEnumerable<string> GetCouplesFromTrade(IEnumerable<GlobalTrade> trades)
         {
-
-            Dictionary<string, List<GlobalTrade>> dicArchives = new Dictionary<string, List<GlobalTrade>>();
-
-            dicArchives = ConfigService.LoadArchiveTradeFromCache();
-
-
-            //for (int i = archiveTrades.Count - 1; i > 0; i--)
-            //{
-            //    for (int j = i - 1; i >= 0; i--)
-            //    {
-            //        if (i == j)
-            //            continue;
-
-            //        if (archiveTrades[i].Any(gtSource => archiveTrades[j].Any(gtDest => gtDest.InternalExchangeId == gtSource.InternalExchangeId)))
-            //        {
-            //            archiveTrades.RemoveAt(i);
-            //            break;
-            //        }
-            //    }
-            //}
-
-            return dicArchives;
-
+            return trades.Select(t => t.CustomCouple)
+            .GroupBy(t => t)
+            .Select(t => t.FirstOrDefault());
         }
+
+        public static double GetDelta(GlobalTrade trade, List<CurrencySymbolPrice> currencies)
+        {
+            var currentPrice = currencies.FirstOrDefault(c => c.Couple == trade.Couple)?.RealPrice ?? 1;
+            var delta = currentPrice / trade.RealPrice * 100 - 100;
+            return delta;
+        }
+
+        public static bool IsProfitable(GlobalTrade trade, double delta)
+        {
+            return (delta > 0 && trade.IsBuy) || (delta < 0 && trade.IsBuy == false);
+        }
+
+        private static Color colorGreenLight = Color.FromArgb(255, 200, 255, 200);
+        private static Color colorGreenSelected = Color.FromArgb(255, 150, 200, 150);
+        private static Color colorRedLight = Color.FromArgb(255, 255, 200, 200);
+        private static Color colorRedSelected = Color.FromArgb(255, 200, 150, 150);
+        private static Color colorGrey = Color.FromArgb(255, 150, 150, 150);
+        private static Color colorDark = Color.FromArgb(255, 50, 50, 50);
+
+        public static Color GetSellStateBackColor(GlobalTrade trade)
+        {
+            return trade.IsBuy ? colorGreenLight : colorRedLight;
+        }
+
+        public static Color GetSellStateBackColorSelected(GlobalTrade trade)
+        {
+            return trade.IsBuy ? colorGreenSelected : colorRedSelected;
+        }
+
+        public static Color GetArchiveStateForeColor(bool tradeIsArchived)
+        {
+            return tradeIsArchived ? colorGrey : colorDark;
+        }
+
+        public static Color GetDeltaColor(bool isProfitable)
+        {
+            return isProfitable ? colorGreenLight : colorRedLight;
+        }
+
+        public static Color GetDeltaColorSelected(bool isProfitable)
+        {
+            return isProfitable ? colorGreenSelected : colorRedSelected;
+        }
+
     }
 }

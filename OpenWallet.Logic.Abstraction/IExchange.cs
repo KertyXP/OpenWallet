@@ -17,7 +17,7 @@ namespace OpenWallet.Logic.Abstraction
 
     public interface IRefreshOneCoupleTrade
     {
-        List<GlobalTrade> GetTradeHistoryOneCouple(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances, string couple);
+        List<GlobalTrade> GetTradeHistoryOneCouple(List<GlobalTrade> aCache, CurrencySymbol symbol);
     }
 
     public enum SellBuy

@@ -428,11 +428,12 @@ namespace OpentWallet.Logic
 
         }
 
-        public List<GlobalTrade> GetTradeHistoryOneCouple(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances, string couple)
+        public List<GlobalTrade> GetTradeHistoryOneCouple(List<GlobalTrade> aCache, CurrencySymbol symbol)
         {
             var aListTrades = new List<GlobalTrade>(aCache);
 
-            var aTrades = GetTradesFromCurrencies(couple.Split('_').First(), couple.Split('_').Last());
+            var aTrades = GetTradesFromCurrencies(symbol.RealFrom, symbol.RealTo);
+            aListTrades.RemoveAll(t => t.Exchange == ExchangeCode && t.Couple == symbol.Couple);
             aListTrades.AddRange(aTrades);
 
             return aListTrades;

@@ -41,7 +41,7 @@ namespace OpenWallet.WinForm
 
             trades = TradeService.LoadTradesFromCacheOnly(exchanges, allCurrencies);
 
-            archiveTrades = TradeService.LoadArchiveTrade();
+            archiveTrades = ConfigService.LoadArchiveTradeFromCache();
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
@@ -95,19 +95,8 @@ namespace OpenWallet.WinForm
         private void RefreshFilterDropDown()
         {
 
-
-            var couples = new List<string>();
-            for (int i = 0; i < dgv_trade_day.RowCount; i++)
-            {
-                var trade = dgv_trade_day[0, i].Value as GlobalTrade;
-
-                if (couples.Any(c => c == trade.CustomCouple) == false)
-                {
-                    couples.Add(trade.CustomCouple);
-                }
-
-            }
-
+            var couples = TradeService.GetCouplesFromTrade(dgv_trade_day.GetValuesAsT<GlobalTrade>(AcceptedState.All));
+            
             _pairSelected = cb_Pair.SelectedItem?.ToString() ?? _pairSelected;
             cb_Pair.Items.Clear();
             cb_Pair.Items.Add("<All>");
@@ -163,24 +152,23 @@ namespace OpenWallet.WinForm
             dgv_trade_day.Rows.Clear();
             tradeToShow.ForEach(t =>
             {
-                bool tradeIsArchiveped = archiveTrades.GetOrDefault(t.CustomCouple)?.Any(g => g.InternalExchangeId == t.InternalExchangeId) == true;
+                bool tradeIsArchived = archiveTrades.GetOrDefault(t.CustomCouple)?.Any(g => g.InternalExchangeId == t.InternalExchangeId) == true;
 
-                if (tradeIsArchiveped && cb_HideArchiveped.Checked)
+                if (tradeIsArchived && cb_HideArchiveped.Checked)
                     return;
 
                 if(t.From == t.To)
                     return;
 
-                var sellStateBackColor = t.IsBuy ? Color.FromArgb(255, 200, 255, 200) : Color.FromArgb(255, 255, 200, 200);
-                var sellStateBackColorSelected = t.IsBuy ? Color.FromArgb(255, 150, 200, 150) : Color.FromArgb(255, 200, 150, 150);
-                var archiveStateForeColor = tradeIsArchiveped ? SystemColors.GrayText : SystemColors.ControlText;
+                var delta = TradeService.GetDelta(t, allCurrencies);
+                var isProfitable = TradeService.IsProfitable(t, delta);
 
-                var currentPrice = allCurrencies.FirstOrDefault(c => c.Couple == t.Couple)?.RealPrice ?? 1;
-                var delta = currentPrice / t.RealPrice * 100 - 100;
+                var sellStateBackColor = TradeService.GetSellStateBackColor(t);
+                var sellStateBackColorSelected = TradeService.GetSellStateBackColorSelected(t);
+                var archiveStateForeColor = TradeService.GetArchiveStateForeColor(tradeIsArchived);
 
-                var isProfitable = (delta > 0 && t.IsBuy) || (delta < 0 && t.IsBuy == false);
-                var deltaColor = isProfitable ? Color.FromArgb(255, 180, 255, 180) : Color.FromArgb(255, 255, 180, 180);
-                var deltaColorSelected = isProfitable ? Color.FromArgb(255, 150, 200, 150) : Color.FromArgb(255, 200, 150, 150);
+                var deltaColor = TradeService.GetDeltaColor(isProfitable);
+                var deltaColorSelected = TradeService.GetDeltaColorSelected(isProfitable);
 
                 dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, delta.ToString("00.##"), t.dtTrade.ToString("yyyy-MM-dd"));
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.BackColor = sellStateBackColor;
@@ -213,7 +201,8 @@ namespace OpenWallet.WinForm
 
         private void dgv_trade_day_SelectionChanged_1(object sender, EventArgs e)
         {
-
+            dgv_archive.UnselectAllRows();
+            dgv_Balance.UnselectAllRows();
             var archives = new List<GlobalTrade>();
             foreach (DataGridViewRow row in dgv_trade_day.SelectedRows)
             {
@@ -319,7 +308,7 @@ namespace OpenWallet.WinForm
                         var menuItem = new MenuItem("refresh couple " + trade.CustomCouple);
                         menuItem.Click += (ob, ev) =>
                         {
-                            var newTrades = exchangeRefresh.GetTradeHistoryOneCouple(trades.Where(tr => tr.Exchange == trade.Exchange).ToList(), balances, trade.Couple);
+                            var newTrades = exchangeRefresh.GetTradeHistoryOneCouple(trades.Where(tr => tr.Exchange == trade.Exchange).ToList(), trade);
                             ConfigService.SaveTradesToCache(newTrades);
 
                             trades.RemoveAll(tr => tr.Exchange == trade.Exchange);
@@ -333,6 +322,18 @@ namespace OpenWallet.WinForm
                 }
 
             }
+        }
+
+        private void dgv_archive_SelectionChanged(object sender, EventArgs e)
+        {
+            dgv_Balance.UnselectAllRows();
+            dgv_trade_day.UnselectAllRows();
+        }
+
+        private void dgv_Balance_SelectionChanged(object sender, EventArgs e)
+        {
+            dgv_archive.UnselectAllRows();
+            dgv_trade_day.UnselectAllRows();
         }
     }
 }

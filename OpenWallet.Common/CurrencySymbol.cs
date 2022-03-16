@@ -14,10 +14,15 @@
             From = from;
             To = to;
             Couple = couple;
+
+            RealFrom = couple.StartsWith(from) ? from : to;
+            RealTo = couple.StartsWith(to) ? from : to;
         }
 
 
 
+        public string RealFrom { get; set; }
+        public string RealTo { get; set; }
         public string CryptoFromId { get; set; }
         public string CryptoToId { get; set; }
         public string From { get; set; }

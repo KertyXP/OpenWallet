@@ -7,15 +7,11 @@
         {
             RealPrice = realPrice;
             Price = couple.StartsWith(from) ? realPrice : 1 / realPrice;
-            RealFrom = couple.StartsWith(from) ? from : to ;
-            RealTo = couple.StartsWith(to) ? from : to ;
             IsBuy = couple.StartsWith(to);
         }
 
         public double Price { get; set; }
         public double RealPrice { get; set; }
-        public string RealFrom { get; set; }
-        public string RealTo { get; set; }
         public bool IsBuy { get; set; }
 
 
