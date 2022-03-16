@@ -164,9 +164,12 @@ namespace OpenWallet.WinForm
             tradeToShow.ForEach(t =>
             {
                 bool tradeIsArchiveped = archiveTrades.GetOrDefault(t.CustomCouple)?.Any(g => g.InternalExchangeId == t.InternalExchangeId) == true;
-               
+
                 if (tradeIsArchiveped && cb_HideArchiveped.Checked)
-                        return;
+                    return;
+
+                if(t.From == t.To)
+                    return;
 
                 var sellStateBackColor = t.IsBuy ? Color.FromArgb(255, 200, 255, 200) : Color.FromArgb(255, 255, 200, 200);
                 var sellStateBackColorSelected = t.IsBuy ? Color.FromArgb(255, 150, 200, 150) : Color.FromArgb(255, 200, 150, 150);
@@ -221,10 +224,15 @@ namespace OpenWallet.WinForm
                 archives.Add(trade);
             }
 
-            archives.AddRange(archiveTrades.GetOrDefault(archives.FirstOrDefault()?.CustomCouple) ?? new List<GlobalTrade>());
 
             var archiveTrade = TradeService.ArchiveTrades(archives);
             lbl_preview_archive.Text = archiveTrade.from + " " + archiveTrade.quantityFrom + " || " + archiveTrade.to + " " + archiveTrade.quantityTo;
+
+            archives.AddRange(archiveTrades.GetOrDefault(archives.FirstOrDefault()?.CustomCouple) ?? new List<GlobalTrade>());
+            archiveTrade = TradeService.ArchiveTrades(archives);
+            lbl_prev_2.Text = archiveTrade.from + " " + archiveTrade.quantityFrom + " || " + archiveTrade.to + " " + archiveTrade.quantityTo;
+
+
         }
 
         private void cb_Pair_SelectedIndexChanged(object sender, EventArgs e)
@@ -282,5 +290,49 @@ namespace OpenWallet.WinForm
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
         }
 
+        private void dgv_trade_day_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Right)
+            {
+                int currentMouseOverRow = dgv_trade_day.HitTest(e.X, e.Y).RowIndex;
+
+                if (currentMouseOverRow >= 0)
+                {
+
+
+                    ContextMenu m = new ContextMenu();
+                    var trade = dgv_trade_day[0, currentMouseOverRow].Value as GlobalTrade;
+                    if (trade == null)
+                        return;
+
+                    var exchange = exchanges.FirstOrDefault(ex => ex.ExchangeCode == trade.Exchange);
+                    if (exchange is IRefreshOneCoupleTrade exchangeRefresh)
+                    {
+
+                        if (dgv_trade_day.GetSelectedRowIndexes().Contains(currentMouseOverRow) == false)
+                        {
+                            dgv_trade_day.ClearSelection();
+                            dgv_trade_day.Rows[currentMouseOverRow].Selected = true;
+                        }
+
+
+                        var menuItem = new MenuItem("refresh couple " + trade.CustomCouple);
+                        menuItem.Click += (ob, ev) =>
+                        {
+                            var newTrades = exchangeRefresh.GetTradeHistoryOneCouple(trades.Where(tr => tr.Exchange == trade.Exchange).ToList(), balances, trade.Couple);
+                            ConfigService.SaveTradesToCache(newTrades);
+
+                            trades.RemoveAll(tr => tr.Exchange == trade.Exchange);
+                            trades.AddRange(newTrades);
+                            RefreshTrades(trades.OrderByDescending(tr => tr.dtTrade).ToList());
+                        };
+                        m.MenuItems.Add(menuItem);
+                    }
+
+                    m.Show(dgv_trade_day, new Point(e.X, e.Y));
+                }
+
+            }
+        }
     }
 }

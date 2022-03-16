@@ -14,7 +14,7 @@ using OpenWallet.Logic.Abstraction;
 namespace OpentWallet.Logic
 {
 
-    public class BinanceApi : IExchange
+    public class BinanceApi : IExchange, IRefreshOneCoupleTrade
     {
         ExchangeConfig IExchange.oConfig { get; set; }
 
@@ -297,7 +297,7 @@ namespace OpentWallet.Logic
 
             //return aListTrades;
             // pair defined in config
-            if(LocalParam.checkcurrenciesToCheck)
+            if (LocalParam.checkcurrenciesToCheck)
             {
 
                 foreach (var oPair in ExchangeInfo.Symbols)
@@ -426,6 +426,16 @@ namespace OpentWallet.Logic
             }
             return null;
 
+        }
+
+        public List<GlobalTrade> GetTradeHistoryOneCouple(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances, string couple)
+        {
+            var aListTrades = new List<GlobalTrade>(aCache);
+
+            var aTrades = GetTradesFromCurrencies(couple.Split('_').First(), couple.Split('_').Last());
+            aListTrades.AddRange(aTrades);
+
+            return aListTrades;
         }
     }
 }

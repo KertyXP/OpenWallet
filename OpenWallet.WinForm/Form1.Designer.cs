@@ -63,6 +63,7 @@
             this.bt_unarchive = new System.Windows.Forms.Button();
             this.bt_archive = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.lbl_prev_2 = new System.Windows.Forms.Label();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
@@ -160,13 +161,14 @@
             this.tableLayoutPanel3.Controls.Add(this.dgv_archive, 0, 1);
             this.tableLayoutPanel3.Controls.Add(this.dgv_trade_day, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(480, 53);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(477, 50);
+            this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(711, 437);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(717, 443);
             this.tableLayoutPanel3.TabIndex = 3;
             // 
             // dgv_archive
@@ -183,11 +185,11 @@
             this.dataGridViewTextBoxColumn15});
             this.dgv_archive.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgv_archive.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dgv_archive.Location = new System.Drawing.Point(3, 221);
+            this.dgv_archive.Location = new System.Drawing.Point(3, 224);
             this.dgv_archive.Name = "dgv_archive";
             this.dgv_archive.ReadOnly = true;
             this.dgv_archive.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_archive.Size = new System.Drawing.Size(705, 213);
+            this.dgv_archive.Size = new System.Drawing.Size(711, 216);
             this.dgv_archive.TabIndex = 6;
             // 
             // dataGridViewTextBoxColumn1
@@ -248,9 +250,10 @@
             this.dgv_trade_day.Location = new System.Drawing.Point(3, 3);
             this.dgv_trade_day.Name = "dgv_trade_day";
             this.dgv_trade_day.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_trade_day.Size = new System.Drawing.Size(705, 212);
+            this.dgv_trade_day.Size = new System.Drawing.Size(711, 215);
             this.dgv_trade_day.TabIndex = 5;
             this.dgv_trade_day.SelectionChanged += new System.EventHandler(this.dgv_trade_day_SelectionChanged_1);
+            this.dgv_trade_day.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_trade_day_MouseClick);
             // 
             // obj2
             // 
@@ -307,6 +310,7 @@
             // 
             // panel2
             // 
+            this.panel2.Controls.Add(this.lbl_prev_2);
             this.panel2.Controls.Add(this.bt_refreshTrade);
             this.panel2.Controls.Add(this.lbl_preview_archive);
             this.panel2.Controls.Add(this.cb_Pair);
@@ -332,7 +336,7 @@
             // lbl_preview_archive
             // 
             this.lbl_preview_archive.AutoSize = true;
-            this.lbl_preview_archive.Location = new System.Drawing.Point(236, 14);
+            this.lbl_preview_archive.Location = new System.Drawing.Point(236, 3);
             this.lbl_preview_archive.Name = "lbl_preview_archive";
             this.lbl_preview_archive.Size = new System.Drawing.Size(25, 13);
             this.lbl_preview_archive.TabIndex = 11;
@@ -388,6 +392,15 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(471, 44);
             this.panel1.TabIndex = 0;
+            // 
+            // lbl_prev_2
+            // 
+            this.lbl_prev_2.AutoSize = true;
+            this.lbl_prev_2.Location = new System.Drawing.Point(236, 27);
+            this.lbl_prev_2.Name = "lbl_prev_2";
+            this.lbl_prev_2.Size = new System.Drawing.Size(25, 13);
+            this.lbl_prev_2.TabIndex = 12;
+            this.lbl_prev_2.Text = "      ";
             // 
             // Form1
             // 
@@ -446,6 +459,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn price;
         private System.Windows.Forms.DataGridViewTextBoxColumn CurrentPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
+        private System.Windows.Forms.Label lbl_prev_2;
     }
 }
 

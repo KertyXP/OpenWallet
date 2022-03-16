@@ -54,13 +54,13 @@ namespace OpentWallet.Logic
             {
                 try
                 {
-                    var aBalance = await oTask;
-                    if (aBalance.Any() == false)
+                    var trades = await oTask;
+                    if (trades.Any() == false)
                         continue;
 
-                    ConfigService.SaveTradesToCache(aBalance);
+                    ConfigService.SaveTradesToCache(trades);
 
-                    aListTrades.AddRange(aBalance);
+                    aListTrades.AddRange(trades);
                 }
                 catch
                 {
