@@ -18,7 +18,9 @@ namespace OpentWallet.Logic
             sRootPath = sFolderPath;
         }
 
-        public static GlobalConfig oGlobalConfig = LoadConfig();
+        private static GlobalConfig _globalConfig;
+
+        public static GlobalConfig oGlobalConfig => _globalConfig ?? (_globalConfig = LoadConfig());
         private static GlobalConfig LoadConfig()
         {
             string sPath = Path.Combine(sRootPath, "config.json");
@@ -30,7 +32,11 @@ namespace OpentWallet.Logic
             }
             else
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(sPath));
+                var path = Path.GetDirectoryName(sPath);
+                if(string.IsNullOrEmpty(path) == false)
+                {
+                    Directory.CreateDirectory(path);
+                }
                 oConfig = new GlobalConfig();
                 oConfig.configs = new List<ExchangeConfig>()
                 {

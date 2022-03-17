@@ -1,5 +1,8 @@
 ﻿using Xamarin.Forms;
 using OpenWallet.Services;
+using OpentWallet.Logic;
+using Xamarin.Essentials;
+using PCLStorage;
 
 namespace OpenWallet
 {
@@ -11,6 +14,7 @@ namespace OpenWallet
             InitializeComponent();
 
             DependencyService.Register<MockDataStore>();
+
             MainPage = new AppShell();
         }
 
