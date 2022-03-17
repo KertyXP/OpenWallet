@@ -169,7 +169,6 @@ namespace OpentWallet.Logic
             {
                 if (oCall.get)
                 {
-                    var web = WebRequest.Create(sApi).GetResponse();
                     responseBody = wc.DownloadString($"{sApi}");
 
                 }
