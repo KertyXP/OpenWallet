@@ -31,7 +31,7 @@
 
     <TabBar>
         <ShellContent Title="Portfolio" Icon="pie_chart.png" Route="WalletPage" ContentTemplate="{DataTemplate local:WalletPage}" />
-        <ShellContent Title="Wallets" Icon="wallet.png" ContentTemplate="{DataTemplate local:ItemsPage}" />
+        <ShellContent Title="Wallets" Icon="wallet.png" ContentTemplate="{DataTemplate local:TradesPage}" />
     </TabBar>
 
     <!--

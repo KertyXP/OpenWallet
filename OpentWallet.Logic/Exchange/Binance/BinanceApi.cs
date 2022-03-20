@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpentWallet.Logic.Binance;
 using OpenWallet.Logic.Abstraction;
+using System.IO;
 
 namespace OpentWallet.Logic
 {
@@ -147,7 +148,7 @@ namespace OpentWallet.Logic
                 }
             }
 
-            WebClient wc = new WebClient();
+
             string sApi = $"{hostname}{oCall.Api}";
 
             if (oCall.PublicApi == false)
@@ -160,24 +161,44 @@ namespace OpentWallet.Logic
                 var signature = CalcSignature($"{sQueryParam}", oConfig.SecretKey);
                 sApi += $"?{sQueryParam}&signature={signature}";
             }
-            wc.Headers.Add("X-MBX-APIKEY", oConfig.ApiKey);
+            var web = WebRequest.Create(sApi);
+            web.Headers.Add("X-MBX-APIKEY", oConfig.ApiKey);
 
             //wc.Headers.Add("Api-Subaccount-Id", signature);
-            wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
-            string responseBody = string.Empty;
+            web.ContentType = "application/json";
             try
             {
                 if (oCall.get)
                 {
-                    responseBody = wc.DownloadString($"{sApi}");
-
+                    web.Method = "GET";
                 }
                 else
                 {
-                    //symbol=BTCUSDT&side=SELL&type=LIMIT&quantity=0.01&price=9000&timestamp=
-                    responseBody = wc.UploadString($"{sApi}", "");
-
+                    web.Method = "POST";
                 }
+                var response = web.GetResponse();
+                var stream = response.GetResponseStream();
+
+                int length = 1000;
+
+                byte[] bytes = new byte[response.ContentLength + length];
+                int numBytesToRead = (int)response.ContentLength;
+                int numBytesRead = 0;
+                do
+                {
+                    // Read may return anything from 0 to 10.
+                    int n = stream.Read(bytes, numBytesRead, length);
+                    numBytesRead += n;
+                    numBytesToRead -= n;
+                } while (numBytesToRead > 0);
+
+                var s = System.Text.Encoding.Default.GetString(bytes);
+                // convert stream to string
+                StreamReader reader = new StreamReader(stream);
+                string responseBody = s;
+
+
+
                 _lastCalls.Add(new BinanceCalls()
                 {
                     Api = oCall.Api,

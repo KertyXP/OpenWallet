@@ -2,6 +2,7 @@
 using OpenWallet.Common;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Xamarin.Essentials;
@@ -11,6 +12,12 @@ namespace OpenWallet.ViewModels
 {
     public class WalletViewModel : BaseViewModel
     {
+        public static List<Logic.Abstraction.IExchange> exchanges;
+
+        public static List<CurrencySymbolPrice> allCurrencies;
+
+        public static List<GlobalBalance> balances;
+
         public Command LoadItemsCommand { get; }
         public ObservableCollection<GlobalBalance> aBalances { get; }
         public string Test => "test";
@@ -18,14 +25,7 @@ namespace OpenWallet.ViewModels
         {
             aBalances = new ObservableCollection<GlobalBalance>();
             Title = "About";
-            OpenWebCommand = new Command(async () => await Browser.OpenAsync("https://aka.ms/xamain-quickstart"));
             LoadItemsCommand = new Command(async () => await ExecuteLoadItemsCommand());
-
-            Task.Run(async () =>
-            {
-
-
-            });
         }
 
         public void OnAppearing()
@@ -55,16 +55,15 @@ namespace OpenWallet.ViewModels
                 await Task.Delay(250);
             }
 
-            var aExchanges = ConfigService.LoadExchanges();
+            exchanges = ConfigService.LoadExchanges();
 
-            List<CurrencySymbolPrice> aAllCurrencies = BalanceService.GetCurrencries(aExchanges);
+            allCurrencies = BalanceService.GetCurrencries(exchanges);
 
-            List<GlobalBalance> aAll = await BalanceService.GetBalances(aExchanges, aAllCurrencies);
+            balances = BalanceService.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
 
             aBalances.Clear();
-            aAll.ForEach(aBalances.Add);
+            balances.OrderByDescending(b => b.FavCryptoValue).ForEach(aBalances.Add);
             IsBusy = false;
         }
-        public ICommand OpenWebCommand { get; }
     }
 }

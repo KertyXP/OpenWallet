@@ -3,15 +3,15 @@ using OpenWallet.ViewModels;
 
 namespace OpenWallet.Views
 {
-    public partial class ItemsPage : ContentPage
+    public partial class TradesPage : ContentPage
     {
-        ItemsViewModel _viewModel;
+        TradesViewModel _viewModel;
 
-        public ItemsPage()
+        public TradesPage()
         {
             InitializeComponent();
 
-            BindingContext = _viewModel = new ItemsViewModel();
+            BindingContext = _viewModel = new TradesViewModel();
         }
 
         protected override void OnAppearing()

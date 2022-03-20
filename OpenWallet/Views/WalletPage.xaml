@@ -9,28 +9,39 @@
 
     <RefreshView x:DataType="local:WalletViewModel" Command="{Binding LoadItemsCommand}" IsRefreshing="{Binding IsBusy, Mode=TwoWay}">
 
-        <StackLayout>
-            <Label Text="{Binding Test}"></Label>
             <CollectionView x:Name="ItemsListView"
                 ItemsSource="{Binding aBalances}"
                 SelectionMode="None">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <StackLayout Padding="10" x:DataType="model:GlobalBalance">
-                            <Label Text="{Binding Crypto}" 
-                            LineBreakMode="NoWrap" 
-                            Style="{DynamicResource ListItemTextStyle}" 
-                            FontSize="16" />
-                            <Label Text="{Binding Value}" 
+                        <StackLayout Padding="10" x:DataType="model:GlobalBalance" Orientation="Vertical">
+                            <StackLayout Padding="0" x:DataType="model:GlobalBalance" Orientation="Horizontal">
+                                <Label Text="{Binding Value}" 
                             LineBreakMode="NoWrap"
                             Style="{DynamicResource ListItemDetailTextStyle}"
                             FontSize="13" />
+                                <Label Text="{Binding Crypto}" 
+                            LineBreakMode="NoWrap" 
+                            Style="{DynamicResource ListItemTextStyle}" 
+                            FontSize="16" />
+                            </StackLayout>
+
+                            <StackLayout Padding="0" x:DataType="model:GlobalBalance" Orientation="Horizontal">
+                                <Label Text="{Binding FavCryptoValue}" 
+                            LineBreakMode="NoWrap"
+                                       Margin="30,0,0,0"
+                            Style="{DynamicResource ListItemDetailTextStyle}"
+                            FontSize="12" />
+                                <Label Text="{Binding FavCrypto}" 
+                            LineBreakMode="NoWrap" 
+                            Style="{DynamicResource ListItemTextStyle}" 
+                            FontSize="14" />
+                            </StackLayout>
                         </StackLayout>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-        </StackLayout>
 
     </RefreshView>
 

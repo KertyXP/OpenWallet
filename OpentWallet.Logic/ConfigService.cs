@@ -18,12 +18,17 @@ namespace OpentWallet.Logic
             sRootPath = sFolderPath;
         }
 
+        private static string GetPath(string fileName)
+        {
+            return Path.Combine(sRootPath, fileName);
+        }
+
         private static GlobalConfig _globalConfig;
 
         public static GlobalConfig oGlobalConfig => _globalConfig ?? (_globalConfig = LoadConfig());
         private static GlobalConfig LoadConfig()
         {
-            string sPath = Path.Combine(sRootPath, "config.json");
+            string sPath = GetPath("config.json");
             Console.WriteLine(sPath);
             GlobalConfig oConfig = null;
             if (File.Exists(sPath))
@@ -56,40 +61,42 @@ namespace OpentWallet.Logic
 
         public static void SaveArchiveTradeToCache(Dictionary<string, List<GlobalTrade>> archiveTrades)
         {
-            string sFileName = "ArchiveTrades.json";
+            string sPath = GetPath("ArchiveTrades.json");
             string json = JsonConvert.SerializeObject(archiveTrades);
 
-            File.WriteAllText(sFileName, json);
+            File.WriteAllText(sPath, json);
         }
 
         public static Dictionary<string, List<GlobalTrade>> LoadArchiveTradeFromCache()
         {
-            string sFileName = "ArchiveTrades.json";
+            string sPath = GetPath("ArchiveTrades.json");
 
-            return File.Exists(sFileName) ? JsonConvert.DeserializeObject<Dictionary<string, List<GlobalTrade>>>(File.ReadAllText(sFileName)) : new Dictionary<string, List<GlobalTrade>>();
+            return File.Exists(sPath) ? JsonConvert.DeserializeObject<Dictionary<string, List<GlobalTrade>>>(File.ReadAllText(sPath)) : new Dictionary<string, List<GlobalTrade>>();
         }
 
         public static List<GlobalTrade> LoadTradesFromCache(IExchange exchange)
         {
-            string sFileName = "Trades_" + exchange.ExchangeName + ".json";
-            return File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sFileName)) : new List<GlobalTrade>();
+            string sPath = GetPath("Trades_" + exchange.ExchangeName + ".json");
+            return File.Exists(sPath) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sPath)) : new List<GlobalTrade>();
         }
         public static void SaveTradesToCache(List<GlobalTrade> trades)
         {
             var sJson = JsonConvert.SerializeObject(trades);
-            File.WriteAllText("Trades_" + trades?.FirstOrDefault()?.Exchange + ".json", sJson);
+            string sPath = GetPath("Trades_" + trades?.FirstOrDefault()?.Exchange + ".json");
+            File.WriteAllText(sPath, sJson);
         }
 
         public static void SaveBalanceToCache(IExchange exchange, List<GlobalBalance> balance)
         {
             var sJson = JsonConvert.SerializeObject(balance);
-            File.WriteAllText("Balance" + exchange.ExchangeCode + ".json", sJson);
+            string sPath = GetPath("Balance" + exchange.ExchangeCode + ".json");
+            File.WriteAllText(sPath, sJson);
         }
 
         public static List<GlobalBalance> LoadBalanceFromCache(IExchange exchange)
         {
-            string sFileName = "Balance" + exchange.ExchangeCode + ".json";
-            return File.Exists(sFileName) ? JsonConvert.DeserializeObject<List<GlobalBalance>>(File.ReadAllText(sFileName)) : new List<GlobalBalance>();
+            string sPath = GetPath("Balance" + exchange.ExchangeCode + ".json");
+            return File.Exists(sPath) ? JsonConvert.DeserializeObject<List<GlobalBalance>>(File.ReadAllText(sPath)) : new List<GlobalBalance>();
         }
 
         public static List<IExchange> LoadExchanges()
