@@ -38,21 +38,12 @@
             this.CustomValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableLayoutPanel3 = new System.Windows.Forms.TableLayoutPanel();
             this.dgv_archive = new System.Windows.Forms.DataGridView();
-            this.dgv_trade_day = new System.Windows.Forms.DataGridView();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.lbl_prev_2 = new System.Windows.Forms.Label();
-            this.bt_refreshTrade = new System.Windows.Forms.Button();
-            this.lbl_preview_archive = new System.Windows.Forms.Label();
-            this.cb_Pair = new System.Windows.Forms.ComboBox();
-            this.cb_HideArchiveped = new System.Windows.Forms.CheckBox();
-            this.bt_unarchive = new System.Windows.Forms.Button();
-            this.bt_archive = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn4 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.dgv_trade_day = new System.Windows.Forms.DataGridView();
             this.obj2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -63,6 +54,17 @@
             this.price = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CurrentPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.lbl_prev_2 = new System.Windows.Forms.Label();
+            this.bt_refreshTrade = new System.Windows.Forms.Button();
+            this.lbl_preview_archive = new System.Windows.Forms.Label();
+            this.cb_Pair = new System.Windows.Forms.ComboBox();
+            this.cb_HideArchiveped = new System.Windows.Forms.CheckBox();
+            this.bt_unarchive = new System.Windows.Forms.Button();
+            this.bt_archive = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.lbl_AdvgBuy = new System.Windows.Forms.Label();
+            this.lbl_avg_sell = new System.Windows.Forms.Label();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
@@ -94,10 +96,9 @@
             this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel2.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 3;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 50F));
+            this.tableLayoutPanel2.RowCount = 2;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 75F));
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(1132, 513);
             this.tableLayoutPanel2.TabIndex = 3;
             // 
@@ -114,12 +115,12 @@
             this.CustomValue});
             this.dgv_Balance.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgv_Balance.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dgv_Balance.Location = new System.Drawing.Point(3, 53);
+            this.dgv_Balance.Location = new System.Drawing.Point(3, 78);
             this.dgv_Balance.MultiSelect = false;
             this.dgv_Balance.Name = "dgv_Balance";
             this.dgv_Balance.ReadOnly = true;
             this.dgv_Balance.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_Balance.Size = new System.Drawing.Size(446, 437);
+            this.dgv_Balance.Size = new System.Drawing.Size(446, 432);
             this.dgv_Balance.TabIndex = 4;
             this.dgv_Balance.SelectionChanged += new System.EventHandler(this.dgv_Balance_SelectionChanged);
             // 
@@ -161,14 +162,14 @@
             this.tableLayoutPanel3.Controls.Add(this.dgv_archive, 0, 1);
             this.tableLayoutPanel3.Controls.Add(this.dgv_trade_day, 0, 0);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel3.Location = new System.Drawing.Point(452, 50);
+            this.tableLayoutPanel3.Location = new System.Drawing.Point(452, 75);
             this.tableLayoutPanel3.Margin = new System.Windows.Forms.Padding(0);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
             this.tableLayoutPanel3.RowCount = 2;
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
             this.tableLayoutPanel3.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel3.Size = new System.Drawing.Size(680, 443);
+            this.tableLayoutPanel3.Size = new System.Drawing.Size(680, 438);
             this.tableLayoutPanel3.TabIndex = 3;
             // 
             // dgv_archive
@@ -184,133 +185,13 @@
             this.dataGridViewTextBoxColumn13});
             this.dgv_archive.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgv_archive.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dgv_archive.Location = new System.Drawing.Point(3, 224);
+            this.dgv_archive.Location = new System.Drawing.Point(3, 222);
             this.dgv_archive.Name = "dgv_archive";
             this.dgv_archive.ReadOnly = true;
             this.dgv_archive.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_archive.Size = new System.Drawing.Size(674, 216);
+            this.dgv_archive.Size = new System.Drawing.Size(674, 213);
             this.dgv_archive.TabIndex = 6;
             this.dgv_archive.SelectionChanged += new System.EventHandler(this.dgv_archive_SelectionChanged);
-            // 
-            // dgv_trade_day
-            // 
-            this.dgv_trade_day.AllowUserToAddRows = false;
-            this.dgv_trade_day.AllowUserToDeleteRows = false;
-            this.dgv_trade_day.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgv_trade_day.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.obj2,
-            this.dataGridViewTextBoxColumn6,
-            this.dataGridViewTextBoxColumn7,
-            this.dataGridViewTextBoxColumn8,
-            this.dataGridViewTextBoxColumn9,
-            this.dataGridViewTextBoxColumn10,
-            this.dataGridViewTextBoxColumn11,
-            this.price,
-            this.CurrentPrice,
-            this.Date});
-            this.dgv_trade_day.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgv_trade_day.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
-            this.dgv_trade_day.Location = new System.Drawing.Point(3, 3);
-            this.dgv_trade_day.Name = "dgv_trade_day";
-            this.dgv_trade_day.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dgv_trade_day.Size = new System.Drawing.Size(674, 215);
-            this.dgv_trade_day.TabIndex = 5;
-            this.dgv_trade_day.SelectionChanged += new System.EventHandler(this.dgv_trade_day_SelectionChanged_1);
-            this.dgv_trade_day.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_trade_day_MouseClick);
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.lbl_prev_2);
-            this.panel2.Controls.Add(this.bt_refreshTrade);
-            this.panel2.Controls.Add(this.lbl_preview_archive);
-            this.panel2.Controls.Add(this.cb_Pair);
-            this.panel2.Controls.Add(this.cb_HideArchiveped);
-            this.panel2.Controls.Add(this.bt_unarchive);
-            this.panel2.Controls.Add(this.bt_archive);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel2.Location = new System.Drawing.Point(455, 3);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(674, 44);
-            this.panel2.TabIndex = 5;
-            // 
-            // lbl_prev_2
-            // 
-            this.lbl_prev_2.AutoSize = true;
-            this.lbl_prev_2.Location = new System.Drawing.Point(236, 27);
-            this.lbl_prev_2.Name = "lbl_prev_2";
-            this.lbl_prev_2.Size = new System.Drawing.Size(25, 13);
-            this.lbl_prev_2.TabIndex = 12;
-            this.lbl_prev_2.Text = "      ";
-            // 
-            // bt_refreshTrade
-            // 
-            this.bt_refreshTrade.Location = new System.Drawing.Point(608, 9);
-            this.bt_refreshTrade.Name = "bt_refreshTrade";
-            this.bt_refreshTrade.Size = new System.Drawing.Size(58, 23);
-            this.bt_refreshTrade.TabIndex = 2;
-            this.bt_refreshTrade.Text = "Refresh";
-            this.bt_refreshTrade.UseVisualStyleBackColor = true;
-            this.bt_refreshTrade.Click += new System.EventHandler(this.bt_refreshTrade_Click);
-            // 
-            // lbl_preview_archive
-            // 
-            this.lbl_preview_archive.AutoSize = true;
-            this.lbl_preview_archive.Location = new System.Drawing.Point(236, 3);
-            this.lbl_preview_archive.Name = "lbl_preview_archive";
-            this.lbl_preview_archive.Size = new System.Drawing.Size(25, 13);
-            this.lbl_preview_archive.TabIndex = 11;
-            this.lbl_preview_archive.Text = "      ";
-            // 
-            // cb_Pair
-            // 
-            this.cb_Pair.FormattingEnabled = true;
-            this.cb_Pair.Location = new System.Drawing.Point(3, 3);
-            this.cb_Pair.Name = "cb_Pair";
-            this.cb_Pair.Size = new System.Drawing.Size(121, 21);
-            this.cb_Pair.TabIndex = 10;
-            this.cb_Pair.SelectedIndexChanged += new System.EventHandler(this.cb_Pair_SelectedIndexChanged);
-            // 
-            // cb_HideArchiveped
-            // 
-            this.cb_HideArchiveped.AutoSize = true;
-            this.cb_HideArchiveped.Checked = true;
-            this.cb_HideArchiveped.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cb_HideArchiveped.Location = new System.Drawing.Point(3, 27);
-            this.cb_HideArchiveped.Name = "cb_HideArchiveped";
-            this.cb_HideArchiveped.Size = new System.Drawing.Size(93, 17);
-            this.cb_HideArchiveped.TabIndex = 9;
-            this.cb_HideArchiveped.Text = "Hide Archived";
-            this.cb_HideArchiveped.UseVisualStyleBackColor = true;
-            this.cb_HideArchiveped.CheckedChanged += new System.EventHandler(this.cb_HideArchive_CheckedChanged);
-            // 
-            // bt_unarchive
-            // 
-            this.bt_unarchive.Location = new System.Drawing.Point(539, 9);
-            this.bt_unarchive.Name = "bt_unarchive";
-            this.bt_unarchive.Size = new System.Drawing.Size(67, 22);
-            this.bt_unarchive.TabIndex = 8;
-            this.bt_unarchive.Text = "UnArchive";
-            this.bt_unarchive.UseVisualStyleBackColor = true;
-            this.bt_unarchive.Click += new System.EventHandler(this.bt_unarchive_Click);
-            // 
-            // bt_archive
-            // 
-            this.bt_archive.Location = new System.Drawing.Point(172, 9);
-            this.bt_archive.Name = "bt_archive";
-            this.bt_archive.Size = new System.Drawing.Size(58, 23);
-            this.bt_archive.TabIndex = 3;
-            this.bt_archive.Text = "Archive";
-            this.bt_archive.UseVisualStyleBackColor = true;
-            this.bt_archive.Click += new System.EventHandler(this.bt_archive_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.Controls.Add(this.bt_refreshBalance);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 3);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(446, 44);
-            this.panel1.TabIndex = 0;
             // 
             // dataGridViewTextBoxColumn1
             // 
@@ -342,6 +223,32 @@
             this.dataGridViewTextBoxColumn13.HeaderText = "ValueTo";
             this.dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
             this.dataGridViewTextBoxColumn13.ReadOnly = true;
+            // 
+            // dgv_trade_day
+            // 
+            this.dgv_trade_day.AllowUserToAddRows = false;
+            this.dgv_trade_day.AllowUserToDeleteRows = false;
+            this.dgv_trade_day.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgv_trade_day.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.obj2,
+            this.dataGridViewTextBoxColumn6,
+            this.dataGridViewTextBoxColumn7,
+            this.dataGridViewTextBoxColumn8,
+            this.dataGridViewTextBoxColumn9,
+            this.dataGridViewTextBoxColumn10,
+            this.dataGridViewTextBoxColumn11,
+            this.price,
+            this.CurrentPrice,
+            this.Date});
+            this.dgv_trade_day.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgv_trade_day.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
+            this.dgv_trade_day.Location = new System.Drawing.Point(3, 3);
+            this.dgv_trade_day.Name = "dgv_trade_day";
+            this.dgv_trade_day.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
+            this.dgv_trade_day.Size = new System.Drawing.Size(674, 213);
+            this.dgv_trade_day.TabIndex = 5;
+            this.dgv_trade_day.SelectionChanged += new System.EventHandler(this.dgv_trade_day_SelectionChanged_1);
+            this.dgv_trade_day.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_trade_day_MouseClick);
             // 
             // obj2
             // 
@@ -400,6 +307,120 @@
             this.Date.HeaderText = "Date";
             this.Date.Name = "Date";
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.lbl_avg_sell);
+            this.panel2.Controls.Add(this.lbl_AdvgBuy);
+            this.panel2.Controls.Add(this.lbl_prev_2);
+            this.panel2.Controls.Add(this.bt_refreshTrade);
+            this.panel2.Controls.Add(this.lbl_preview_archive);
+            this.panel2.Controls.Add(this.cb_Pair);
+            this.panel2.Controls.Add(this.cb_HideArchiveped);
+            this.panel2.Controls.Add(this.bt_unarchive);
+            this.panel2.Controls.Add(this.bt_archive);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(455, 3);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(674, 69);
+            this.panel2.TabIndex = 5;
+            // 
+            // lbl_prev_2
+            // 
+            this.lbl_prev_2.AutoSize = true;
+            this.lbl_prev_2.Location = new System.Drawing.Point(236, 49);
+            this.lbl_prev_2.Name = "lbl_prev_2";
+            this.lbl_prev_2.Size = new System.Drawing.Size(25, 13);
+            this.lbl_prev_2.TabIndex = 12;
+            this.lbl_prev_2.Text = "      ";
+            // 
+            // bt_refreshTrade
+            // 
+            this.bt_refreshTrade.Location = new System.Drawing.Point(608, 9);
+            this.bt_refreshTrade.Name = "bt_refreshTrade";
+            this.bt_refreshTrade.Size = new System.Drawing.Size(58, 23);
+            this.bt_refreshTrade.TabIndex = 2;
+            this.bt_refreshTrade.Text = "Refresh";
+            this.bt_refreshTrade.UseVisualStyleBackColor = true;
+            this.bt_refreshTrade.Click += new System.EventHandler(this.bt_refreshTrade_Click);
+            // 
+            // lbl_preview_archive
+            // 
+            this.lbl_preview_archive.AutoSize = true;
+            this.lbl_preview_archive.Location = new System.Drawing.Point(236, 29);
+            this.lbl_preview_archive.Name = "lbl_preview_archive";
+            this.lbl_preview_archive.Size = new System.Drawing.Size(25, 13);
+            this.lbl_preview_archive.TabIndex = 11;
+            this.lbl_preview_archive.Text = "      ";
+            // 
+            // cb_Pair
+            // 
+            this.cb_Pair.FormattingEnabled = true;
+            this.cb_Pair.Location = new System.Drawing.Point(3, 3);
+            this.cb_Pair.Name = "cb_Pair";
+            this.cb_Pair.Size = new System.Drawing.Size(121, 21);
+            this.cb_Pair.TabIndex = 10;
+            this.cb_Pair.SelectedIndexChanged += new System.EventHandler(this.cb_Pair_SelectedIndexChanged);
+            // 
+            // cb_HideArchiveped
+            // 
+            this.cb_HideArchiveped.AutoSize = true;
+            this.cb_HideArchiveped.Checked = true;
+            this.cb_HideArchiveped.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cb_HideArchiveped.Location = new System.Drawing.Point(130, 5);
+            this.cb_HideArchiveped.Name = "cb_HideArchiveped";
+            this.cb_HideArchiveped.Size = new System.Drawing.Size(93, 17);
+            this.cb_HideArchiveped.TabIndex = 9;
+            this.cb_HideArchiveped.Text = "Hide Archived";
+            this.cb_HideArchiveped.UseVisualStyleBackColor = true;
+            this.cb_HideArchiveped.CheckedChanged += new System.EventHandler(this.cb_HideArchive_CheckedChanged);
+            // 
+            // bt_unarchive
+            // 
+            this.bt_unarchive.Location = new System.Drawing.Point(539, 9);
+            this.bt_unarchive.Name = "bt_unarchive";
+            this.bt_unarchive.Size = new System.Drawing.Size(67, 22);
+            this.bt_unarchive.TabIndex = 8;
+            this.bt_unarchive.Text = "UnArchive";
+            this.bt_unarchive.UseVisualStyleBackColor = true;
+            this.bt_unarchive.Click += new System.EventHandler(this.bt_unarchive_Click);
+            // 
+            // bt_archive
+            // 
+            this.bt_archive.Location = new System.Drawing.Point(229, 1);
+            this.bt_archive.Name = "bt_archive";
+            this.bt_archive.Size = new System.Drawing.Size(58, 23);
+            this.bt_archive.TabIndex = 3;
+            this.bt_archive.Text = "Archive";
+            this.bt_archive.UseVisualStyleBackColor = true;
+            this.bt_archive.Click += new System.EventHandler(this.bt_archive_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.bt_refreshBalance);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel1.Location = new System.Drawing.Point(3, 3);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(446, 69);
+            this.panel1.TabIndex = 0;
+            // 
+            // lbl_AdvgBuy
+            // 
+            this.lbl_AdvgBuy.AutoSize = true;
+            this.lbl_AdvgBuy.Location = new System.Drawing.Point(3, 29);
+            this.lbl_AdvgBuy.Name = "lbl_AdvgBuy";
+            this.lbl_AdvgBuy.Size = new System.Drawing.Size(47, 13);
+            this.lbl_AdvgBuy.TabIndex = 13;
+            this.lbl_AdvgBuy.Text = "Avg Buy";
+            // 
+            // lbl_avg_sell
+            // 
+            this.lbl_avg_sell.AutoSize = true;
+            this.lbl_avg_sell.Location = new System.Drawing.Point(3, 49);
+            this.lbl_avg_sell.Name = "lbl_avg_sell";
+            this.lbl_avg_sell.Size = new System.Drawing.Size(46, 13);
+            this.lbl_avg_sell.TabIndex = 14;
+            this.lbl_avg_sell.Text = "Avg Sell";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -457,6 +478,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn price;
         private System.Windows.Forms.DataGridViewTextBoxColumn CurrentPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
+        private System.Windows.Forms.Label lbl_avg_sell;
+        private System.Windows.Forms.Label lbl_AdvgBuy;
     }
 }
 

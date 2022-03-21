@@ -38,6 +38,17 @@ namespace OpentWallet.Logic
             return aListTrades;
         }
 
+        public static double GetAverageBuy(List<GlobalTrade> trades)
+        {
+            var tradesBought = trades.Where(t => t.IsBuy == true).ToList();
+            return tradesBought.Sum(t => t.RealQuantityTo) / tradesBought.Sum(t => t.RealQuantityFrom);
+        }
+        public static double GetAverageSell(List<GlobalTrade> trades)
+        {
+            var tradeSold = trades.Where(t => t.IsBuy == false).ToList();
+            return tradeSold.Sum(t => t.RealQuantityTo) / tradeSold.Sum(t => t.RealQuantityFrom);
+        }
+
         public static async Task<List<GlobalTrade>> LoadTrades(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
         {
 

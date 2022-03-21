@@ -105,8 +105,19 @@ namespace OpenWallet.WinForm
             cb_Pair.Items.AddRange(couples.OrderBy(c => c).ToArray());
             cb_Pair.SelectedItem = _pairSelected;
 
+            if (_pairSelected == "<All>")
+            {
+                lbl_AdvgBuy.Text = "";
+                lbl_avg_sell.Text = "";
+            }
+            else
+            {
 
-            for (int i = 0; i < dgv_trade_day.RowCount; i++)
+                lbl_AdvgBuy.Text = "Avg Buy: " + TradeService.GetAverageBuy(trades.Where(t => t.CustomCouple == _pairSelected).ToList()).ToString();
+                lbl_avg_sell.Text = "Avg Sell: " + TradeService.GetAverageSell(trades.Where(t => t.CustomCouple == _pairSelected).ToList()).ToString();
+            }
+
+                for (int i = 0; i < dgv_trade_day.RowCount; i++)
             {
                 var trade = dgv_trade_day[0, i].Value as GlobalTrade;
 
