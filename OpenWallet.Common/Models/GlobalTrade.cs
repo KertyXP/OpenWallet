@@ -3,8 +3,6 @@ using System;
 
 namespace OpenWallet.Common
 {
-    public enum Side { Buy, Sell };
-
     public class GlobalTrade : CurrencySymbolPrice
     {
         public GlobalTrade(string from, string to, double price, string couple, string exchange) : base(from, to, price, couple, exchange)

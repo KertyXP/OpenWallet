@@ -55,9 +55,9 @@ namespace OpenWallet.ViewModels
                 await Task.Delay(250);
             }
 
-            exchanges = ConfigService.LoadExchanges();
+            exchanges = await ConfigService.LoadExchangesAsync();
 
-            allCurrencies = BalanceService.GetCurrencries(exchanges);
+            allCurrencies = await BalanceService.GetCurrencriesAsync(exchanges);
 
             balances = BalanceService.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
 

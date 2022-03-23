@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using OpenWallet.Common;
 using OpenWallet.Logic.Abstraction;
+using OpenWallet.Logic.Abstraction.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,24 +10,24 @@ using System.Threading.Tasks;
 
 namespace OpentWallet.Logic
 {
-    public class ConfigService
+    public class ConfigService : IConfigService
     {
-        private static string sRootPath = "";
+        private string sRootPath = "";
 
-        public static void Init(string sFolderPath)
+        public void Init(string sFolderPath)
         {
             sRootPath = sFolderPath;
         }
 
-        private static string GetPath(string fileName)
+        private string GetPath(string fileName)
         {
             return Path.Combine(sRootPath, fileName);
         }
 
-        private static GlobalConfig _globalConfig;
+        private GlobalConfig _globalConfig;
 
-        public static GlobalConfig oGlobalConfig => _globalConfig ?? (_globalConfig = LoadConfig());
-        private static GlobalConfig LoadConfig()
+        public GlobalConfig oGlobalConfig => _globalConfig ?? (_globalConfig = LoadConfig());
+        private GlobalConfig LoadConfig()
         {
             string sPath = GetPath("config.json");
             Console.WriteLine(sPath);
@@ -59,7 +60,7 @@ namespace OpentWallet.Logic
             return oConfig;
         }
 
-        public static void SaveArchiveTradeToCache(Dictionary<string, List<GlobalTrade>> archiveTrades)
+        public void SaveArchiveTradeToCache(Dictionary<string, List<GlobalTrade>> archiveTrades)
         {
             string sPath = GetPath("ArchiveTrades.json");
             string json = JsonConvert.SerializeObject(archiveTrades);
@@ -67,39 +68,39 @@ namespace OpentWallet.Logic
             File.WriteAllText(sPath, json);
         }
 
-        public static Dictionary<string, List<GlobalTrade>> LoadArchiveTradeFromCache()
+        public Dictionary<string, List<GlobalTrade>> LoadArchiveTradeFromCache()
         {
             string sPath = GetPath("ArchiveTrades.json");
 
             return File.Exists(sPath) ? JsonConvert.DeserializeObject<Dictionary<string, List<GlobalTrade>>>(File.ReadAllText(sPath)) : new Dictionary<string, List<GlobalTrade>>();
         }
 
-        public static List<GlobalTrade> LoadTradesFromCache(IExchange exchange)
+        public List<GlobalTrade> LoadTradesFromCache(IExchange exchange)
         {
             string sPath = GetPath("Trades_" + exchange.ExchangeName + ".json");
             return File.Exists(sPath) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sPath)) : new List<GlobalTrade>();
         }
-        public static void SaveTradesToCache(IEnumerable<GlobalTrade> trades)
+        public void SaveTradesToCache(IEnumerable<GlobalTrade> trades)
         {
             var sJson = JsonConvert.SerializeObject(trades);
             string sPath = GetPath("Trades_" + trades?.FirstOrDefault()?.Exchange + ".json");
             File.WriteAllText(sPath, sJson);
         }
 
-        public static void SaveBalanceToCache(IExchange exchange, List<GlobalBalance> balance)
+        public void SaveBalanceToCache(IExchange exchange, List<GlobalBalance> balance)
         {
             var sJson = JsonConvert.SerializeObject(balance);
             string sPath = GetPath("Balance" + exchange.ExchangeCode + ".json");
             File.WriteAllText(sPath, sJson);
         }
 
-        public static List<GlobalBalance> LoadBalanceFromCache(IExchange exchange)
+        public List<GlobalBalance> LoadBalanceFromCache(IExchange exchange)
         {
             string sPath = GetPath("Balance" + exchange.ExchangeCode + ".json");
             return File.Exists(sPath) ? JsonConvert.DeserializeObject<List<GlobalBalance>>(File.ReadAllText(sPath)) : new List<GlobalBalance>();
         }
 
-        public static async Task<List<IExchange>> LoadExchangesAsync()
+        public async Task<List<IExchange>> LoadExchangesAsync()
         {
 
             List<IExchange> aExchanges = new List<IExchange>();
@@ -111,7 +112,7 @@ namespace OpentWallet.Logic
                 .Select(t => Activator.CreateInstance(t) as IExchange)
                 .Where(t => t != null);
 
-            foreach (var oConfig in ConfigService.oGlobalConfig.configs)
+            foreach (var oConfig in oGlobalConfig.configs)
             {
                 var typeExchange = types.FirstOrDefault(t => t.ExchangeCode == oConfig.ExchangeCode);
                 if (typeExchange == null)
@@ -125,7 +126,7 @@ namespace OpentWallet.Logic
                     continue;
 
                 oExchange.oConfig = oConfig;
-                await oExchange.InitAsync(ConfigService.oGlobalConfig, oConfig);
+                await oExchange.InitAsync(oGlobalConfig, oConfig);
                 aExchanges.Add(oExchange);
             }
 

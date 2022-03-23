@@ -1,5 +1,8 @@
-﻿using System;
+﻿using OpentWallet.Logic;
+using OpenWallet.Logic.Abstraction.Interfaces;
+using System;
 using System.Windows.Forms;
+using Unity;
 
 namespace OpenWallet.WinForm
 {
@@ -11,9 +14,16 @@ namespace OpenWallet.WinForm
         [STAThread]
         static void Main()
         {
+
+            UnityContainer unityContainer = new UnityContainer();
+            unityContainer.RegisterSingleton<ITradeService, TradeService>();
+            unityContainer.RegisterSingleton<IConfigService, ConfigService>();
+            unityContainer.RegisterSingleton<IBalanceService, BalanceService>();
+            unityContainer.RegisterSingleton<Form1>();
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Form1());
+            Application.Run(unityContainer.Resolve<Form1>());
         }
     }
 }

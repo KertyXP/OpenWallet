@@ -2,6 +2,7 @@
 using OpentWallet.Logic;
 using OpenWallet.Common;
 using OpenWallet.Logic.Abstraction;
+using OpenWallet.Logic.Abstraction.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -17,31 +18,37 @@ namespace OpenWallet.WinForm
         List<GlobalBalance> balances;
         List<IExchange> exchanges;
         List<GlobalTrade> trades;
+        private ITradeService _tradeService { get; }
+        private IConfigService _configService { get; }
+        private IBalanceService _balanceService { get; }
+
         Dictionary<string, List<GlobalTrade>> archiveTrades;
 
-        public Form1()
+        public Form1(ITradeService tradeService, IConfigService configService, IBalanceService balanceService)
         {
             var oUseless = new UseLess();
             InitializeComponent();
-
+            _tradeService = tradeService;
+            _configService = configService;
+            _balanceService = balanceService;
         }
 
         private async void Form1_Load(object sender, EventArgs e)
         {
 
-            ConfigService.Init("");
-            exchanges = await ConfigService.LoadExchangesAsync();
+            _configService.Init("");
+            exchanges = await _configService.LoadExchangesAsync();
 
-            allCurrencies = await BalanceService.GetCurrencriesAsync(exchanges);
+            allCurrencies = await _balanceService.GetCurrencriesAsync(exchanges);
 
-            balances = BalanceService.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
+            balances = _balanceService.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
 
             InsertCurrentBalanceInGrid(balances);
 
 
-            trades = TradeService.LoadTradesFromCacheOnly(exchanges, allCurrencies);
+            trades = _tradeService.LoadTradesFromCacheOnly(exchanges, allCurrencies);
 
-            archiveTrades = ConfigService.LoadArchiveTradeFromCache();
+            archiveTrades = _configService.LoadArchiveTradeFromCache();
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
@@ -61,16 +68,16 @@ namespace OpenWallet.WinForm
 
             var dTotalSum = aAll.Sum(a => a.FavCryptoValue);
 
-            dgv_Balance.Columns[dgvBalanceCustom].HeaderText = ConfigService.oGlobalConfig.FavoriteCurrency;
-            dgv_Balance.Rows.Insert(0, null, "TOTAL", ConfigService.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSum);
+            dgv_Balance.Columns[dgvBalanceCustom].HeaderText = _configService.oGlobalConfig.FavoriteCurrency;
+            dgv_Balance.Rows.Insert(0, null, "TOTAL", _configService.oGlobalConfig.FavoriteCurrency, dTotalSum, dTotalSum);
         }
 
         private async void bt_refreshBalance_Click(object sender, EventArgs e)
         {
             bt_refreshBalance.Enabled = false;
 
-            allCurrencies = await BalanceService.GetCurrencriesAsync(exchanges);
-            balances = await BalanceService.GetBalances(exchanges, allCurrencies);
+            allCurrencies = await _balanceService.GetCurrencriesAsync(exchanges);
+            balances = await _balanceService.GetBalancesAsync(exchanges, allCurrencies);
 
             InsertCurrentBalanceInGrid(balances);
 
@@ -83,7 +90,7 @@ namespace OpenWallet.WinForm
 
             bt_refreshTrade.Enabled = false;
 
-            List<GlobalTrade> aListTrades2 = await TradeService.LoadTrades(exchanges, balances, allCurrencies);
+            List<GlobalTrade> aListTrades2 = await _tradeService.LoadTrades(exchanges, balances, allCurrencies);
             trades.Clear();
             trades.AddRange(aListTrades2);
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
@@ -92,10 +99,12 @@ namespace OpenWallet.WinForm
         }
 
         private string _pairSelected = "<All>";
+
+
         private void RefreshFilterDropDown()
         {
 
-            var couples = TradeService.GetCouplesFromTrade(dgv_trade_day.GetValuesAsT<GlobalTrade>(AcceptedState.All));
+            var couples = _tradeService.GetCouplesFromTrade(dgv_trade_day.GetValuesAsT<GlobalTrade>(AcceptedState.All));
             
             _pairSelected = cb_Pair.SelectedItem?.ToString() ?? _pairSelected;
             cb_Pair.Items.Clear();
@@ -113,8 +122,8 @@ namespace OpenWallet.WinForm
             else
             {
 
-                lbl_AdvgBuy.Text = "Avg Buy: " + TradeService.GetAverageBuy(trades.Where(t => t.CustomCouple == _pairSelected).ToList()).ToString();
-                lbl_avg_sell.Text = "Avg Sell: " + TradeService.GetAverageSell(trades.Where(t => t.CustomCouple == _pairSelected).ToList()).ToString();
+                lbl_AdvgBuy.Text = "Avg Buy: " + _tradeService.GetAverageBuy(trades.Where(t => t.CustomCouple == _pairSelected).ToList()).ToString();
+                lbl_avg_sell.Text = "Avg Sell: " + _tradeService.GetAverageSell(trades.Where(t => t.CustomCouple == _pairSelected).ToList()).ToString();
             }
 
                 for (int i = 0; i < dgv_trade_day.RowCount; i++)
@@ -171,26 +180,18 @@ namespace OpenWallet.WinForm
                 if(t.From == t.To)
                     return;
 
-                var delta = TradeService.GetDelta(t, allCurrencies);
-                var isProfitable = TradeService.IsProfitable(t, delta);
+                var globalTradeUI = _tradeService.GetGlobalTradeUI(t, allCurrencies, tradeIsArchived);
 
-                var sellStateBackColor = TradeService.GetSellStateBackColor(t);
-                var sellStateBackColorSelected = TradeService.GetSellStateBackColorSelected(t);
-                var archiveStateForeColor = TradeService.GetArchiveStateForeColor(tradeIsArchived);
+                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, globalTradeUI.Delta.ToString("00.##"), t.dtTrade.ToString("yyyy-MM-dd"));
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.BackColor = globalTradeUI.SellStateBackColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.SelectionBackColor = globalTradeUI.SellStateBackColorSelected;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.BackColor = globalTradeUI.DeltaColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.SelectionBackColor = globalTradeUI.DeltaColorSelected;
 
-                var deltaColor = TradeService.GetDeltaColor(isProfitable);
-                var deltaColorSelected = TradeService.GetDeltaColorSelected(isProfitable);
-
-                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, delta.ToString("00.##"), t.dtTrade.ToString("yyyy-MM-dd"));
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.BackColor = sellStateBackColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.SelectionBackColor = sellStateBackColorSelected;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.BackColor = deltaColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.SelectionBackColor = deltaColorSelected;
-
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[3].Style.ForeColor = archiveStateForeColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[4].Style.ForeColor = archiveStateForeColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[5].Style.ForeColor = archiveStateForeColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[6].Style.ForeColor = archiveStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[3].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[4].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[5].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[6].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
             });
 
 
@@ -200,7 +201,7 @@ namespace OpenWallet.WinForm
                 var trades = archiveTrades[g];
                 if (trades.Any())
                 {
-                    var archiveTrade = TradeService.ArchiveTrades(trades);
+                    var archiveTrade = _tradeService.ArchiveTrades(trades);
                     dgv_archive.Rows.Add(trades, archiveTrade.from, archiveTrade.quantityFrom, archiveTrade.to, archiveTrade.quantityTo, trades.FirstOrDefault().dtTrade.ToString("yyyy-MM-dd"));
                 }
             });
@@ -225,11 +226,11 @@ namespace OpenWallet.WinForm
             }
 
 
-            var archiveTrade = TradeService.ArchiveTrades(archives);
+            var archiveTrade = _tradeService.ArchiveTrades(archives);
             lbl_preview_archive.Text = archiveTrade.from + " " + archiveTrade.quantityFrom + " || " + archiveTrade.to + " " + archiveTrade.quantityTo;
 
             archives.AddRange(archiveTrades.GetOrDefault(archives.FirstOrDefault()?.CustomCouple) ?? new List<GlobalTrade>());
-            archiveTrade = TradeService.ArchiveTrades(archives);
+            archiveTrade = _tradeService.ArchiveTrades(archives);
             lbl_prev_2.Text = archiveTrade.from + " " + archiveTrade.quantityFrom + " || " + archiveTrade.to + " " + archiveTrade.quantityTo;
 
 
@@ -263,7 +264,7 @@ namespace OpenWallet.WinForm
             oldArchive.AddRange(archive);
             archiveTrades.InsertOrUpdate(couples.First(), oldArchive);
 
-            ConfigService.SaveArchiveTradeToCache(archiveTrades);
+            _configService.SaveArchiveTradeToCache(archiveTrades);
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
         }
 
@@ -282,7 +283,7 @@ namespace OpenWallet.WinForm
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
-            ConfigService.SaveArchiveTradeToCache(archiveTrades);
+            _configService.SaveArchiveTradeToCache(archiveTrades);
         }
 
         private void cb_HideArchive_CheckedChanged(object sender, EventArgs e)
@@ -320,7 +321,7 @@ namespace OpenWallet.WinForm
                         menuItem.Click += async (ob, ev) =>
                         {
                             var newTrades = await exchangeRefresh.GetTradeHistoryOneCoupleAsync(trades.Where(tr => tr.Exchange == trade.Exchange).ToList(), trade);
-                            ConfigService.SaveTradesToCache(newTrades);
+                            _configService.SaveTradesToCache(newTrades);
 
                             trades.RemoveAll(tr => tr.Exchange == trade.Exchange);
                             trades.AddRange(newTrades);

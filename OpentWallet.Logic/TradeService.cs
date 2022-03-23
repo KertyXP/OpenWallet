@@ -1,5 +1,7 @@
 ﻿using OpenWallet.Common;
+using OpenWallet.Common.Models;
 using OpenWallet.Logic.Abstraction;
+using OpenWallet.Logic.Abstraction.Interfaces;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -7,10 +9,15 @@ using System.Threading.Tasks;
 
 namespace OpentWallet.Logic
 {
-    public class TradeService
+    public class TradeService : ITradeService
     {
+        public TradeService(IBalanceService balanceService, IConfigService configService)
+        {
+            BalanceService = balanceService;
+            ConfigService = configService;
+        }
 
-        public static List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
+        public List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
             List<CurrencySymbolPrice> aFiatisation = BalanceService.LoadFiatisation(aAllCurrencies);
 
@@ -29,18 +36,18 @@ namespace OpentWallet.Logic
             return aListTrades;
         }
 
-        public static double GetAverageBuy(List<GlobalTrade> trades)
+        public double GetAverageBuy(List<GlobalTrade> trades)
         {
             var tradesBought = trades.Where(t => t.IsBuy == true).ToList();
             return tradesBought.Sum(t => t.RealQuantityTo) / tradesBought.Sum(t => t.RealQuantityFrom);
         }
-        public static double GetAverageSell(List<GlobalTrade> trades)
+        public double GetAverageSell(List<GlobalTrade> trades)
         {
             var tradeSold = trades.Where(t => t.IsBuy == false).ToList();
             return tradeSold.Sum(t => t.RealQuantityTo) / tradeSold.Sum(t => t.RealQuantityFrom);
         }
 
-        public static async Task<List<GlobalTrade>> LoadTrades(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
+        public async Task<List<GlobalTrade>> LoadTrades(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
         {
 
             List<CurrencySymbolPrice> aFiatisation = BalanceService.LoadFiatisation(aAllCurrencies);
@@ -70,7 +77,7 @@ namespace OpentWallet.Logic
 
         }
 
-        private static void FiatiseOneTrade(GlobalTrade oTrade, List<CurrencySymbolPrice> aFiatisation)
+        private void FiatiseOneTrade(GlobalTrade oTrade, List<CurrencySymbolPrice> aFiatisation)
         {
             var fiatFrom = aFiatisation.FirstOrDefault(f => f.From == oTrade.From);
             var fiatTo = aFiatisation.FirstOrDefault(f => f.From == oTrade.To);
@@ -94,14 +101,31 @@ namespace OpentWallet.Logic
             }
         }
 
-
-        public struct TradeArchived
+        public GlobalTradeUI GetGlobalTradeUI(GlobalTrade globalTrade, List<CurrencySymbolPrice> allCurrencies, bool isArchived)
         {
 
-            public string from, to;
-            public double quantityFrom, quantityTo;
+            var delta = GetDelta(globalTrade, allCurrencies);
+            var isProfitable = IsProfitable(globalTrade, delta);
+
+            var globalTradeUI = new GlobalTradeUI()
+            {
+                Trade = globalTrade,
+
+                Delta = delta,
+                IsProfitable = isProfitable,
+
+                SellStateBackColor = GetSellStateBackColor(globalTrade),
+                SellStateBackColorSelected = GetSellStateBackColorSelected(globalTrade),
+                ArchiveStateForeColor = GetArchiveStateForeColor(isArchived),
+
+                DeltaColor = GetDeltaColor(isProfitable),
+                DeltaColorSelected = GetDeltaColorSelected(isProfitable),
+            };
+
+            return globalTradeUI;
         }
-        public static TradeArchived ArchiveTrades(List<GlobalTrade> g)
+
+        public TradeArchived ArchiveTrades(List<GlobalTrade> g)
         {
             TradeArchived tradeArchived;
 
@@ -113,53 +137,56 @@ namespace OpentWallet.Logic
             return tradeArchived;
         }
 
-        public static IEnumerable<string> GetCouplesFromTrade(IEnumerable<GlobalTrade> trades)
+        public IEnumerable<string> GetCouplesFromTrade(IEnumerable<GlobalTrade> trades)
         {
             return trades.Select(t => t.CustomCouple)
             .GroupBy(t => t)
             .Select(t => t.FirstOrDefault());
         }
 
-        public static double GetDelta(GlobalTrade trade, List<CurrencySymbolPrice> currencies)
+        public double GetDelta(GlobalTrade trade, List<CurrencySymbolPrice> currencies)
         {
             var currentPrice = currencies.FirstOrDefault(c => c.Couple == trade.Couple)?.RealPrice ?? 1;
             var delta = currentPrice / trade.RealPrice * 100 - 100;
             return delta;
         }
 
-        public static bool IsProfitable(GlobalTrade trade, double delta)
+        public bool IsProfitable(GlobalTrade trade, double delta)
         {
             return (delta > 0 && trade.IsBuy) || (delta < 0 && trade.IsBuy == false);
         }
 
-        private static Color colorGreenLight = Color.FromArgb(255, 200, 255, 200);
-        private static Color colorGreenSelected = Color.FromArgb(255, 150, 200, 150);
-        private static Color colorRedLight = Color.FromArgb(255, 255, 200, 200);
-        private static Color colorRedSelected = Color.FromArgb(255, 200, 150, 150);
-        private static Color colorGrey = Color.FromArgb(255, 150, 150, 150);
-        private static Color colorDark = Color.FromArgb(255, 50, 50, 50);
+        private Color colorGreenLight = Color.FromArgb(255, 200, 255, 200);
+        private Color colorGreenSelected = Color.FromArgb(255, 150, 200, 150);
+        private Color colorRedLight = Color.FromArgb(255, 255, 200, 200);
+        private Color colorRedSelected = Color.FromArgb(255, 200, 150, 150);
+        private Color colorGrey = Color.FromArgb(255, 150, 150, 150);
+        private Color colorDark = Color.FromArgb(255, 50, 50, 50);
 
-        public static Color GetSellStateBackColor(GlobalTrade trade)
+        public IBalanceService BalanceService { get; }
+        public IConfigService ConfigService { get; }
+
+        public Color GetSellStateBackColor(GlobalTrade trade)
         {
             return trade.IsBuy ? colorGreenLight : colorRedLight;
         }
 
-        public static Color GetSellStateBackColorSelected(GlobalTrade trade)
+        public Color GetSellStateBackColorSelected(GlobalTrade trade)
         {
             return trade.IsBuy ? colorGreenSelected : colorRedSelected;
         }
 
-        public static Color GetArchiveStateForeColor(bool tradeIsArchived)
+        public Color GetArchiveStateForeColor(bool tradeIsArchived)
         {
             return tradeIsArchived ? colorGrey : colorDark;
         }
 
-        public static Color GetDeltaColor(bool isProfitable)
+        public Color GetDeltaColor(bool isProfitable)
         {
             return isProfitable ? colorGreenLight : colorRedLight;
         }
 
-        public static Color GetDeltaColorSelected(bool isProfitable)
+        public Color GetDeltaColorSelected(bool isProfitable)
         {
             return isProfitable ? colorGreenSelected : colorRedSelected;
         }

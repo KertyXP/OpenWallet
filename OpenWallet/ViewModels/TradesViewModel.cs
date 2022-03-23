@@ -14,31 +14,6 @@ using System.Collections.Generic;
 
 namespace OpenWallet.ViewModels
 {
-    public class GlobalTradeViewModel
-    {
-        public GlobalTrade Trade { get; set; }
-        public double Delta { get; set; }
-        public bool IsProfitable { get; set; }
-        public System.Drawing.Color SellStateBackColor { get; set; }
-        public System.Drawing.Color SellStateBackColorSelected { get; set; }
-        public System.Drawing.Color ArchiveStateForeColor { get; set; }
-        public System.Drawing.Color DeltaColor { get; set; }
-        public System.Drawing.Color DeltaColorSelected { get; set; }
-        public GlobalTradeViewModel(GlobalTrade trade, bool isArchived)
-        {
-            Trade = trade;
-
-            Delta = TradeService.GetDelta(trade, WalletViewModel.allCurrencies);
-            IsProfitable = TradeService.IsProfitable(trade, Delta);
-
-            SellStateBackColor = TradeService.GetSellStateBackColor(trade);
-            SellStateBackColorSelected = TradeService.GetSellStateBackColorSelected(trade);
-            ArchiveStateForeColor = TradeService.GetArchiveStateForeColor(isArchived);
-
-            DeltaColor = TradeService.GetDeltaColor(IsProfitable);
-            DeltaColorSelected = TradeService.GetDeltaColorSelected(IsProfitable);
-        }
-    }
 
     public class TradesViewModel : BaseViewModel
     {

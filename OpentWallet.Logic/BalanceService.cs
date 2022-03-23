@@ -1,5 +1,6 @@
 ﻿using OpenWallet.Common;
 using OpenWallet.Logic.Abstraction;
+using OpenWallet.Logic.Abstraction.Interfaces;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,10 +8,16 @@ using System.Threading.Tasks;
 
 namespace OpentWallet.Logic
 {
-    public class BalanceService
+    public class BalanceService : IBalanceService
     {
+        private IConfigService _configService { get; }
 
-        public static async Task<List<CurrencySymbolPrice>> GetCurrencriesAsync(List<IExchange> aExchanges)
+        public BalanceService(IConfigService configService)
+        {
+            _configService = configService;
+        }
+
+        public async Task<List<CurrencySymbolPrice>> GetCurrencriesAsync(List<IExchange> aExchanges)
         {
 
             var tasks = aExchanges
@@ -23,15 +30,15 @@ namespace OpentWallet.Logic
                 .ToList();
         }
 
-        public static List<CurrencySymbolPrice> LoadFiatisation(List<CurrencySymbolPrice> aAllCurrencies)
+        public List<CurrencySymbolPrice> LoadFiatisation(List<CurrencySymbolPrice> aAllCurrencies)
         {
 
             List<CurrencySymbolPrice> aFiatisation = new List<CurrencySymbolPrice>();
             // fiatisation (needs at least 2 fiats Moneys (first is the fiatisation TO)
-            if (ConfigService.oGlobalConfig.FiatMoneys.Count() > 1)
+            if (_configService.oGlobalConfig.FiatMoneys.Count() > 1)
             {
-                string sTo = ConfigService.oGlobalConfig.FiatMoneys.FirstOrDefault();
-                aFiatisation = ConfigService.oGlobalConfig.FiatMoneys.Skip(1).Select(fiat =>
+                string sTo = _configService.oGlobalConfig.FiatMoneys.FirstOrDefault();
+                aFiatisation = _configService.oGlobalConfig.FiatMoneys.Skip(1).Select(fiat =>
                 {
                     return new CurrencySymbolPrice(fiat, sTo, aAllCurrencies.GetCustomPrice(fiat, sTo), string.Empty, string.Empty);
                 }).ToList();
@@ -40,7 +47,7 @@ namespace OpentWallet.Logic
             return aFiatisation;
         }
 
-        public static void SetBitcoinFavCryptoValue(IExchange exchange, List<CurrencySymbolPrice> aAllCurrencies, IEnumerable<GlobalBalance> aAllBalances)
+        public void SetBitcoinFavCryptoValue(IExchange exchange, List<CurrencySymbolPrice> aAllCurrencies, IEnumerable<GlobalBalance> aAllBalances)
         {
 
             foreach (var oBalance in aAllBalances)
@@ -50,13 +57,13 @@ namespace OpentWallet.Logic
 
             return;
         }
-        public static void SetBitcoinFavCryptoValue(IExchange exchange, List<CurrencySymbolPrice> aAllCurrencies, GlobalBalance oBalance)
+        public void SetBitcoinFavCryptoValue(IExchange exchange, List<CurrencySymbolPrice> aAllCurrencies, GlobalBalance oBalance)
         {
 
             if (exchange.oConfig.CurrenciesToIgnore?.Any(c => c == oBalance.Crypto) == true)
                 return;
 
-            oBalance.FavCrypto = ConfigService.oGlobalConfig.FavoriteCurrency;
+            oBalance.FavCrypto = _configService.oGlobalConfig.FavoriteCurrency;
             if (oBalance.Exchange == "BSC")
             {
                 //oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
@@ -71,7 +78,7 @@ namespace OpentWallet.Logic
             return;
         }
 
-        public static async Task<List<GlobalBalance>> GetBalances(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
+        public async Task<List<GlobalBalance>> GetBalancesAsync(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
 
             var tasks = aExchanges.Select(async exchange =>
@@ -84,7 +91,7 @@ namespace OpentWallet.Logic
                 })
                 .ToList();
 
-                ConfigService.SaveBalanceToCache(exchange, balance);
+                _configService.SaveBalanceToCache(exchange, balance);
 
                 return balance;
             });
@@ -96,12 +103,12 @@ namespace OpentWallet.Logic
                 .ToList();
         }
 
-        public static List<GlobalBalance> LoadBalancesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
+        public List<GlobalBalance> LoadBalancesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
 
             var aBalance = aExchanges.Select(oExchange =>
             {
-                var balance = ConfigService.LoadBalanceFromCache(oExchange);
+                var balance = _configService.LoadBalanceFromCache(oExchange);
                 SetBitcoinFavCryptoValue(oExchange, aAllCurrencies, balance);
 
                 return balance;
