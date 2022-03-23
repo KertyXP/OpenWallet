@@ -26,13 +26,13 @@ namespace OpenWallet.WinForm
 
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
 
             ConfigService.Init("");
-            exchanges = ConfigService.LoadExchanges();
+            exchanges = await ConfigService.LoadExchangesAsync();
 
-            allCurrencies = BalanceService.GetCurrencries(exchanges);
+            allCurrencies = await BalanceService.GetCurrencriesAsync(exchanges);
 
             balances = BalanceService.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
 
@@ -69,7 +69,7 @@ namespace OpenWallet.WinForm
         {
             bt_refreshBalance.Enabled = false;
 
-            allCurrencies = BalanceService.GetCurrencries(exchanges);
+            allCurrencies = await BalanceService.GetCurrencriesAsync(exchanges);
             balances = await BalanceService.GetBalances(exchanges, allCurrencies);
 
             InsertCurrentBalanceInGrid(balances);
@@ -317,9 +317,9 @@ namespace OpenWallet.WinForm
 
 
                         var menuItem = new MenuItem("refresh couple " + trade.CustomCouple);
-                        menuItem.Click += (ob, ev) =>
+                        menuItem.Click += async (ob, ev) =>
                         {
-                            var newTrades = exchangeRefresh.GetTradeHistoryOneCouple(trades.Where(tr => tr.Exchange == trade.Exchange).ToList(), trade);
+                            var newTrades = await exchangeRefresh.GetTradeHistoryOneCoupleAsync(trades.Where(tr => tr.Exchange == trade.Exchange).ToList(), trade);
                             ConfigService.SaveTradesToCache(newTrades);
 
                             trades.RemoveAll(tr => tr.Exchange == trade.Exchange);

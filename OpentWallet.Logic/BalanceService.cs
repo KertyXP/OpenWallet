@@ -10,15 +10,17 @@ namespace OpentWallet.Logic
     public class BalanceService
     {
 
-        public static List<CurrencySymbolPrice> GetCurrencries(List<IExchange> aExchanges)
+        public static async Task<List<CurrencySymbolPrice>> GetCurrencriesAsync(List<IExchange> aExchanges)
         {
 
             List<CurrencySymbolPrice> aAllCurrencies = new List<CurrencySymbolPrice>();
-            var aTaskCurrencies = aExchanges.Select(oExchange => Task.Run(oExchange.GetCurrencies)).ToList();
+            var aTaskCurrencies = aExchanges
+                .Select(async oExchange => await oExchange.GetCurrenciesAsync())
+                .ToList();
 
             foreach (var oTask in aTaskCurrencies)
             {
-                var aBalance = oTask.GetAwaiter().GetResult();
+                var aBalance = await oTask;
                 aAllCurrencies.AddRange(aBalance);
             }
 
@@ -73,9 +75,9 @@ namespace OpentWallet.Logic
 
             ConcurrentQueue<GlobalBalance> aAll = new ConcurrentQueue<GlobalBalance>();
 
-            var tasks = aExchanges.Select(exchange => Task.Run(() =>
+            var tasks = aExchanges.Select(async exchange =>
             {
-                var aBalance = exchange.GetBalance();
+                var aBalance = await exchange.GetBalanceAsync();
                 ConfigService.SaveBalanceToCache(exchange, aBalance);
 
                 aBalance = SetBitcoinFavCryptoValue(aExchanges, aAllCurrencies, aBalance);
@@ -86,7 +88,7 @@ namespace OpentWallet.Logic
 
                     aAll.Enqueue(oBalance);
                 }
-            })).ToList();
+            }).ToList();
 
             foreach (var task in tasks)
             {

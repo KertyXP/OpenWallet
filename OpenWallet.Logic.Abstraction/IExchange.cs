@@ -1,5 +1,6 @@
 ﻿using OpenWallet.Common;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace OpenWallet.Logic.Abstraction
 {
@@ -8,16 +9,16 @@ namespace OpenWallet.Logic.Abstraction
         string ExchangeCode { get; }
         string ExchangeName { get; }
         ExchangeConfig oConfig { get; set; }
-        List<GlobalBalance> GetBalance();
-        List<CurrencySymbolPrice> GetCurrencies();
-        void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig);
-        List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances);
-        GlobalTrade PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest);
+        Task<List<GlobalBalance>> GetBalanceAsync();
+        Task<List<CurrencySymbolPrice>> GetCurrenciesAsync();
+        Task InitAsync(GlobalConfig oGlobalConfig, ExchangeConfig oConfig);
+        Task<List<GlobalTrade>> GetTradeHistoryAsync(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances);
+        Task<GlobalTrade> PlaceMarketOrderAsync(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest);
     }
 
     public interface IRefreshOneCoupleTrade
     {
-        List<GlobalTrade> GetTradeHistoryOneCouple(List<GlobalTrade> aCache, CurrencySymbol symbol);
+        Task<List<GlobalTrade>> GetTradeHistoryOneCoupleAsync(List<GlobalTrade> aCache, CurrencySymbol symbol);
     }
 
     public enum SellBuy

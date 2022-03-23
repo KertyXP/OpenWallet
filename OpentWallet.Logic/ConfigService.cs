@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
+using System.Threading.Tasks;
 
 namespace OpentWallet.Logic
 {
@@ -99,7 +99,7 @@ namespace OpentWallet.Logic
             return File.Exists(sPath) ? JsonConvert.DeserializeObject<List<GlobalBalance>>(File.ReadAllText(sPath)) : new List<GlobalBalance>();
         }
 
-        public static List<IExchange> LoadExchanges()
+        public static async Task<List<IExchange>> LoadExchangesAsync()
         {
 
             List<IExchange> aExchanges = new List<IExchange>();
@@ -125,7 +125,7 @@ namespace OpentWallet.Logic
                     continue;
 
                 oExchange.oConfig = oConfig;
-                oExchange.Init(ConfigService.oGlobalConfig, oConfig);
+                await oExchange.InitAsync(ConfigService.oGlobalConfig, oConfig);
                 aExchanges.Add(oExchange);
             }
 

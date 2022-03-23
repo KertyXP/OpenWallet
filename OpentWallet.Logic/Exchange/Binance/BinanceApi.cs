@@ -11,6 +11,7 @@ using System.Linq;
 using OpentWallet.Logic.Binance;
 using OpenWallet.Logic.Abstraction;
 using System.IO;
+using System.Net.Http.Json;
 
 namespace OpentWallet.Logic
 {
@@ -43,7 +44,6 @@ namespace OpentWallet.Logic
 
         private const string hostname = "https://api.binance.com"; // put here your secret key
 
-        private static readonly HttpClient _httpClient = new HttpClient();
         private BinanceAccount _oLastBalance;
         public string ExchangeName => "Binance";
         public string ExchangeCode => "Binance";
@@ -54,20 +54,20 @@ namespace OpentWallet.Logic
 
         }
 
-        public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
+        public async Task InitAsync(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
             LocalParam = JsonConvert.DeserializeObject<BinanceLocalParams>(oConfig.LocalParams?.ToString());
             this.oGlobalConfig = oGlobalConfig;
 
-            ExchangeInfo = GetExchangeInfo();
+            ExchangeInfo = await GetExchangeInfoAsync();
 
         }
 
-        public List<CurrencySymbolPrice> GetCurrencies()
+        public async Task<List<CurrencySymbolPrice>> GetCurrenciesAsync()
         {
 
-            var oCurrencies = Call<List<BinanceCurrencies>>(BinanceCalls.ECalls.tickerPriceV3, string.Empty).Payload;
+            var oCurrencies = (await CallAsync<List<BinanceCurrencies>>(BinanceCalls.ECalls.tickerPriceV3, string.Empty)).Payload;
             var aPairs = ExchangeInfo.Symbols.Select(p => new CurrencySymbol(p.BaseAsset, p.QuoteAsset, p.SymbolSymbol)).ToList();
 
             return oCurrencies.Select(o =>
@@ -122,7 +122,7 @@ namespace OpentWallet.Logic
             }
         }
 
-        public ApiResponse<T> Call<T>(BinanceCalls.ECalls Api, string dataJsonStr) where T : class, new()
+        private async Task<ApiResponse<T>> CallAsync<T>(BinanceCalls.ECalls Api, string dataJsonStr) where T : class, new()
         {
 
 
@@ -140,7 +140,7 @@ namespace OpentWallet.Logic
                     return _lastCalls.Where(lc => lc.dtCall >= l.StartCount).Sum(lc => lc.Weight) > l.Weight;
                 }))
                 {
-                    Task.Delay(250).GetAwaiter().GetResult();
+                    await Task.Delay(250);
                 }
                 else
                 {
@@ -161,42 +161,27 @@ namespace OpentWallet.Logic
                 var signature = CalcSignature($"{sQueryParam}", oConfig.SecretKey);
                 sApi += $"?{sQueryParam}&signature={signature}";
             }
-            var web = WebRequest.Create(sApi);
-            web.Headers.Add("X-MBX-APIKEY", oConfig.ApiKey);
+
+            HttpClient web = new HttpClient();
+
+            //var web = new WebClient();
+            web.DefaultRequestHeaders.Add("X-MBX-APIKEY", oConfig.ApiKey);
 
             //wc.Headers.Add("Api-Subaccount-Id", signature);
-            web.ContentType = "application/json";
+            //web.DefaultRequestHeaders.Add(HttpRequestHeader.ContentType, "application/json");
             try
             {
+                string responseBody = string.Empty;
                 if (oCall.get)
                 {
-                    web.Method = "GET";
+                    var response = await web.GetAsync(sApi);
+                    responseBody = await response.Content.ReadAsStringAsync();
                 }
                 else
                 {
-                    web.Method = "POST";
+                    var response = await web.PostAsync(sApi, null);
+                    responseBody = await response.Content.ReadAsStringAsync();
                 }
-                var response = web.GetResponse();
-                var stream = response.GetResponseStream();
-
-                int length = 1000;
-
-                byte[] bytes = new byte[response.ContentLength + length];
-                int numBytesToRead = (int)response.ContentLength;
-                int numBytesRead = 0;
-                do
-                {
-                    // Read may return anything from 0 to 10.
-                    int n = stream.Read(bytes, numBytesRead, length);
-                    numBytesRead += n;
-                    numBytesToRead -= n;
-                } while (numBytesToRead > 0);
-
-                var s = System.Text.Encoding.Default.GetString(bytes);
-                // convert stream to string
-                StreamReader reader = new StreamReader(stream);
-                string responseBody = s;
-
 
 
                 _lastCalls.Add(new BinanceCalls()
@@ -217,13 +202,13 @@ namespace OpentWallet.Logic
 
         }
 
-        public List<GlobalBalance> GetBalance()
+        public async Task<List<GlobalBalance>> GetBalanceAsync()
         {
             // no way actually to get the earn account
             //var o2 = Call<BinanceAccount>(BinanceCalls.ECalls.earnings, "asset=ADA");
             //var o3 = Call<BinanceAccount>(BinanceCalls.ECalls.lendingProjectList, "type=CUSTOMIZED_FIXED");
 
-            _oLastBalance = Call<BinanceAccount>(BinanceCalls.ECalls.accountV3, string.Empty).Payload;
+            _oLastBalance = (await CallAsync<BinanceAccount>(BinanceCalls.ECalls.accountV3, string.Empty)).Payload;
 
             try
             {
@@ -273,72 +258,26 @@ namespace OpentWallet.Logic
             return milliseconds.ToString();
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
+        public async Task<List<GlobalTrade>> GetTradeHistoryAsync(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
-            //return aCache;
             var aListTrades = new List<GlobalTrade>(aCache);
-
-            //if (_oLastBalance == null)
-            //{
-            //    return new List<GlobalTrade>();
-            //}
-
-            // pair from cache
-            //var aSymbols = aCache.GroupBy(c => c.Couple).Select(c => c.FirstOrDefault()).ToList();
-            //foreach (var oPair in aSymbols)
-            //{
-            //    var aTrades = GetTradesFromCurrencies(oPair.From, oPair.To);
-            //    aListTrades.AddRange(aTrades);
-            //}
 
             if (LocalParam.aPairsToCheck?.Any() == true)
             {
-
-                // pair from config
                 foreach (var oPair in LocalParam.aPairsToCheck)
                 {
-                    var aTrades = GetTradesFromCurrencies(oPair.Split('_').First(), oPair.Split('_').Last());
+                    var aTrades = await GetTradesFromCurrenciesAsync(oPair.Split('_').First(), oPair.Split('_').Last());
                     aListTrades.AddRange(aTrades);
-                }
-            }
-
-
-            var aAllSymbols = ExchangeInfo.Symbols.OrderBy(s => s.SymbolSymbol).ToList();
-
-            //// pair from current balance
-            //foreach (var oPair in aAllSymbols)
-            //{
-            //    if (aAllBalances.Any(ctc => ctc.Crypto == oPair.BaseAsset || ctc.Crypto == oPair.QuoteAsset))
-            //    {
-            //        var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
-            //        aListTrades.AddRange(aTrades.Where(t => aTrades.Any(t2 => t2.InternalExchangeId == t.InternalExchangeId) == false));
-
-            //    }
-            //}
-
-            //return aListTrades;
-            // pair defined in config
-            if (LocalParam.checkcurrenciesToCheck)
-            {
-
-                foreach (var oPair in ExchangeInfo.Symbols)
-                {
-                    if (LocalParam.aCurrenciesToCheck.Any(ctc => ctc == oPair.BaseAsset || ctc == oPair.QuoteAsset))
-                    {
-                        var aTrades = GetTradesFromCurrencies(oPair.BaseAsset, oPair.QuoteAsset);
-                        aListTrades.AddRange(aTrades);
-
-                    }
                 }
             }
 
             return aListTrades;
         }
 
-        private List<GlobalTrade> GetTradesFromCurrencies(string sFrom, string sTo)
+        private async Task<List<GlobalTrade>> GetTradesFromCurrenciesAsync(string sFrom, string sTo)
         {
             var aListTrades = new List<GlobalTrade>();
-            var oTradeList = Call<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, $"symbol={sFrom}{sTo}").Payload;// + oPair.SymbolSymbol);
+            var oTradeList = (await CallAsync<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, $"symbol={sFrom}{sTo}")).Payload;// + oPair.SymbolSymbol);
             foreach (var oTradeBinance in oTradeList)
             {
                 GlobalTrade globalTrade = null;
@@ -368,11 +307,11 @@ namespace OpentWallet.Logic
             return dtDateTime;
         }
 
-        private BinanceExchangeInfo GetExchangeInfo()
+        private async Task<BinanceExchangeInfo> GetExchangeInfoAsync()
         {
 
-            var oExchangeInfo = Call<BinanceExchangeInfo>(BinanceCalls.ECalls.ExchangeInfoV3, string.Empty).Payload;
-            return oExchangeInfo;
+            var oExchangeInfo = await CallAsync<BinanceExchangeInfo>(BinanceCalls.ECalls.ExchangeInfoV3, string.Empty);
+            return oExchangeInfo.Payload;
         }
 
         string QuantityToString(double quantity, double tick)
@@ -403,7 +342,7 @@ namespace OpentWallet.Logic
             return sQuantity;
         }
 
-        public GlobalTrade PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
+        public async Task<GlobalTrade> PlaceMarketOrderAsync(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
         {
             var oSymbolFullInfo = ExchangeInfo.Symbols.FirstOrDefault(s => s.SymbolSymbol == symbol.Couple);
             var tick = oSymbolFullInfo.Filters.FirstOrDefault(f => f.FilterType == "LOT_SIZE")?.StepSize?.ToDouble();
@@ -415,7 +354,7 @@ namespace OpentWallet.Logic
 
             var oCall = bTest ? BinanceCalls.ECalls.placeOrderTest : BinanceCalls.ECalls.placeOrder;
 
-            var oTradeResponse = Call<BinanceTradeMarketResponse>(oCall, $"symbol={symbol.Couple}&side={(SellOrBuy == SellBuy.Buy ? "BUY" : "SELL")}&type=MARKET&quantity={sQuantity}");
+            var oTradeResponse = await CallAsync<BinanceTradeMarketResponse>(oCall, $"symbol={symbol.Couple}&side={(SellOrBuy == SellBuy.Buy ? "BUY" : "SELL")}&type=MARKET&quantity={sQuantity}");
 
             if (bTest == true)
             {
@@ -449,11 +388,11 @@ namespace OpentWallet.Logic
 
         }
 
-        public List<GlobalTrade> GetTradeHistoryOneCouple(List<GlobalTrade> aCache, CurrencySymbol symbol)
+        public async Task<List<GlobalTrade>> GetTradeHistoryOneCoupleAsync(List<GlobalTrade> aCache, CurrencySymbol symbol)
         {
             var aListTrades = new List<GlobalTrade>(aCache);
 
-            var aTrades = GetTradesFromCurrencies(symbol.RealFrom, symbol.RealTo);
+            var aTrades = await GetTradesFromCurrenciesAsync(symbol.RealFrom, symbol.RealTo);
             aListTrades.RemoveAll(t => t.Exchange == ExchangeCode && t.Couple == symbol.Couple);
             aListTrades.AddRange(aTrades);
 

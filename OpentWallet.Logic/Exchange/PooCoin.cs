@@ -1,145 +1,145 @@
-﻿using System;
-using System.Net;
-using System.Text;
-using Newtonsoft.Json;
+﻿//using System;
+//using System.Net;
+//using System.Text;
+//using Newtonsoft.Json;
 
 
-namespace OpentWallet.Logic
-{
-    public class PooCoin
-    {
+//namespace OpentWallet.Logic
+//{
+//    public class PooCoin
+//    {
 
-        public PooCoin()
-        {
+//        public PooCoin()
+//        {
 
-            string sGMR = "0x0523215dcafbf4e4aa92117d13c6985a3bef27d7";
-            string sCUMMIES = "0x27ae27110350b98d564b9a3eed31baebc82d878d";
-            var oChart = GetChart(sCUMMIES);
+//            string sGMR = "0x0523215dcafbf4e4aa92117d13c6985a3bef27d7";
+//            string sCUMMIES = "0x27ae27110350b98d564b9a3eed31baebc82d878d";
+//            var oChart = GetChart(sCUMMIES);
 
-        }
+//        }
 
-        public static PooCoinChart GetChart(string sContractAddress)
-        {
-            var client = new WebClient();
-            string sDateFrom = DateTime.UtcNow.AddDays(-3).AddHours(-6).AddMinutes(-5).ToString("yyyy-MM-ddTHH\\:mm\\:00.000Z");
-            string sDateTo = DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:00.000Z");
-            int nMinutes = 15;
-            //"2021-07-08T13:05:00.000Z\",\"till\":\"2021-07-11T19:10:00.000Z\
-            string sData = "{\"query\":\"query GetCandleData(\\n  $baseCurrency: String!,\\n  $since: ISO8601DateTime,\\n  $till: ISO8601DateTime,\\n  $quoteCurrency: String!,\\n  $exchangeAddresses: [String!]\\n  $minTrade: Float\\n  $window: Int) {\\n    ethereum(network: bsc) {\\n        dexTrades(\\n            options: {asc: \\\"timeInterval.minute\\\"}\\n            date: {since: $since, till: $till}\\n            exchangeAddress: {in: $exchangeAddresses}\\n            baseCurrency: {is: $baseCurrency}\\n            quoteCurrency: {is: $quoteCurrency} # WBNB\\n            tradeAmountUsd: {gt: $minTrade}\\n        ) {\\n            timeInterval {\\n                minute(count: $window, format: \\\"%Y-%m-%dT%H:%M:%SZ\\\")\\n            }\\n            baseCurrency {\\n                symbol\\n                address\\n            }\\n            quoteCurrency {\\n                symbol\\n                address\\n            }\\n\\n            tradeAmount(in: USD)\\n            trades: count\\n            quotePrice\\n            maximum_price: quotePrice(calculate: maximum)\\n            minimum_price: quotePrice(calculate: minimum)\\n            open_price: minimum(of: block, get: quote_price)\\n            close_price: maximum(of: block, get: quote_price)\\n        }\\n    }\\n}\\n\",\"variables\":{\"baseCurrency\":\"" + sContractAddress + "\",\"quoteCurrency\":\"0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c\",\"since\":\"" + sDateFrom + "\",\"till\":\"" + sDateTo + "\",\"window\":" + nMinutes + ",\"exchangeAddresses\":[\"0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73\"],\"minTrade\":10}}";
+//        public static PooCoinChart GetChart(string sContractAddress)
+//        {
+//            var client = new WebClient();
+//            string sDateFrom = DateTime.UtcNow.AddDays(-3).AddHours(-6).AddMinutes(-5).ToString("yyyy-MM-ddTHH\\:mm\\:00.000Z");
+//            string sDateTo = DateTime.UtcNow.ToString("yyyy-MM-ddTHH\\:mm\\:00.000Z");
+//            int nMinutes = 15;
+//            //"2021-07-08T13:05:00.000Z\",\"till\":\"2021-07-11T19:10:00.000Z\
+//            string sData = "{\"query\":\"query GetCandleData(\\n  $baseCurrency: String!,\\n  $since: ISO8601DateTime,\\n  $till: ISO8601DateTime,\\n  $quoteCurrency: String!,\\n  $exchangeAddresses: [String!]\\n  $minTrade: Float\\n  $window: Int) {\\n    ethereum(network: bsc) {\\n        dexTrades(\\n            options: {asc: \\\"timeInterval.minute\\\"}\\n            date: {since: $since, till: $till}\\n            exchangeAddress: {in: $exchangeAddresses}\\n            baseCurrency: {is: $baseCurrency}\\n            quoteCurrency: {is: $quoteCurrency} # WBNB\\n            tradeAmountUsd: {gt: $minTrade}\\n        ) {\\n            timeInterval {\\n                minute(count: $window, format: \\\"%Y-%m-%dT%H:%M:%SZ\\\")\\n            }\\n            baseCurrency {\\n                symbol\\n                address\\n            }\\n            quoteCurrency {\\n                symbol\\n                address\\n            }\\n\\n            tradeAmount(in: USD)\\n            trades: count\\n            quotePrice\\n            maximum_price: quotePrice(calculate: maximum)\\n            minimum_price: quotePrice(calculate: minimum)\\n            open_price: minimum(of: block, get: quote_price)\\n            close_price: maximum(of: block, get: quote_price)\\n        }\\n    }\\n}\\n\",\"variables\":{\"baseCurrency\":\"" + sContractAddress + "\",\"quoteCurrency\":\"0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c\",\"since\":\"" + sDateFrom + "\",\"till\":\"" + sDateTo + "\",\"window\":" + nMinutes + ",\"exchangeAddresses\":[\"0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73\"],\"minTrade\":10}}";
 
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sData);
+//            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sData);
 
-            client.Headers.Add("content-type", "application/json");
+//            client.Headers.Add("content-type", "application/json");
 
-            client.Headers.Add("accept", "*/*");
-            client.Headers.Add("accept-encoding", "deflate, br");
-            client.Headers.Add("accept-language", "fr-BE,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6");
-            client.Headers.Add("authority", "chartdata.poocoin.app");
-            client.Headers.Add("origin", "https://poocoin.app");
-            client.Headers.Add("path", "/");
-            client.Headers.Add("referer", "https://poocoin.app/");
-            client.Headers.Add("scheme", "https");
-            client.Headers.Add("sec-ch-ua", "\" Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"91\", \"Chromium\";v=\"91\"");
-            client.Headers.Add("sec-ch-ua-mobile", "?0");
-            client.Headers.Add("sec-fetch-dest", "empty");
-            client.Headers.Add("sec-fetch-mode", "cors");
-            client.Headers.Add("sec-fetch-site", "same-site");
-            client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
+//            client.Headers.Add("accept", "*/*");
+//            client.Headers.Add("accept-encoding", "deflate, br");
+//            client.Headers.Add("accept-language", "fr-BE,fr-FR;q=0.9,fr;q=0.8,en-US;q=0.7,en;q=0.6");
+//            client.Headers.Add("authority", "chartdata.poocoin.app");
+//            client.Headers.Add("origin", "https://poocoin.app");
+//            client.Headers.Add("path", "/");
+//            client.Headers.Add("referer", "https://poocoin.app/");
+//            client.Headers.Add("scheme", "https");
+//            client.Headers.Add("sec-ch-ua", "\" Not;A Brand\";v=\"99\", \"Google Chrome\";v=\"91\", \"Chromium\";v=\"91\"");
+//            client.Headers.Add("sec-ch-ua-mobile", "?0");
+//            client.Headers.Add("sec-fetch-dest", "empty");
+//            client.Headers.Add("sec-fetch-mode", "cors");
+//            client.Headers.Add("sec-fetch-site", "same-site");
+//            client.Headers.Add("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36");
 
-            try
-            {
-                var bResult = client.UploadData("https://chartdata.poocoin.app/", bytes);
-
-
-                string str = Encoding.Default.GetString(bResult);
-
-                var oChart = JsonConvert.DeserializeObject<PooCoinChart>(str);
-
-                return oChart;
-            }
-
-            catch (Exception ex)
-            {
-                return new PooCoinChart();
-            }
-        }
-    }
-
-    // <auto-generated />
-    //
-    // To parse this JSON data, add NuGet 'Newtonsoft.Json' then do:
-    //
-    //    using PooCoin;
-    //
-    //    var pooCoinChart = PooCoinChart.FromJson(jsonString);
+//            try
+//            {
+//                var bResult = client.UploadData("https://chartdata.poocoin.app/", bytes);
 
 
-    public partial class PooCoinChart
-    {
-        [JsonProperty("data")]
-        public Data Data { get; set; }
-    }
+//                string str = Encoding.Default.GetString(bResult);
 
-    public partial class Data
-    {
-        [JsonProperty("ethereum")]
-        public Ethereum Ethereum { get; set; }
-    }
+//                var oChart = JsonConvert.DeserializeObject<PooCoinChart>(str);
 
-    public partial class Ethereum
-    {
-        [JsonProperty("dexTrades")]
-        public DexTrade[] DexTrades { get; set; }
-    }
+//                return oChart;
+//            }
 
-    public partial class DexTrade
-    {
-        [JsonProperty("timeInterval")]
-        public TimeInterval TimeInterval { get; set; }
+//            catch (Exception ex)
+//            {
+//                return new PooCoinChart();
+//            }
+//        }
+//    }
 
-        [JsonProperty("baseCurrency")]
-        public ECurrency BaseCurrency { get; set; }
-
-        [JsonProperty("quoteCurrency")]
-        public ECurrency QuoteCurrency { get; set; }
-
-        [JsonProperty("tradeAmount")]
-        public double TradeAmount { get; set; }
-
-        [JsonProperty("trades")]
-        public long Trades { get; set; }
-
-        [JsonProperty("quotePrice")]
-        public double QuotePrice { get; set; }
-
-        [JsonProperty("maximum_price")]
-        public double MaximumPrice { get; set; }
-
-        [JsonProperty("minimum_price")]
-        public double MinimumPrice { get; set; }
-
-        [JsonProperty("open_price")]
-        public string OpenPrice { get; set; }
-
-        [JsonProperty("close_price")]
-        public string ClosePrice { get; set; }
-    }
-
-    public partial class ECurrency
-    {
-        [JsonProperty("symbol")]
-        public string Symbol { get; set; }
-
-        [JsonProperty("address")]
-        public string Address { get; set; }
-    }
-
-    public partial class TimeInterval
-    {
-        [JsonProperty("minute")]
-        public DateTimeOffset Minute { get; set; }
-    }
+//    // <auto-generated />
+//    //
+//    // To parse this JSON data, add NuGet 'Newtonsoft.Json' then do:
+//    //
+//    //    using PooCoin;
+//    //
+//    //    var pooCoinChart = PooCoinChart.FromJson(jsonString);
 
 
+//    public partial class PooCoinChart
+//    {
+//        [JsonProperty("data")]
+//        public Data Data { get; set; }
+//    }
 
-}
+//    public partial class Data
+//    {
+//        [JsonProperty("ethereum")]
+//        public Ethereum Ethereum { get; set; }
+//    }
+
+//    public partial class Ethereum
+//    {
+//        [JsonProperty("dexTrades")]
+//        public DexTrade[] DexTrades { get; set; }
+//    }
+
+//    public partial class DexTrade
+//    {
+//        [JsonProperty("timeInterval")]
+//        public TimeInterval TimeInterval { get; set; }
+
+//        [JsonProperty("baseCurrency")]
+//        public ECurrency BaseCurrency { get; set; }
+
+//        [JsonProperty("quoteCurrency")]
+//        public ECurrency QuoteCurrency { get; set; }
+
+//        [JsonProperty("tradeAmount")]
+//        public double TradeAmount { get; set; }
+
+//        [JsonProperty("trades")]
+//        public long Trades { get; set; }
+
+//        [JsonProperty("quotePrice")]
+//        public double QuotePrice { get; set; }
+
+//        [JsonProperty("maximum_price")]
+//        public double MaximumPrice { get; set; }
+
+//        [JsonProperty("minimum_price")]
+//        public double MinimumPrice { get; set; }
+
+//        [JsonProperty("open_price")]
+//        public string OpenPrice { get; set; }
+
+//        [JsonProperty("close_price")]
+//        public string ClosePrice { get; set; }
+//    }
+
+//    public partial class ECurrency
+//    {
+//        [JsonProperty("symbol")]
+//        public string Symbol { get; set; }
+
+//        [JsonProperty("address")]
+//        public string Address { get; set; }
+//    }
+
+//    public partial class TimeInterval
+//    {
+//        [JsonProperty("minute")]
+//        public DateTimeOffset Minute { get; set; }
+//    }
+
+
+
+//}

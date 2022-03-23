@@ -10,6 +10,7 @@ using Newtonsoft.Json.Converters;
 using System.Globalization;
 using System.Linq;
 using OpenWallet.Logic.Abstraction;
+using System.Threading.Tasks;
 
 namespace OpentWallet.Logic
 {
@@ -31,15 +32,15 @@ namespace OpentWallet.Logic
 
         }
 
-        public void Init(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
+        public async Task InitAsync(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
         {
             this.oConfig = oConfig;
             this.oGlobalConfig = oGlobalConfig;
         }
-        public List<CurrencySymbolPrice> GetCurrencies()
+        public async Task<List<CurrencySymbolPrice>> GetCurrenciesAsync()
         {
-            WebClient wc = new WebClient();
-            var sData = wc.DownloadString($"{hostname}/api/v2/public/ticker");
+            WebClient web = new WebClient();
+            var sData = web.DownloadString($"{hostname}/api/v2/public/ticker");
 
             var oWhiteBitCurrencies = JsonConvert.DeserializeObject<BinanceTradeMarketResponse>(sData);
             return oWhiteBitCurrencies.Result.Select(result =>
@@ -55,10 +56,10 @@ namespace OpentWallet.Logic
             .ToList();
         }
 
-        private T SendRequest<T>(string sApi, Payload oPost) where T : new()
+        private async Task<T> SendRequestAsync<T>(string sApi, Payload oPost) where T : new()
         {
 
-            //var responseBodyHistory = wc.UploadString($"{hostname}{"api/v4/main-account/history}",dataJsonStr);
+            //var responseBodyHistory = web.UploadString($"{hostname}{"api/v4/main-account/history}",dataJsonStr);
 
             // If the nonce is similar to or lower than the previous request number, you will receive the 'too many requests' error message
             // nonce is a number that is always higher than the previous request number
@@ -70,19 +71,19 @@ namespace OpentWallet.Logic
             var payload = dataJsonStr.Base64Encode();
             var signature = CalcSignature(payload, oConfig.SecretKey);
 
-            var content = new StringContent(dataJsonStr, Encoding.UTF8, "application/json");
-
-
-            WebClient wc = new WebClient();
-            wc.Headers.Add("X-TXC-APIKEY", oConfig.ApiKey);
-            wc.Headers.Add("X-TXC-PAYLOAD", payload);
-            wc.Headers.Add("X-TXC-SIGNATURE", signature);
-            wc.Headers.Add(HttpRequestHeader.ContentType, "application/json");
+            HttpClient web = new HttpClient();
+            web.DefaultRequestHeaders.Add("X-TXC-APIKEY", oConfig.ApiKey);
+            web.DefaultRequestHeaders.Add("X-TXC-PAYLOAD", payload);
+            web.DefaultRequestHeaders.Add("X-TXC-SIGNATURE", signature);
+            //web.DefaultRequestHeaders.Add(HttpRequestHeader.ContentType, "application/json");
 
             try
             {
+                string responseBody = string.Empty;
+                var content = new StringContent(dataJsonStr, Encoding.UTF8, "application/json");
 
-                var responseBody = wc.UploadString($"{hostname}{sApi}", dataJsonStr);
+                var response = await web.PostAsync($"{hostname}{sApi}", content);
+                responseBody = await response.Content.ReadAsStringAsync();
 
                 if (responseBody == "[]")
                     return new T();
@@ -104,7 +105,7 @@ namespace OpentWallet.Logic
 
         }
 
-        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
+        public async Task<List<GlobalTrade>> GetTradeHistoryAsync(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
 
             List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache ?? new List<GlobalTrade>());
@@ -119,7 +120,7 @@ namespace OpentWallet.Logic
                     //return aListTrades;
                 }
 
-                var oHistoryResponse = SendRequest<Dictionary<string, List<OrderHistory>>>("/api/v4/trade-account/executed-history", new PayloadOrderHistory() { Offset = nOffset, Limit = 100 });
+                var oHistoryResponse = await SendRequestAsync<Dictionary<string, List<OrderHistory>>>("/api/v4/trade-account/executed-history", new PayloadOrderHistory() { Offset = nOffset, Limit = 100 });
                 if (oHistoryResponse.Any() == false)
                     break;
                 foreach (var kvpResponse in oHistoryResponse)
@@ -168,10 +169,10 @@ namespace OpentWallet.Logic
             return dtDateTime;
         }
 
-        public List<GlobalBalance> GetBalance()
+        public async Task<List<GlobalBalance>> GetBalanceAsync()
         {
 
-            var oBalance = SendRequest<Dictionary<string, Balance>>(request, new Payload() { });
+            var oBalance = await SendRequestAsync<Dictionary<string, Balance>>(request, new Payload() { });
 
             // this one does not work???
             //var oHistory = SendRequest<JObject>("/api/v4/main-account/history", new PayloadWithdrawDepositHistory() { Offset = 0, Limit = 100, TransactionMethod = "1" });
@@ -345,7 +346,7 @@ namespace OpentWallet.Logic
             return milliseconds.ToString();
         }
 
-        public GlobalTrade PlaceMarketOrder(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
+        public Task<GlobalTrade> PlaceMarketOrderAsync(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
         {
             throw new NotImplementedException();
         }

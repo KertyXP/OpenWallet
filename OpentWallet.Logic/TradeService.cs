@@ -58,7 +58,7 @@ namespace OpentWallet.Logic
             {
                 var aTrades = ConfigService.LoadTradesFromCache(oExchange);
 
-                return Task.Run(() => oExchange.GetTradeHistory(aTrades, aAllBalances));
+                return oExchange.GetTradeHistoryAsync(aTrades, aAllBalances);
             }).ToList();
             List<GlobalTrade> aListTrades = new List<GlobalTrade>();
 
