@@ -13,18 +13,14 @@ namespace OpentWallet.Logic
         public static async Task<List<CurrencySymbolPrice>> GetCurrencriesAsync(List<IExchange> aExchanges)
         {
 
-            List<CurrencySymbolPrice> aAllCurrencies = new List<CurrencySymbolPrice>();
-            var aTaskCurrencies = aExchanges
-                .Select(async oExchange => await oExchange.GetCurrenciesAsync())
+            var tasks = aExchanges
+                .Select(oExchange => oExchange.GetCurrenciesAsync());
+
+            var result = await Task.WhenAll(tasks);
+
+            return result
+                .SelectMany(r => r)
                 .ToList();
-
-            foreach (var oTask in aTaskCurrencies)
-            {
-                var aBalance = await oTask;
-                aAllCurrencies.AddRange(aBalance);
-            }
-
-            return aAllCurrencies;
         }
 
         public static List<CurrencySymbolPrice> LoadFiatisation(List<CurrencySymbolPrice> aAllCurrencies)
@@ -44,74 +40,74 @@ namespace OpentWallet.Logic
             return aFiatisation;
         }
 
-        public static List<GlobalBalance> SetBitcoinFavCryptoValue(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies, List<GlobalBalance> aAllBalances)
+        public static void SetBitcoinFavCryptoValue(IExchange exchange, List<CurrencySymbolPrice> aAllCurrencies, IEnumerable<GlobalBalance> aAllBalances)
         {
 
             foreach (var oBalance in aAllBalances)
             {
-                var oExchange = aExchanges.FirstOrDefault(e => e.ExchangeCode == oBalance.Exchange);
-
-                if (oExchange.oConfig.CurrenciesToIgnore?.Any(c => c == oBalance.Crypto) == true)
-                    continue;
-
-                oBalance.FavCrypto = ConfigService.oGlobalConfig.FavoriteCurrency;
-                if (oBalance.Exchange == "BSC")
-                {
-                    //oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
-                    oBalance.FavCryptoValue = aAllCurrencies.GetCustomValueFromBtc(oBalance, oBalance.FavCrypto);
-                }
-                else
-                {
-                    oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
-                    oBalance.FavCryptoValue = aAllCurrencies.GetCustomValue(oBalance, oBalance.FavCrypto);
-                }
+                SetBitcoinFavCryptoValue(exchange, aAllCurrencies, oBalance);
             }
 
-            return aAllBalances;
+            return;
+        }
+        public static void SetBitcoinFavCryptoValue(IExchange exchange, List<CurrencySymbolPrice> aAllCurrencies, GlobalBalance oBalance)
+        {
+
+            if (exchange.oConfig.CurrenciesToIgnore?.Any(c => c == oBalance.Crypto) == true)
+                return;
+
+            oBalance.FavCrypto = ConfigService.oGlobalConfig.FavoriteCurrency;
+            if (oBalance.Exchange == "BSC")
+            {
+                //oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
+                oBalance.FavCryptoValue = aAllCurrencies.GetCustomValueFromBtc(oBalance, oBalance.FavCrypto);
+            }
+            else
+            {
+                oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
+                oBalance.FavCryptoValue = aAllCurrencies.GetCustomValue(oBalance, oBalance.FavCrypto);
+            }
+
+            return;
         }
 
         public static async Task<List<GlobalBalance>> GetBalances(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
 
-            ConcurrentQueue<GlobalBalance> aAll = new ConcurrentQueue<GlobalBalance>();
-
             var tasks = aExchanges.Select(async exchange =>
             {
-                var aBalance = await exchange.GetBalanceAsync();
-                ConfigService.SaveBalanceToCache(exchange, aBalance);
-
-                aBalance = SetBitcoinFavCryptoValue(aExchanges, aAllCurrencies, aBalance);
-                foreach (var oBalance in aBalance)
+                var balance = (await exchange.GetBalanceAsync())
+                .Where(b => exchange.oConfig.CurrenciesToIgnore?.Any(c => c == b.Crypto) != true)
+                .ForEach(balance =>
                 {
-                    if (exchange.oConfig.CurrenciesToIgnore?.Any(c => c == oBalance.Crypto) == true)
-                        continue;
+                    SetBitcoinFavCryptoValue(exchange, aAllCurrencies, balance);
+                })
+                .ToList();
 
-                    aAll.Enqueue(oBalance);
-                }
-            }).ToList();
+                ConfigService.SaveBalanceToCache(exchange, balance);
 
-            foreach (var task in tasks)
-            {
-                await task;
-            }
+                return balance;
+            });
 
+            var result = await Task.WhenAll(tasks);
 
-
-            return aAll.ToList();
+            return result
+                .SelectMany(r => r)
+                .ToList();
         }
+
         public static List<GlobalBalance> LoadBalancesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
 
-            ConcurrentQueue<GlobalBalance> aAll = new ConcurrentQueue<GlobalBalance>();
-
-
             var aBalance = aExchanges.Select(oExchange =>
             {
-                return ConfigService.LoadBalanceFromCache(oExchange);
-            }).SelectMany(b => b).ToList();
+                var balance = ConfigService.LoadBalanceFromCache(oExchange);
+                SetBitcoinFavCryptoValue(oExchange, aAllCurrencies, balance);
 
-
-            aBalance = SetBitcoinFavCryptoValue(aExchanges, aAllCurrencies, aBalance);
+                return balance;
+            })
+                .SelectMany(b => b)
+                .ToList();
 
             return aBalance;
         }

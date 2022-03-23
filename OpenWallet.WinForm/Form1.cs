@@ -165,7 +165,7 @@ namespace OpenWallet.WinForm
             {
                 bool tradeIsArchived = archiveTrades.GetOrDefault(t.CustomCouple)?.Any(g => g.InternalExchangeId == t.InternalExchangeId) == true;
 
-                if (tradeIsArchived && cb_HideArchiveped.Checked)
+                if (tradeIsArchived && cb_HideArchived.Checked)
                     return;
 
                 if(t.From == t.To)

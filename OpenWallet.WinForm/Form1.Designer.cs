@@ -59,7 +59,7 @@
             this.bt_refreshTrade = new System.Windows.Forms.Button();
             this.lbl_preview_archive = new System.Windows.Forms.Label();
             this.cb_Pair = new System.Windows.Forms.ComboBox();
-            this.cb_HideArchiveped = new System.Windows.Forms.CheckBox();
+            this.cb_HideArchived = new System.Windows.Forms.CheckBox();
             this.bt_unarchive = new System.Windows.Forms.Button();
             this.bt_archive = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -315,7 +315,7 @@
             this.panel2.Controls.Add(this.bt_refreshTrade);
             this.panel2.Controls.Add(this.lbl_preview_archive);
             this.panel2.Controls.Add(this.cb_Pair);
-            this.panel2.Controls.Add(this.cb_HideArchiveped);
+            this.panel2.Controls.Add(this.cb_HideArchived);
             this.panel2.Controls.Add(this.bt_unarchive);
             this.panel2.Controls.Add(this.bt_archive);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -361,18 +361,18 @@
             this.cb_Pair.TabIndex = 10;
             this.cb_Pair.SelectedIndexChanged += new System.EventHandler(this.cb_Pair_SelectedIndexChanged);
             // 
-            // cb_HideArchiveped
+            // cb_HideArchived
             // 
-            this.cb_HideArchiveped.AutoSize = true;
-            this.cb_HideArchiveped.Checked = true;
-            this.cb_HideArchiveped.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.cb_HideArchiveped.Location = new System.Drawing.Point(130, 5);
-            this.cb_HideArchiveped.Name = "cb_HideArchiveped";
-            this.cb_HideArchiveped.Size = new System.Drawing.Size(93, 17);
-            this.cb_HideArchiveped.TabIndex = 9;
-            this.cb_HideArchiveped.Text = "Hide Archived";
-            this.cb_HideArchiveped.UseVisualStyleBackColor = true;
-            this.cb_HideArchiveped.CheckedChanged += new System.EventHandler(this.cb_HideArchive_CheckedChanged);
+            this.cb_HideArchived.AutoSize = true;
+            this.cb_HideArchived.Checked = true;
+            this.cb_HideArchived.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cb_HideArchived.Location = new System.Drawing.Point(130, 5);
+            this.cb_HideArchived.Name = "cb_HideArchived";
+            this.cb_HideArchived.Size = new System.Drawing.Size(93, 17);
+            this.cb_HideArchived.TabIndex = 9;
+            this.cb_HideArchived.Text = "Hide Archived";
+            this.cb_HideArchived.UseVisualStyleBackColor = true;
+            this.cb_HideArchived.CheckedChanged += new System.EventHandler(this.cb_HideArchive_CheckedChanged);
             // 
             // bt_unarchive
             // 
@@ -452,7 +452,7 @@
         private System.Windows.Forms.DataGridView dgv_trade_day;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.ComboBox cb_Pair;
-        private System.Windows.Forms.CheckBox cb_HideArchiveped;
+        private System.Windows.Forms.CheckBox cb_HideArchived;
         private System.Windows.Forms.Button bt_unarchive;
         private System.Windows.Forms.Button bt_archive;
         private System.Windows.Forms.Label lbl_preview_archive;

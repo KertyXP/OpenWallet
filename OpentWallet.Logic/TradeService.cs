@@ -22,18 +22,9 @@ namespace OpentWallet.Logic
                 .OrderByDescending(s => s.dtTrade)
                 .GroupBy(l => l.InternalExchangeId + l.Exchange)
                 .Select(l => l.FirstOrDefault())
+                .ForEach(trade => FiatiseOneTrade(trade, aFiatisation))
                 .ToList();
 
-
-            aListTrades.ForEach(trade =>
-            {
-                FiatiseOneTrade(trade, aFiatisation);
-            });
-
-            aListTrades.ForEach(trade =>
-            {
-                CalculGainBack(trade, aAllCurrencies);
-            });
 
             return aListTrades;
         }
@@ -54,62 +45,31 @@ namespace OpentWallet.Logic
 
             List<CurrencySymbolPrice> aFiatisation = BalanceService.LoadFiatisation(aAllCurrencies);
 
-            var aTasks3 = aExchanges.Select(oExchange =>
+            var tasks = aExchanges.Select(oExchange =>
             {
-                var aTrades = ConfigService.LoadTradesFromCache(oExchange);
+                var tradesFromCache = ConfigService.LoadTradesFromCache(oExchange);
 
-                return oExchange.GetTradeHistoryAsync(aTrades, aAllBalances);
-            }).ToList();
-            List<GlobalTrade> aListTrades = new List<GlobalTrade>();
+                return oExchange.GetTradeHistoryAsync(tradesFromCache, aAllBalances);
 
-            foreach (var oTask in aTasks3)
-            {
-                try
+            });
+
+
+            var result = await Task.WhenAll(tasks);
+
+            return result
+                .ForEach(trades =>
                 {
-                    var trades = await oTask;
-                    if (trades.Any() == false)
-                        continue;
-
                     ConfigService.SaveTradesToCache(trades);
-
-                    aListTrades.AddRange(trades);
-                }
-                catch
-                {
-
-                }
-            }
-
-            aListTrades = aListTrades
+                })
+                .SelectMany(r => r)
                 .OrderByDescending(s => s.dtTrade)
                 .GroupBy(l => l.InternalExchangeId + l.Exchange)
                 .Select(l => l.FirstOrDefault())
-                .ToList(); ;
-
-
-            aListTrades.ForEach(trade =>
-            {
-                FiatiseOneTrade(trade, aFiatisation);
-            });
-
-            aListTrades.ForEach(trade =>
-            {
-                CalculGainBack(trade, aAllCurrencies);
-            });
-
-            return aListTrades;
-
+                .ForEach(trade => FiatiseOneTrade(trade, aFiatisation))
+                .ToList();
 
         }
-        /// <summary>
-        /// not working
-        /// </summary>
-        /// <param name="oTrade"></param>
-        /// <param name="aAllCurrencies"></param>
-        private static void CalculGainBack(GlobalTrade oTrade, List<CurrencySymbolPrice> aAllCurrencies)
-        {
-            var oCurrencyCouple = aAllCurrencies.FirstOrDefault(c => c.From == oTrade.To && c.To == oTrade.From && c.Exchange == oTrade.Exchange);
-        }
+
         private static void FiatiseOneTrade(GlobalTrade oTrade, List<CurrencySymbolPrice> aFiatisation)
         {
             var fiatFrom = aFiatisation.FirstOrDefault(f => f.From == oTrade.From);
@@ -134,59 +94,23 @@ namespace OpentWallet.Logic
             }
         }
 
-        public static List<GlobalTrade> ConvertTradesToDailyTrades(List<GlobalTrade> aListTrades)
-        {
 
-            return aListTrades.GroupBy(l => l.From + "|" + l.To + "_" + l.dtTrade.ToString("_yyyy-MM-dd")).Select(l =>
-            {
-                var one = l.FirstOrDefault();
-                double price = one.Couple.StartsWith(one.From) ? one.QuantityTo / one.QuantityFrom : one.QuantityFrom / one.QuantityTo;
-                var oGlobalTrade = new GlobalTrade(one.From, one.To, price, one.Couple, one.Exchange);
-                oGlobalTrade.CryptoFromId = one.CryptoFromId;
-                oGlobalTrade.CryptoToId = one.CryptoToId;
-                oGlobalTrade.SetQuantities(l.Sum(m => m.QuantityFrom), l.Sum(m => m.QuantityTo));
-
-                oGlobalTrade.InternalExchangeId = one.InternalExchangeId;
-                oGlobalTrade.dtTrade = one.dtTrade;
-
-                return oGlobalTrade;
-            }).OrderByDescending(l => l.dtTrade).OrderBy(t => t.Couple).ToList();
-
-        }
-
-
-        public static List<GlobalTrade> ConvertTradesToGlobalTrades(List<GlobalTrade> aListTrades)
-        {
-            return aListTrades.GroupBy(l => l.From + "|" + l.To).Select(l =>
-            {
-                var one = l.FirstOrDefault();
-                var oGlobalTrade = new GlobalTrade(one.From, one.To, l.Sum(m => m.QuantityFrom) / l.Sum(m => m.QuantityTo), one.Couple, one.Exchange);
-                oGlobalTrade.CryptoFromId = one.CryptoFromId;
-                oGlobalTrade.CryptoToId = one.CryptoToId;
-                oGlobalTrade.SetQuantities(l.Sum(m => m.QuantityFrom), l.Sum(m => m.QuantityTo));
-                oGlobalTrade.InternalExchangeId = one.InternalExchangeId;
-                oGlobalTrade.dtTrade = one.dtTrade;
-
-                return oGlobalTrade;
-            }).OrderBy(l => l.From).OrderBy(t => t.Couple).ToList();
-        }
-
-        public struct TradeArchiveped
+        public struct TradeArchived
         {
 
             public string from, to;
             public double quantityFrom, quantityTo;
         }
-        public static TradeArchiveped ArchiveTrades(List<GlobalTrade> g)
+        public static TradeArchived ArchiveTrades(List<GlobalTrade> g)
         {
-            TradeArchiveped tradeArchiveped;
+            TradeArchived tradeArchived;
 
-            tradeArchiveped.from = g.FirstOrDefault()?.From;
-            tradeArchiveped.to = g.FirstOrDefault()?.To;
-            tradeArchiveped.quantityFrom = g.Where(t => t.To == tradeArchiveped.from).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchiveped.from).Sum(t => t.QuantityFrom);
-            tradeArchiveped.quantityTo = g.Where(t => t.To == tradeArchiveped.to).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchiveped.to).Sum(t => t.QuantityFrom);
+            tradeArchived.from = g.FirstOrDefault()?.From;
+            tradeArchived.to = g.FirstOrDefault()?.To;
+            tradeArchived.quantityFrom = g.Where(t => t.To == tradeArchived.from).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchived.from).Sum(t => t.QuantityFrom);
+            tradeArchived.quantityTo = g.Where(t => t.To == tradeArchived.to).Sum(t => t.QuantityTo) - g.Where(t => t.From == tradeArchived.to).Sum(t => t.QuantityFrom);
 
-            return tradeArchiveped;
+            return tradeArchived;
         }
 
         public static IEnumerable<string> GetCouplesFromTrade(IEnumerable<GlobalTrade> trades)
