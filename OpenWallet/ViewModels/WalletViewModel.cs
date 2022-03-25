@@ -55,15 +55,15 @@ namespace OpenWallet.ViewModels
                 await Task.Delay(250);
             }
 
-            exchanges = await ConfigService.LoadExchangesAsync();
+            //exchanges = await ConfigService.LoadExchangesAsync();
 
-            allCurrencies = await BalanceService.GetCurrencriesAsync(exchanges);
+            //allCurrencies = await BalanceService.GetCurrencriesAsync(exchanges);
 
-            balances = BalanceService.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
+            //balances = BalanceService.LoadBalancesFromCacheOnly(exchanges, allCurrencies);
 
-            aBalances.Clear();
-            balances.OrderByDescending(b => b.FavCryptoValue).ForEach(aBalances.Add);
-            IsBusy = false;
+            //aBalances.Clear();
+            //balances.OrderByDescending(b => b.FavCryptoValue).ForEach(aBalances.Add);
+            //IsBusy = false;
         }
     }
 }

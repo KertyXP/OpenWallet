@@ -1,9 +1,7 @@
 ﻿using OpenWallet.Common;
 using OpenWallet.Common.Models;
-using OpenWallet.Logic.Abstraction;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenWallet.Logic.Abstraction.Interfaces

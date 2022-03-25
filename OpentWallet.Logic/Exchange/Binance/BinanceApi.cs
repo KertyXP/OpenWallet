@@ -5,13 +5,10 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using OpenWallet.Common;
-using System.Net;
 using System.Collections.Generic;
 using System.Linq;
 using OpentWallet.Logic.Binance;
 using OpenWallet.Logic.Abstraction;
-using System.IO;
-using System.Net.Http.Json;
 using OpenWallet.Logic.Abstraction.Interfaces;
 
 namespace OpentWallet.Logic

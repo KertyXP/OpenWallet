@@ -1,6 +1,4 @@
-﻿using OpenWallet.Common;
-
-namespace OpenWallet.Common.Models
+﻿namespace OpenWallet.Common.Models
 {
     public class GlobalTradeUI
     {

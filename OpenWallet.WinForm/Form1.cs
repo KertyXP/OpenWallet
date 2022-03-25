@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using OpentWallet.Logic;
+﻿using OpentWallet.Logic;
 using OpenWallet.Common;
 using OpenWallet.Logic.Abstraction;
 using OpenWallet.Logic.Abstraction.Interfaces;
@@ -9,7 +8,6 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
-using Unity;
 
 namespace OpenWallet.WinForm
 {
@@ -82,6 +80,8 @@ namespace OpenWallet.WinForm
             balances = await _balanceService.GetBalancesAsync(exchanges, allCurrencies);
 
             InsertCurrentBalanceInGrid(balances);
+
+            RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
             bt_refreshBalance.Enabled = true;
         }
@@ -184,16 +184,19 @@ namespace OpenWallet.WinForm
 
                 var globalTradeUI = _tradeService.GetGlobalTradeUI(t, allCurrencies, tradeIsArchived);
 
-                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, globalTradeUI.Delta.ToString("00.##"), t.dtTrade.ToString("yyyy-MM-dd"));
+                var currentPrice = allCurrencies.FirstOrDefault(c => c.Exchange == t.Exchange && c.CustomCouple == t.CustomCouple)?.Price;
+
+                dgv_trade_day.Rows.Add(t, t.Exchange, t.Couple, t.RealFrom, t.RealQuantityFrom, t.RealTo, t.RealQuantityTo, t.RealPrice, currentPrice, globalTradeUI.Delta.ToString("00.##"), t.dtTrade.ToString("yyyy-MM-dd"));
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.BackColor = globalTradeUI.SellStateBackColor;
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.SelectionBackColor = globalTradeUI.SellStateBackColorSelected;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.BackColor = globalTradeUI.DeltaColor;
-                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[8].Style.SelectionBackColor = globalTradeUI.DeltaColorSelected;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[9].Style.BackColor = globalTradeUI.DeltaColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[9].Style.SelectionBackColor = globalTradeUI.DeltaColorSelected;
 
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[3].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[4].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[5].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
                 dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[6].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
+                dgv_trade_day.Rows[dgv_trade_day.Rows.Count - 1].Cells[7].Style.ForeColor = globalTradeUI.ArchiveStateForeColor;
             });
 
 

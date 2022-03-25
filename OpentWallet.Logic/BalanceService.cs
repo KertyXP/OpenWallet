@@ -1,7 +1,6 @@
 ﻿using OpenWallet.Common;
 using OpenWallet.Logic.Abstraction;
 using OpenWallet.Logic.Abstraction.Interfaces;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;

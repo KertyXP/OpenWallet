@@ -14,11 +14,11 @@ namespace OpentWallet.Logic
     public class ConfigService : IConfigService
     {
         private string sRootPath = "";
-        private readonly IUnityContainer _unityContainer;
+        private readonly IIocService _iocService;
 
-        public ConfigService(IUnityContainer unityContainer)
+        public ConfigService(IIocService iocService)
         {
-            _unityContainer = unityContainer;
+            _iocService = iocService;
 
         }
         public void Init(string sFolderPath)
@@ -116,7 +116,7 @@ namespace OpentWallet.Logic
                 .SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p) && p.IsClass)
                 .ToList()
-                .Select(t => _unityContainer.Resolve(t) as IExchange)
+                .Select(t => _iocService.Resolve(t) as IExchange)
                 .Where(t => t != null);
 
             foreach (var oConfig in oGlobalConfig.configs)
@@ -125,7 +125,7 @@ namespace OpentWallet.Logic
                 if (typeExchange == null)
                     continue; // oops
 
-                var oExchange = _unityContainer.Resolve(typeExchange.GetType()) as IExchange;
+                var oExchange = _iocService.Resolve(typeExchange.GetType()) as IExchange;
                 if (oExchange == null)
                     continue; // re-oops
 

@@ -1,10 +1,5 @@
-﻿using Newtonsoft.Json;
-using OpenWallet.Common;
-using OpenWallet.Logic.Abstraction;
-using System;
+﻿using OpenWallet.Common;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace OpenWallet.Logic.Abstraction.Interfaces

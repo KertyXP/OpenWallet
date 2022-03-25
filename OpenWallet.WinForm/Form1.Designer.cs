@@ -44,6 +44,17 @@
             this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_trade_day = new System.Windows.Forms.DataGridView();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.lbl_avg_sell = new System.Windows.Forms.Label();
+            this.lbl_AdvgBuy = new System.Windows.Forms.Label();
+            this.lbl_prev_2 = new System.Windows.Forms.Label();
+            this.bt_refreshTrade = new System.Windows.Forms.Button();
+            this.lbl_preview_archive = new System.Windows.Forms.Label();
+            this.cb_Pair = new System.Windows.Forms.ComboBox();
+            this.cb_HideArchived = new System.Windows.Forms.CheckBox();
+            this.bt_unarchive = new System.Windows.Forms.Button();
+            this.bt_archive = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.obj2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -53,18 +64,8 @@
             this.dataGridViewTextBoxColumn11 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.price = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.CurrentPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Delta = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.lbl_prev_2 = new System.Windows.Forms.Label();
-            this.bt_refreshTrade = new System.Windows.Forms.Button();
-            this.lbl_preview_archive = new System.Windows.Forms.Label();
-            this.cb_Pair = new System.Windows.Forms.ComboBox();
-            this.cb_HideArchived = new System.Windows.Forms.CheckBox();
-            this.bt_unarchive = new System.Windows.Forms.Button();
-            this.bt_archive = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.lbl_AdvgBuy = new System.Windows.Forms.Label();
-            this.lbl_avg_sell = new System.Windows.Forms.Label();
             this.tableLayoutPanel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).BeginInit();
             this.tableLayoutPanel3.SuspendLayout();
@@ -239,6 +240,7 @@
             this.dataGridViewTextBoxColumn11,
             this.price,
             this.CurrentPrice,
+            this.Delta,
             this.Date});
             this.dgv_trade_day.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgv_trade_day.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
@@ -249,63 +251,6 @@
             this.dgv_trade_day.TabIndex = 5;
             this.dgv_trade_day.SelectionChanged += new System.EventHandler(this.dgv_trade_day_SelectionChanged_1);
             this.dgv_trade_day.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_trade_day_MouseClick);
-            // 
-            // obj2
-            // 
-            this.obj2.HeaderText = "obj2";
-            this.obj2.Name = "obj2";
-            this.obj2.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn6
-            // 
-            this.dataGridViewTextBoxColumn6.HeaderText = "Exchange";
-            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
-            this.dataGridViewTextBoxColumn6.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn7
-            // 
-            this.dataGridViewTextBoxColumn7.HeaderText = "Couple";
-            this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
-            this.dataGridViewTextBoxColumn7.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn8
-            // 
-            this.dataGridViewTextBoxColumn8.HeaderText = "CryptoFrom";
-            this.dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
-            this.dataGridViewTextBoxColumn8.Width = 75;
-            // 
-            // dataGridViewTextBoxColumn9
-            // 
-            this.dataGridViewTextBoxColumn9.HeaderText = "CountFrom";
-            this.dataGridViewTextBoxColumn9.Name = "dataGridViewTextBoxColumn9";
-            // 
-            // dataGridViewTextBoxColumn10
-            // 
-            this.dataGridViewTextBoxColumn10.HeaderText = "CryptoTo";
-            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
-            this.dataGridViewTextBoxColumn10.Width = 75;
-            // 
-            // dataGridViewTextBoxColumn11
-            // 
-            this.dataGridViewTextBoxColumn11.HeaderText = "ValueTo";
-            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
-            // 
-            // price
-            // 
-            this.price.HeaderText = "price";
-            this.price.Name = "price";
-            this.price.Width = 75;
-            // 
-            // CurrentPrice
-            // 
-            this.CurrentPrice.HeaderText = "Cur. Price";
-            this.CurrentPrice.Name = "CurrentPrice";
-            this.CurrentPrice.Width = 85;
-            // 
-            // Date
-            // 
-            this.Date.HeaderText = "Date";
-            this.Date.Name = "Date";
             // 
             // panel2
             // 
@@ -323,6 +268,24 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(674, 69);
             this.panel2.TabIndex = 5;
+            // 
+            // lbl_avg_sell
+            // 
+            this.lbl_avg_sell.AutoSize = true;
+            this.lbl_avg_sell.Location = new System.Drawing.Point(3, 49);
+            this.lbl_avg_sell.Name = "lbl_avg_sell";
+            this.lbl_avg_sell.Size = new System.Drawing.Size(46, 13);
+            this.lbl_avg_sell.TabIndex = 14;
+            this.lbl_avg_sell.Text = "Avg Sell";
+            // 
+            // lbl_AdvgBuy
+            // 
+            this.lbl_AdvgBuy.AutoSize = true;
+            this.lbl_AdvgBuy.Location = new System.Drawing.Point(3, 29);
+            this.lbl_AdvgBuy.Name = "lbl_AdvgBuy";
+            this.lbl_AdvgBuy.Size = new System.Drawing.Size(47, 13);
+            this.lbl_AdvgBuy.TabIndex = 13;
+            this.lbl_AdvgBuy.Text = "Avg Buy";
             // 
             // lbl_prev_2
             // 
@@ -403,23 +366,67 @@
             this.panel1.Size = new System.Drawing.Size(446, 69);
             this.panel1.TabIndex = 0;
             // 
-            // lbl_AdvgBuy
+            // obj2
             // 
-            this.lbl_AdvgBuy.AutoSize = true;
-            this.lbl_AdvgBuy.Location = new System.Drawing.Point(3, 29);
-            this.lbl_AdvgBuy.Name = "lbl_AdvgBuy";
-            this.lbl_AdvgBuy.Size = new System.Drawing.Size(47, 13);
-            this.lbl_AdvgBuy.TabIndex = 13;
-            this.lbl_AdvgBuy.Text = "Avg Buy";
+            this.obj2.HeaderText = "obj2";
+            this.obj2.Name = "obj2";
+            this.obj2.Visible = false;
             // 
-            // lbl_avg_sell
+            // dataGridViewTextBoxColumn6
             // 
-            this.lbl_avg_sell.AutoSize = true;
-            this.lbl_avg_sell.Location = new System.Drawing.Point(3, 49);
-            this.lbl_avg_sell.Name = "lbl_avg_sell";
-            this.lbl_avg_sell.Size = new System.Drawing.Size(46, 13);
-            this.lbl_avg_sell.TabIndex = 14;
-            this.lbl_avg_sell.Text = "Avg Sell";
+            this.dataGridViewTextBoxColumn6.HeaderText = "Exchange";
+            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
+            this.dataGridViewTextBoxColumn6.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn7
+            // 
+            this.dataGridViewTextBoxColumn7.HeaderText = "Couple";
+            this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            this.dataGridViewTextBoxColumn7.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn8
+            // 
+            this.dataGridViewTextBoxColumn8.HeaderText = "CryptoFrom";
+            this.dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
+            this.dataGridViewTextBoxColumn8.Width = 75;
+            // 
+            // dataGridViewTextBoxColumn9
+            // 
+            this.dataGridViewTextBoxColumn9.HeaderText = "CountFrom";
+            this.dataGridViewTextBoxColumn9.Name = "dataGridViewTextBoxColumn9";
+            // 
+            // dataGridViewTextBoxColumn10
+            // 
+            this.dataGridViewTextBoxColumn10.HeaderText = "CryptoTo";
+            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
+            this.dataGridViewTextBoxColumn10.Width = 75;
+            // 
+            // dataGridViewTextBoxColumn11
+            // 
+            this.dataGridViewTextBoxColumn11.HeaderText = "ValueTo";
+            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
+            // 
+            // price
+            // 
+            this.price.HeaderText = "price";
+            this.price.Name = "price";
+            this.price.Width = 75;
+            // 
+            // CurrentPrice
+            // 
+            this.CurrentPrice.HeaderText = "Cur. Price";
+            this.CurrentPrice.Name = "CurrentPrice";
+            this.CurrentPrice.Width = 85;
+            // 
+            // Delta
+            // 
+            this.Delta.HeaderText = "Delta";
+            this.Delta.Name = "Delta";
+            // 
+            // Date
+            // 
+            this.Date.HeaderText = "Date";
+            this.Date.Name = "Date";
             // 
             // Form1
             // 
@@ -468,6 +475,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn5;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
+        private System.Windows.Forms.Label lbl_avg_sell;
+        private System.Windows.Forms.Label lbl_AdvgBuy;
         private System.Windows.Forms.DataGridViewTextBoxColumn obj2;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
@@ -477,9 +486,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn11;
         private System.Windows.Forms.DataGridViewTextBoxColumn price;
         private System.Windows.Forms.DataGridViewTextBoxColumn CurrentPrice;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Delta;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
-        private System.Windows.Forms.Label lbl_avg_sell;
-        private System.Windows.Forms.Label lbl_AdvgBuy;
     }
 }
 

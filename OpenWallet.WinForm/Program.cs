@@ -16,6 +16,8 @@ namespace OpenWallet.WinForm
         {
 
             UnityContainer unityContainer = new UnityContainer();
+            unityContainer.RegisterInstance(unityContainer);
+            unityContainer.RegisterSingleton<IIocService, IocService>();
             unityContainer.RegisterSingleton<ITradeService, TradeService>();
             unityContainer.RegisterSingleton<IConfigService, ConfigService>();
             unityContainer.RegisterSingleton<IBalanceService, BalanceService>();

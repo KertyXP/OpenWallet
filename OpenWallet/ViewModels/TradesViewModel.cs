@@ -12,7 +12,7 @@ using OpenWallet.Common;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace OpenWallet.ViewModels
+namespace Xamarin.ViewModels
 {
 
     public class TradesViewModel : BaseViewModel
