@@ -12,6 +12,7 @@ using OpentWallet.Logic.Binance;
 using OpenWallet.Logic.Abstraction;
 using System.IO;
 using System.Net.Http.Json;
+using OpenWallet.Logic.Abstraction.Interfaces;
 
 namespace OpentWallet.Logic
 {
@@ -43,15 +44,15 @@ namespace OpentWallet.Logic
         private GlobalConfig oGlobalConfig;
 
         private const string hostname = "https://api.binance.com"; // put here your secret key
-
+        private readonly IConfigService _configServie;
         private BinanceAccount _oLastBalance;
         public string ExchangeName => "Binance";
         public string ExchangeCode => "Binance";
         public BinanceLocalParams LocalParam;
 
-        public BinanceApi()
+        public BinanceApi(IConfigService configServie)
         {
-
+            this._configServie = configServie;
         }
 
         public async Task InitAsync(GlobalConfig oGlobalConfig, ExchangeConfig oConfig)
@@ -310,8 +311,16 @@ namespace OpentWallet.Logic
         private async Task<BinanceExchangeInfo> GetExchangeInfoAsync()
         {
 
-            var oExchangeInfo = await CallAsync<BinanceExchangeInfo>(BinanceCalls.ECalls.ExchangeInfoV3, string.Empty);
-            return oExchangeInfo.Payload;
+            var oExchangeInfo = _configServie.LoadGenericFromCache<BinanceExchangeInfo>(this, "exchangeInfo");
+
+            if(oExchangeInfo == null)
+            {
+                oExchangeInfo = (await CallAsync<BinanceExchangeInfo>(BinanceCalls.ECalls.ExchangeInfoV3, string.Empty)).Payload;
+                _configServie.SaveGenericToCache(this, oExchangeInfo, "exchangeInfo");
+            }
+
+
+            return oExchangeInfo;
         }
 
         string QuantityToString(double quantity, double tick)

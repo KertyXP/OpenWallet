@@ -9,6 +9,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
+using Unity;
 
 namespace OpenWallet.WinForm
 {
@@ -23,6 +24,8 @@ namespace OpenWallet.WinForm
         private IBalanceService _balanceService { get; }
 
         Dictionary<string, List<GlobalTrade>> archiveTrades;
+        const int dgvBalanceCustom = 4;
+
 
         public Form1(ITradeService tradeService, IConfigService configService, IBalanceService balanceService)
         {
@@ -55,7 +58,6 @@ namespace OpenWallet.WinForm
         }
 
 
-        const int dgvBalanceCustom = 4;
 
         private void InsertCurrentBalanceInGrid(List<GlobalBalance> aAll)
         {
@@ -329,6 +331,17 @@ namespace OpenWallet.WinForm
                         };
                         m.MenuItems.Add(menuItem);
                     }
+
+
+
+                    var menuItemFocus = new MenuItem("Focus on " + trade.CustomCouple);
+                    menuItemFocus.Click += async (ob, ev) =>
+                    {
+                        _pairSelected = trade.CustomCouple;
+                        this.cb_Pair.SelectedItem = _pairSelected;
+                      
+                    };
+                    m.MenuItems.Add(menuItemFocus);
 
                     m.Show(dgv_trade_day, new Point(e.X, e.Y));
                 }

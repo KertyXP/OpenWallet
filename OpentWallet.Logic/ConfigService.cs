@@ -7,13 +7,20 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Unity;
 
 namespace OpentWallet.Logic
 {
     public class ConfigService : IConfigService
     {
         private string sRootPath = "";
+        private readonly IUnityContainer _unityContainer;
 
+        public ConfigService(IUnityContainer unityContainer)
+        {
+            _unityContainer = unityContainer;
+
+        }
         public void Init(string sFolderPath)
         {
             sRootPath = sFolderPath;
@@ -109,7 +116,7 @@ namespace OpentWallet.Logic
                 .SelectMany(s => s.GetTypes())
                 .Where(p => type.IsAssignableFrom(p) && p.IsClass)
                 .ToList()
-                .Select(t => Activator.CreateInstance(t) as IExchange)
+                .Select(t => _unityContainer.Resolve(t) as IExchange)
                 .Where(t => t != null);
 
             foreach (var oConfig in oGlobalConfig.configs)
@@ -118,7 +125,7 @@ namespace OpentWallet.Logic
                 if (typeExchange == null)
                     continue; // oops
 
-                var oExchange = Activator.CreateInstance(typeExchange.GetType()) as IExchange;
+                var oExchange = _unityContainer.Resolve(typeExchange.GetType()) as IExchange;
                 if (oExchange == null)
                     continue; // re-oops
 
@@ -133,5 +140,16 @@ namespace OpentWallet.Logic
             return aExchanges;
         }
 
+        public void SaveGenericToCache<T>(IExchange exchange, T oExchangeInfo, string type) where T : class, new()
+        {
+            var sJson = JsonConvert.SerializeObject(oExchangeInfo);
+            string sPath = GetPath($"{type}_{exchange.ExchangeCode}.json");
+            File.WriteAllText(sPath, sJson);
+        }
+        public T LoadGenericFromCache<T>(IExchange exchange, string type) where T: class, new()
+        {
+            string sPath = GetPath($"{type}_{exchange.ExchangeCode}.json");
+            return File.Exists(sPath) ? JsonConvert.DeserializeObject<T>(File.ReadAllText(sPath)) : default;
+        }
     }
 }

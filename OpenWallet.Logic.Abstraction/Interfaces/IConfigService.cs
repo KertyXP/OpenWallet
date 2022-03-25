@@ -22,6 +22,7 @@ namespace OpenWallet.Logic.Abstraction.Interfaces
         void SaveBalanceToCache(IExchange exchange, List<GlobalBalance> balance);
         List<GlobalBalance> LoadBalanceFromCache(IExchange exchange);
         Task<List<IExchange>> LoadExchangesAsync();
-
+        void SaveGenericToCache<T>(IExchange exchange, T oExchangeInfo, string type) where T : class, new();
+        T LoadGenericFromCache<T>(IExchange exchange, string type) where T : class, new();
     }
 }
