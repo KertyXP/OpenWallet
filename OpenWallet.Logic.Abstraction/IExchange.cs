@@ -20,6 +20,10 @@ namespace OpenWallet.Logic.Abstraction
     {
         Task<List<GlobalTrade>> GetTradeHistoryOneCoupleAsync(List<GlobalTrade> aCache, CurrencySymbol symbol);
     }
+    public interface IGetTradesData
+    {
+        Task<TradesData> GetTradeHistoryOneCoupleAsync(CurrencySymbolExchange symbol);
+    }
 
     public enum SellBuy
     {

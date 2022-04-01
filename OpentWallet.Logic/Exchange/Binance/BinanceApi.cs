@@ -14,7 +14,7 @@ using OpenWallet.Logic.Abstraction.Interfaces;
 namespace OpentWallet.Logic
 {
 
-    public class BinanceApi : IExchange, IRefreshOneCoupleTrade
+    public class BinanceApi : IExchange, IRefreshOneCoupleTrade, IGetTradesData
     {
         ExchangeConfig IExchange.oConfig { get; set; }
 
@@ -30,6 +30,7 @@ namespace OpentWallet.Logic
             //new BinanceCalls(){Api = "/sapi/v1/lending/daily/token/position", eCall = BinanceCalls.ECalls.earnings, Weight = 1},
             new BinanceCalls(){Api = "/api/v3/order", eCall = BinanceCalls.ECalls.placeOrder, Weight = 1, get = false},
             new BinanceCalls(){Api = "/api/v3/order/test", eCall = BinanceCalls.ECalls.placeOrderTest, Weight = 1, get = false},
+            new BinanceCalls(){Api = "/api/v3/klines", eCall = BinanceCalls.ECalls.GetKLines, Weight = 1, get = true, PublicApi = true},
         };
 
         private BinanceCalls GetCall(BinanceCalls.ECalls eCall) => ListCallsWeight.FirstOrDefault(bc => bc.eCall == eCall);
@@ -158,6 +159,10 @@ namespace OpentWallet.Logic
                 string sQueryParam = string.IsNullOrEmpty(dataJsonStr) ? $"timestamp={nonce}" : $"{dataJsonStr}&timestamp={nonce}";
                 var signature = CalcSignature($"{sQueryParam}", oConfig.SecretKey);
                 sApi += $"?{sQueryParam}&signature={signature}";
+            }
+            else
+            {
+                sApi += $"?{dataJsonStr}";
             }
 
             HttpClient web = new HttpClient();
@@ -404,5 +409,31 @@ namespace OpentWallet.Logic
 
             return aListTrades;
         }
+
+        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(CurrencySymbolExchange symbol)
+        {
+            var oCall = BinanceCalls.ECalls.GetKLines;
+
+            var tradeResponse = await CallAsync<List<List<string>>>(oCall, $"symbol={symbol.Couple}&interval=4h");
+            var result = tradeResponse
+                .Payload
+                .Select(trade => new TradeData
+                {
+                    dtOpen = UnixTimeStampToDateTime(trade[0].ToDouble() / 1000),
+                    openPrice = trade[1].ToDouble(),
+                    highestPrice = trade[2].ToDouble(),
+                    lowestPrice = trade[3].ToDouble(),
+                    closePrice = trade[4].ToDouble(),
+                    volume = trade[5].ToInt(0),
+                    dtClose = UnixTimeStampToDateTime(trade[6].ToDouble() / 1000),
+                    assetVolume = trade[7].ToInt(0),
+                    numberOfTrades = trade[7].ToInt(0),
+                })
+                .ToList();
+
+            return new TradesData() { SymbolExchange = symbol, Trades = result };
+
+        }
+
     }
 }
