@@ -11,22 +11,34 @@
         }
         public CurrencySymbol(string from, string to, string couple)
         {
-            From = from;
-            To = to;
             Couple = couple;
-
-            RealFrom = couple.StartsWith(from) ? from : to;
-            RealTo = couple.StartsWith(to) ? from : to;
+            _from = from;
+            _to = to;
+            _realFrom = Couple.StartsWith(_from) ? _from : _to;
+            _realTo = Couple.StartsWith(_to) ? _from : _to;
         }
 
 
+        private string _realFrom;
+        private string _realTo;
 
-        public string RealFrom { get; set; }
-        public string RealTo { get; set; }
-        public string CryptoFromId { get; set; }
-        public string CryptoToId { get; set; }
-        public string From { get; set; }
-        public string To { get; set; }
+        public string RealFrom => _realFrom;
+        public string RealTo => _realTo;
+        private string _from;
+        public string From { get => _from; set 
+            {
+                _from = value;
+                _realFrom = Couple.StartsWith(_from) ? _from : _to;
+            }}
+        private string _to;
+        public string To
+        {
+            get => _to; set
+            {
+                _to = value;
+                _realTo = Couple.StartsWith(_to) ? _from : _to;
+            }
+        }
 
     }
 }

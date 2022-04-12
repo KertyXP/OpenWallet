@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace OpentWallet.Logic
 {
-    public partial class WhiteBit : IExchange
+    public partial class WhiteBit : IExchange, IGetTradesData
     {
         ExchangeConfig IExchange.oConfig { get; set; }
         private ExchangeConfig oConfig;
@@ -56,7 +56,7 @@ namespace OpentWallet.Logic
             .ToList();
         }
 
-        private async Task<T> SendRequestAsync<T>(string sApi, Payload oPost) where T : new()
+        private async Task<T> SendRequestAsync<T>(string sApi, Payload oPost = null) where T : new()
         {
 
             //var responseBodyHistory = web.UploadString($"{hostname}{"api/v4/main-account/history}",dataJsonStr);
@@ -64,26 +64,41 @@ namespace OpentWallet.Logic
             // If the nonce is similar to or lower than the previous request number, you will receive the 'too many requests' error message
             // nonce is a number that is always higher than the previous request number
             var nonce = GetNonce();
-            oPost.Nonce = nonce;
-            oPost.Request = sApi;
 
-            var dataJsonStr = JsonConvert.SerializeObject(oPost);
-            var payload = dataJsonStr.Base64Encode();
-            var signature = CalcSignature(payload, oConfig.SecretKey);
-
-            HttpClient web = new HttpClient();
-            web.DefaultRequestHeaders.Add("X-TXC-APIKEY", oConfig.ApiKey);
-            web.DefaultRequestHeaders.Add("X-TXC-PAYLOAD", payload);
-            web.DefaultRequestHeaders.Add("X-TXC-SIGNATURE", signature);
             //web.DefaultRequestHeaders.Add(HttpRequestHeader.ContentType, "application/json");
 
             try
             {
                 string responseBody = string.Empty;
-                var content = new StringContent(dataJsonStr, Encoding.UTF8, "application/json");
 
-                var response = await web.PostAsync($"{hostname}{sApi}", content);
-                responseBody = await response.Content.ReadAsStringAsync();
+                if (oPost == null)
+                {
+                    HttpClient web = new HttpClient();
+
+                    var response = await web.GetAsync($"{hostname}{sApi}");
+                    responseBody = await response.Content.ReadAsStringAsync();
+                }
+                else
+                {
+
+                    oPost.Nonce = nonce;
+                    oPost.Request = sApi;
+
+                    var dataJsonStr = JsonConvert.SerializeObject(oPost);
+                    var payload = dataJsonStr.Base64Encode();
+                    var signature = CalcSignature(payload, oConfig.SecretKey);
+
+                    HttpClient web = new HttpClient();
+                    web.DefaultRequestHeaders.Add("X-TXC-APIKEY", oConfig.ApiKey);
+                    web.DefaultRequestHeaders.Add("X-TXC-PAYLOAD", payload);
+                    web.DefaultRequestHeaders.Add("X-TXC-SIGNATURE", signature);
+
+                    var content = new StringContent(dataJsonStr, Encoding.UTF8, "application/json");
+
+                    var response = await web.PostAsync($"{hostname}{sApi}", content);
+                    responseBody = await response.Content.ReadAsStringAsync();
+                }
+
 
                 if (responseBody == "[]")
                     return new T();
@@ -161,6 +176,37 @@ namespace OpentWallet.Logic
 
             return aListTrades;
         }
+
+        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(CurrencySymbolExchange symbol)
+        {
+            var oCall = BinanceCalls.ECalls.GetKLines;
+
+            var end = GetTimeStamp(DateTime.Now);
+            var start = GetTimeStamp(DateTime.Now.AddHours(-23 * 50));
+
+            var tradeResponse = await SendRequestAsync<WhiteBitKLineSimple>("/api/v1/public/kline?market=" + symbol.Couple + "&interval=12h&start=" + start + "&end=" + end);
+            
+
+
+            var result = tradeResponse
+                .Result
+                .Select(trade => new TradeData
+                {
+                    dtOpen = UnixTimeStampToDateTime(trade[0].ToDouble()),
+                    openPrice = trade[1].ToDouble(),
+                    highestPrice = trade[3].ToDouble(),
+                    lowestPrice = trade[4].ToDouble(),
+                    closePrice = trade[2].ToDouble(),
+                    volume = trade[5].ToInt(0),
+                    dtClose = UnixTimeStampToDateTime(trade[0].ToDouble()),
+                    assetVolume = trade[6].ToInt(0),
+                    numberOfTrades = 0,
+                })
+                .ToList();
+
+            return new TradesData() { SymbolExchange = symbol, Trades = result };
+        }
+
         private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
         {
             // Unix timestamp is seconds past epoch
@@ -193,6 +239,28 @@ namespace OpentWallet.Logic
             ).Where(gb => gb != null).ToList(); ;
 
             return oGlobalBalance;
+        }
+        public partial class WhiteBitKLine
+        {
+            public bool Success { get; set; }
+            public object Message { get; set; }
+            public Result[] Result { get; set; }
+        }
+
+        public partial class WhiteBitKLineSimple
+        {
+            public bool Success { get; set; }
+            public object Message { get; set; }
+            public List<List<string>> Result { get; set; }
+        }
+
+        public partial class Result
+        {
+            public long Id { get; set; }
+            public double Time { get; set; }
+            public string Price { get; set; }
+            public long Amount { get; set; }
+            public string Type { get; set; }
         }
 
         public partial class OrderHistory
@@ -345,10 +413,17 @@ namespace OpentWallet.Logic
 
             return milliseconds.ToString();
         }
+        private long GetTimeStamp(DateTime dateTime)
+        {
+            return (long)dateTime.ToUniversalTime()
+                .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
+                .TotalSeconds;
+        }
 
         public Task<GlobalTrade> PlaceMarketOrderAsync(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest)
         {
             throw new NotImplementedException();
         }
+
     }
 }

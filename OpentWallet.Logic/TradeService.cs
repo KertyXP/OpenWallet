@@ -29,7 +29,6 @@ namespace OpentWallet.Logic
                 .OrderByDescending(s => s.dtTrade)
                 .GroupBy(l => l.InternalExchangeId + l.Exchange)
                 .Select(l => l.FirstOrDefault())
-                .ForEach(trade => FiatiseOneTrade(trade, aFiatisation))
                 .ToList();
 
 
@@ -49,8 +48,6 @@ namespace OpentWallet.Logic
 
         public async Task<List<GlobalTrade>> LoadTrades(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies)
         {
-
-            List<CurrencySymbolPrice> aFiatisation = BalanceService.LoadFiatisation(aAllCurrencies);
 
             var tasks = aExchanges.Select(oExchange =>
             {
@@ -72,24 +69,23 @@ namespace OpentWallet.Logic
                 .OrderByDescending(s => s.dtTrade)
                 .GroupBy(l => l.InternalExchangeId + l.Exchange)
                 .Select(l => l.FirstOrDefault())
-                .ForEach(trade => FiatiseOneTrade(trade, aFiatisation))
                 .ToList();
 
         }
 
-        private void FiatiseOneTrade(GlobalTrade oTrade, List<CurrencySymbolPrice> aFiatisation)
+        public GlobalTrade FiatiseOneTrade(GlobalTrade oTrade, List<CurrencySymbolPrice> aFiatisation)
         {
             var fiatFrom = aFiatisation.FirstOrDefault(f => f.From == oTrade.From);
             var fiatTo = aFiatisation.FirstOrDefault(f => f.From == oTrade.To);
             if (fiatFrom != null && fiatTo != null)
-                return;
+                return oTrade;
 
             if (fiatFrom != null)
             {
                 oTrade.From = fiatFrom.To;
                 oTrade.Price = oTrade.Price / fiatFrom.Price;
                 oTrade.SetQuantities(oTrade.QuantityFrom / fiatFrom.Price, oTrade.QuantityTo);
-                return;
+                return oTrade;
             }
 
             if (fiatTo != null)
@@ -97,25 +93,28 @@ namespace OpentWallet.Logic
                 oTrade.To = fiatTo.To;
                 oTrade.Price = oTrade.Price * fiatTo.Price;
                 oTrade.SetQuantities(oTrade.QuantityFrom, oTrade.QuantityTo / fiatTo.Price);
-                return;
+                return oTrade;
             }
+
+            return oTrade;
+
         }
 
-        public GlobalTradeUI GetGlobalTradeUI(GlobalTrade globalTrade, List<CurrencySymbolPrice> allCurrencies, bool isArchived)
+        public GlobalTradeUI GetGlobalTradeUI(GlobalTrade globalTrade, List<CurrencySymbolPrice> allCurrencies, List<CurrencySymbolPrice> aFiatisation, bool isArchived)
         {
-
-            var delta = GetDelta(globalTrade, allCurrencies);
-            var isProfitable = IsProfitable(globalTrade, delta);
+            var trade = FiatiseOneTrade(globalTrade, aFiatisation);
+            var delta = GetDelta(trade, allCurrencies);
+            var isProfitable = IsProfitable(trade, delta);
 
             var globalTradeUI = new GlobalTradeUI()
             {
-                Trade = globalTrade,
+                Trade = trade,
 
                 Delta = delta,
                 IsProfitable = isProfitable,
 
-                SellStateBackColor = GetSellStateBackColor(globalTrade),
-                SellStateBackColorSelected = GetSellStateBackColorSelected(globalTrade),
+                SellStateBackColor = GetSellStateBackColor(trade),
+                SellStateBackColorSelected = GetSellStateBackColorSelected(trade),
                 ArchiveStateForeColor = GetArchiveStateForeColor(isArchived),
 
                 DeltaColor = GetDeltaColor(isProfitable),

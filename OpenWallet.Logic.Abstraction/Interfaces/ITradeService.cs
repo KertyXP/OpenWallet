@@ -20,7 +20,8 @@ namespace OpenWallet.Logic.Abstraction.Interfaces
         List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies);
         double GetAverageBuy(List<GlobalTrade> trades);
         double GetAverageSell(List<GlobalTrade> trades);
-        GlobalTradeUI GetGlobalTradeUI(GlobalTrade globalTrade, List<CurrencySymbolPrice> allCurrencies, bool isArchived);
+
+        GlobalTradeUI GetGlobalTradeUI(GlobalTrade globalTrade, List<CurrencySymbolPrice> allCurrencies, List<CurrencySymbolPrice> aFiatisation, bool isArchived);
 
         Task<List<GlobalTrade>> LoadTrades(List<IExchange> aExchanges, List<GlobalBalance> aAllBalances, List<CurrencySymbolPrice> aAllCurrencies);
 

@@ -389,8 +389,6 @@ namespace OpentWallet.Logic
                 string quantityTo = SellOrBuy == SellBuy.Buy ? oTradeResponse.Payload.ExecutedQty : oTradeResponse.Payload.CummulativeQuoteQty;
                 return new GlobalTrade(symbol.From, symbol.To, oTradeResponse.Payload.Price?.ToDouble() ?? 0, symbol.Couple, ExchangeCode)
                 {
-                    CryptoFromId = symbol.CryptoFromId,
-                    CryptoToId = symbol.CryptoToId,
                     dtTrade = DateTime.Now,
                     InternalExchangeId = oTradeResponse.Payload.ClientOrderId,
                 }.SetQuantities(quantityFrom?.ToDouble() ?? 0, quantityTo?.ToDouble() ?? 0);
@@ -414,7 +412,7 @@ namespace OpentWallet.Logic
         {
             var oCall = BinanceCalls.ECalls.GetKLines;
 
-            var tradeResponse = await CallAsync<List<List<string>>>(oCall, $"symbol={symbol.Couple}&interval=4h");
+            var tradeResponse = await CallAsync<List<List<string>>>(oCall, $"symbol={symbol.Couple}&interval=12h");
             var result = tradeResponse
                 .Payload
                 .Select(trade => new TradeData

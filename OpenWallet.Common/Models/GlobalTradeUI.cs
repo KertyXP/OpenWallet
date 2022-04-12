@@ -5,6 +5,9 @@
         public GlobalTrade Trade { get; set; }
         public double Delta { get; set; }
         public bool IsProfitable { get; set; }
+        public string CryptoFromUI { get; set; }
+        public string CryptoToUI { get; set; }
+        public string PriceToUI { get; set; }
         public System.Drawing.Color SellStateBackColor { get; set; }
         public System.Drawing.Color SellStateBackColorSelected { get; set; }
         public System.Drawing.Color ArchiveStateForeColor { get; set; }
