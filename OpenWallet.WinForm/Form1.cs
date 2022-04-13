@@ -358,6 +358,7 @@ namespace OpenWallet.WinForm
         }
 
 
+
         private void bt_archive_Click(object sender, EventArgs e)
         {
             var archive = new List<GlobalTrade>();
@@ -403,6 +404,28 @@ namespace OpenWallet.WinForm
         private void cb_HideArchive_CheckedChanged(object sender, EventArgs e)
         {
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
+        }
+
+        private async void dgv_trade_day_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+
+            int currentMouseOverRow = dgv_trade_day.HitTest(e.X, e.Y).RowIndex;
+
+            if (currentMouseOverRow >= 0)
+            {
+                var trade = dgv_trade_day[0, currentMouseOverRow].Value as GlobalTrade;
+                if (trade == null)
+                    return;
+
+                var exchange = exchanges.FirstOrDefault(ex => ex.ExchangeCode == trade.Exchange);
+                if (exchange is IGetTradesData getTradesData)
+                {
+                    var dataChart = await getTradesData.GetTradeHistoryOneCoupleAsync(trade);
+                    DrawChart(dataChart, trade);
+                    lbl_AdvgBuy.Text = "Avg Buy: " + _tradeService.GetAverageBuy(trades.Where(t => t.CustomCouple == _pairSelected).ToList()).ToString();
+                    lbl_avg_sell.Text = "Avg Sell: " + _tradeService.GetAverageSell(trades.Where(t => t.CustomCouple == _pairSelected).ToList()).ToString();
+                }
+            }
         }
 
         private void dgv_trade_day_MouseClick(object sender, MouseEventArgs e)

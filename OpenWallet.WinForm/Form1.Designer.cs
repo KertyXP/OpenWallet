@@ -46,17 +46,6 @@
             this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dgv_trade_day = new System.Windows.Forms.DataGridView();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.lbl_avg_sell = new System.Windows.Forms.Label();
-            this.lbl_AdvgBuy = new System.Windows.Forms.Label();
-            this.lbl_prev_2 = new System.Windows.Forms.Label();
-            this.bt_refreshTrade = new System.Windows.Forms.Button();
-            this.lbl_preview_archive = new System.Windows.Forms.Label();
-            this.cb_Pair = new System.Windows.Forms.ComboBox();
-            this.cb_HideArchived = new System.Windows.Forms.CheckBox();
-            this.bt_unarchive = new System.Windows.Forms.Button();
-            this.bt_archive = new System.Windows.Forms.Button();
-            this.panel1 = new System.Windows.Forms.Panel();
             this.obj2 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -68,6 +57,17 @@
             this.CurrentPrice = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Delta = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.lbl_avg_sell = new System.Windows.Forms.Label();
+            this.lbl_AdvgBuy = new System.Windows.Forms.Label();
+            this.lbl_prev_2 = new System.Windows.Forms.Label();
+            this.bt_refreshTrade = new System.Windows.Forms.Button();
+            this.lbl_preview_archive = new System.Windows.Forms.Label();
+            this.cb_Pair = new System.Windows.Forms.ComboBox();
+            this.cb_HideArchived = new System.Windows.Forms.CheckBox();
+            this.bt_unarchive = new System.Windows.Forms.Button();
+            this.bt_archive = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.tableLayoutPanel2.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_Balance)).BeginInit();
@@ -281,6 +281,70 @@
             this.dgv_trade_day.TabIndex = 5;
             this.dgv_trade_day.SelectionChanged += new System.EventHandler(this.dgv_trade_day_SelectionChanged_1);
             this.dgv_trade_day.MouseClick += new System.Windows.Forms.MouseEventHandler(this.dgv_trade_day_MouseClick);
+            this.dgv_trade_day.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.dgv_trade_day_MouseDoubleClick);
+            // 
+            // obj2
+            // 
+            this.obj2.HeaderText = "obj2";
+            this.obj2.Name = "obj2";
+            this.obj2.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn6
+            // 
+            this.dataGridViewTextBoxColumn6.HeaderText = "Exchange";
+            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
+            this.dataGridViewTextBoxColumn6.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn7
+            // 
+            this.dataGridViewTextBoxColumn7.HeaderText = "Couple";
+            this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
+            this.dataGridViewTextBoxColumn7.Visible = false;
+            // 
+            // dataGridViewTextBoxColumn8
+            // 
+            this.dataGridViewTextBoxColumn8.HeaderText = "CryptoFrom";
+            this.dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
+            this.dataGridViewTextBoxColumn8.Width = 75;
+            // 
+            // dataGridViewTextBoxColumn9
+            // 
+            this.dataGridViewTextBoxColumn9.HeaderText = "CountFrom";
+            this.dataGridViewTextBoxColumn9.Name = "dataGridViewTextBoxColumn9";
+            // 
+            // dataGridViewTextBoxColumn10
+            // 
+            this.dataGridViewTextBoxColumn10.HeaderText = "CryptoTo";
+            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
+            this.dataGridViewTextBoxColumn10.Width = 75;
+            // 
+            // dataGridViewTextBoxColumn11
+            // 
+            this.dataGridViewTextBoxColumn11.HeaderText = "ValueTo";
+            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
+            // 
+            // price
+            // 
+            this.price.HeaderText = "price";
+            this.price.Name = "price";
+            this.price.Width = 75;
+            // 
+            // CurrentPrice
+            // 
+            this.CurrentPrice.HeaderText = "Cur. Price";
+            this.CurrentPrice.Name = "CurrentPrice";
+            this.CurrentPrice.Width = 85;
+            // 
+            // Delta
+            // 
+            this.Delta.HeaderText = "Delta";
+            this.Delta.Name = "Delta";
+            this.Delta.Width = 50;
+            // 
+            // Date
+            // 
+            this.Date.HeaderText = "Date";
+            this.Date.Name = "Date";
             // 
             // panel2
             // 
@@ -395,69 +459,6 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(468, 69);
             this.panel1.TabIndex = 0;
-            // 
-            // obj2
-            // 
-            this.obj2.HeaderText = "obj2";
-            this.obj2.Name = "obj2";
-            this.obj2.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn6
-            // 
-            this.dataGridViewTextBoxColumn6.HeaderText = "Exchange";
-            this.dataGridViewTextBoxColumn6.Name = "dataGridViewTextBoxColumn6";
-            this.dataGridViewTextBoxColumn6.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn7
-            // 
-            this.dataGridViewTextBoxColumn7.HeaderText = "Couple";
-            this.dataGridViewTextBoxColumn7.Name = "dataGridViewTextBoxColumn7";
-            this.dataGridViewTextBoxColumn7.Visible = false;
-            // 
-            // dataGridViewTextBoxColumn8
-            // 
-            this.dataGridViewTextBoxColumn8.HeaderText = "CryptoFrom";
-            this.dataGridViewTextBoxColumn8.Name = "dataGridViewTextBoxColumn8";
-            this.dataGridViewTextBoxColumn8.Width = 75;
-            // 
-            // dataGridViewTextBoxColumn9
-            // 
-            this.dataGridViewTextBoxColumn9.HeaderText = "CountFrom";
-            this.dataGridViewTextBoxColumn9.Name = "dataGridViewTextBoxColumn9";
-            // 
-            // dataGridViewTextBoxColumn10
-            // 
-            this.dataGridViewTextBoxColumn10.HeaderText = "CryptoTo";
-            this.dataGridViewTextBoxColumn10.Name = "dataGridViewTextBoxColumn10";
-            this.dataGridViewTextBoxColumn10.Width = 75;
-            // 
-            // dataGridViewTextBoxColumn11
-            // 
-            this.dataGridViewTextBoxColumn11.HeaderText = "ValueTo";
-            this.dataGridViewTextBoxColumn11.Name = "dataGridViewTextBoxColumn11";
-            // 
-            // price
-            // 
-            this.price.HeaderText = "price";
-            this.price.Name = "price";
-            this.price.Width = 75;
-            // 
-            // CurrentPrice
-            // 
-            this.CurrentPrice.HeaderText = "Cur. Price";
-            this.CurrentPrice.Name = "CurrentPrice";
-            this.CurrentPrice.Width = 85;
-            // 
-            // Delta
-            // 
-            this.Delta.HeaderText = "Delta";
-            this.Delta.Name = "Delta";
-            this.Delta.Width = 50;
-            // 
-            // Date
-            // 
-            this.Date.HeaderText = "Date";
-            this.Date.Name = "Date";
             // 
             // Form1
             // 
