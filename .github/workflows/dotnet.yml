@@ -1,53 +1,80 @@
-name: Win32Sample GitHub Release
+name: Build .Net Forms and publish release
+
+#Trigger
 on:
   push:
     tags:
-      - 'v*'
-jobs:
-  create_release:
-    name: Create GitHub Release
-    runs-on: windows-2019
-    steps:
-      - name: Install 7Zip PowerShell Module
-        shell: powershell
-        run: Install-Module 7Zip4PowerShell -Force -Verbose
-      - uses: actions/checkout@v2
+      - v*
       
-      - name: Build Binary
-        shell: cmd
-        run: call .\Build.cmd
-      - name: Build Artifact
-        shell: cmd
-        run: call .\ArtifactBuild.cmd
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          body: |
-            Automated Release by GitHub Action CI
-          draft: false
-          prerelease: true
-      - name: Upload Release Asset (x64)
-        id: upload-release-asset-x64
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./SampleX64.ZIP
-          asset_name: SampleX64.ZIP
-          asset_content_type: application/zip
-      - name: Upload Release Asset (x86)
-        id: upload-release-asset-x86
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./SampleX86.ZIP
-          asset_name: SampleX86.ZIP
-          asset_content_type: application/zip
+jobs:
+  build:
+    runs-on: windows-latest
+
+    env:
+      Solution_Name: OpenWallet.sln
+      Dir_Name: OpenWallet
+      Proj_Dir_Name: OpenWallet.WinForm
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v1
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v1.0.2
+      env:
+        ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+      
+    - name: Navigate to Workspace
+      run: cd $GITHUB_WORKSPACE
+      
+    - name: Restore Packages
+      run: nuget restore $env:Solution_Name
+
+    - name: Build Solution
+      run: |
+        msbuild.exe $env:Solution_Name /nologo /nr:false /p:DeployOnBuild=true /p:DeployDefaultTarget=WebPublish /p:WebPublishMethod=FileSystem /p:DeleteExistingFiles=True /p:platform="Any CPU" /p:configuration="Release" /p:PublishUrl="../_build"
+    
+    - name: See curent dir
+      run: dir    
+    
+    - name: 'Zip files'
+      run: 7z a -tzip D:\a\$env:Dir_Name\$env:Dir_Name\$env:Proj_Dir_Name\bin\Release\release-artifact.zip D:\a\$env:Dir_Name\$env:Dir_Name\$env:Proj_Dir_Name\bin\Release
+      continue-on-error: true
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: release-artifact
+        path: D:\a\$env:Dir_Name\$env:Dir_Name\$env:Proj_Dir_Name\bin\Release\
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        body: |
+          Changes in this Release
+          - Improvements, bugs, see the commits...
+        draft: false
+        prerelease: false
+    - name: Upload release asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+       upload_url: ${{ steps.create_release.outputs.upload_url }}
+       asset_path: D:\a\$env:Dir_Name\$env:Dir_Name\$env:Proj_Dir_Name\bin\Release\release-artifact.zip
+       asset_name: release-artifact.zip
+       asset_content_type: application/zip
+    - name: Publish release
+      uses: StuYarrow/publish-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        id: ${{ steps.create_release.outputs.id }}
