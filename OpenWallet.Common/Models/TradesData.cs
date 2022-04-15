@@ -4,9 +4,14 @@ using System.Collections.Generic;
 
 namespace OpenWallet.Common
 {
+    public enum Interval
+    {
+        Hour1, Hour2, Hour4, Hour8, Hour12, Hour24
+    }
 
     public class TradesData
     {
+        public Interval interval { get; set; }
         public CurrencySymbolExchange SymbolExchange { get; set; }
         public List<TradeData> Trades { get; set; }
     }

@@ -177,15 +177,30 @@ namespace OpentWallet.Logic
             return aListTrades;
         }
 
-        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(CurrencySymbolExchange symbol)
+        private string IntervalToString(Interval interval)
+        {
+            switch (interval)
+            {
+                case Interval.Hour1: return "1h";
+                case Interval.Hour2: return "2h";
+                case Interval.Hour4: return "4h";
+                case Interval.Hour8: return "8h";
+                case Interval.Hour12: return "12h";
+                case Interval.Hour24: return "1d";
+            }
+            return "4h";
+        }
+
+        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(Interval interval, CurrencySymbolExchange symbol)
         {
             var oCall = BinanceCalls.ECalls.GetKLines;
 
             var end = GetTimeStamp(DateTime.Now);
             var start = GetTimeStamp(DateTime.Now.AddHours(-23 * 50));
+            string intervalString = IntervalToString(interval);
 
-            var tradeResponse = await SendRequestAsync<WhiteBitKLineSimple>("/api/v1/public/kline?market=" + symbol.Couple + "&interval=12h&start=" + start + "&end=" + end);
-            
+            var tradeResponse = await SendRequestAsync<WhiteBitKLineSimple>($"/api/v1/public/kline?market={symbol.Couple}&interval={intervalString}&start={start}&end={end}");
+
 
 
             var result = tradeResponse
@@ -204,7 +219,7 @@ namespace OpentWallet.Logic
                 })
                 .ToList();
 
-            return new TradesData() { SymbolExchange = symbol, Trades = result };
+            return new TradesData() { SymbolExchange = symbol, interval = interval, Trades = result };
         }
 
         private DateTime UnixTimeStampToDateTime(double unixTimeStamp)
@@ -424,6 +439,6 @@ namespace OpentWallet.Logic
         {
             throw new NotImplementedException();
         }
-
     }
+
 }
