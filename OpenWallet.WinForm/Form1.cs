@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -195,20 +196,26 @@ namespace OpenWallet.WinForm
             pb_chart.Invalidate();
         }
 
-        float GetYOfPrice(double price, double minPrice, double maxPrice, int Height)
+        float GetYOfPrice(double price, double minPrice, double maxPrice, int Height, int YOffset)
         {
-            return (float)(1 - (price - minPrice) / (maxPrice - minPrice)) * Height;
+            return (float)(1 - (price - minPrice) / (maxPrice - minPrice)) * Height + YOffset;
         }
 
         private void pb_chart_Paint(object sender, PaintEventArgs e)
         {
+
+            var heightGraph = e.ClipRectangle.Height - 30;
+            var heightText = e.Graphics.MeasureString("0123456789", DefaultFont).Height;
+            var YOffset = 10;
+            var RightOffset = 50;
+
             e.Graphics.FillRectangle(Brushes.Black, e.ClipRectangle);
 
             if (currentDataChart == null || currentTradeChart == null)
                 return;
 
 
-            var x = e.ClipRectangle.Width;
+            var x = e.ClipRectangle.Width - RightOffset;
             var gap = 3;
             var width = 5;
 
@@ -228,19 +235,31 @@ namespace OpenWallet.WinForm
                 maxPrice = maxPrice < data.highestPrice ? data.highestPrice : maxPrice;
 
             }
+
+            var realMinPrice = minPrice;
+            var realMaxPrice = maxPrice;
             minPrice = Math.Min(maxPrice * 0.8, minPrice);
 
-            string textToShow = currentTradeChart.CustomCouple + " - " + "^" + maxPrice + " - " + (100 - minPrice / maxPrice * 100).ToString("0.##") + "%";
+            string textToShow = currentTradeChart.CustomCouple + " - Delta: " + (100 - minPrice / maxPrice * 100).ToString("0.##") + "%";
             e.Graphics.DrawString(textToShow, DefaultFont, Brushes.White, new PointF(0, 0));
 
 
-            x = e.ClipRectangle.Width;
+            x = e.ClipRectangle.Width - RightOffset;
 
             var tradesToShow = trades.Where(t => t.dtTrade >= startTrade && t.CustomCouple == currentTradeChart.CustomCouple).ToList();
             DateTime currentDay = DateTime.Now;
 
-            var heightGraph = e.ClipRectangle.Height - 20;
+
             e.Graphics.DrawLine(new Pen(Brushes.Gray), 0, heightGraph, e.ClipRectangle.Width, heightGraph);
+            e.Graphics.DrawLine(new Pen(Brushes.Gray), e.ClipRectangle.Width - RightOffset, 0, e.ClipRectangle.Width - RightOffset, e.ClipRectangle.Height);
+
+
+            var currentPrice = allCurrencies.FirstOrDefault(c => c.Exchange == currentTradeChart.Exchange && c.CustomCouple == currentTradeChart.CustomCouple)?.Price ?? 0;
+            float yCurrentPrice = GetYOfPrice(currentPrice, minPrice, maxPrice, heightGraph, YOffset);
+            e.Graphics.DrawLine(new Pen(Brushes.Gray), 0, yCurrentPrice, e.ClipRectangle.Width - RightOffset, yCurrentPrice);
+            e.Graphics.FillRectangle(new SolidBrush(Color.Gray), new RectangleF(e.ClipRectangle.Width - RightOffset, yCurrentPrice - heightText / 2 - 3, RightOffset, heightText + 4));
+            e.Graphics.DrawString(currentPrice.ToString(), DefaultFont, Brushes.White, new PointF(e.ClipRectangle.Width - RightOffset, yCurrentPrice - heightText / 2));
+
 
             foreach (var data in currentDataChart.Trades.OrderByDescending(t => t.dtClose))
             {
@@ -258,29 +277,86 @@ namespace OpenWallet.WinForm
 
                 var color = data.closePrice < data.openPrice ? Color.Red : Color.Green;
 
-
-                float y1 = GetYOfPrice(data.highestPrice, minPrice, maxPrice, heightGraph);
-                float y2 = GetYOfPrice(data.lowestPrice, minPrice, maxPrice, heightGraph);
+                float y1 = GetYOfPrice(data.highestPrice, minPrice, maxPrice, heightGraph, YOffset);
+                float y2 = GetYOfPrice(data.lowestPrice, minPrice, maxPrice, heightGraph, YOffset);
                 float h = y2 - y1;
 
                 e.Graphics.FillRectangle(new SolidBrush(color), new RectangleF(x + 2, y1, width - 4, h));
 
 
+                if (realMaxPrice == data.highestPrice)
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(Color.Green), new RectangleF(x, y1, e.ClipRectangle.Width - x - RightOffset, 1));
+
+                    e.Graphics.FillRectangle(new SolidBrush(Color.Green), new RectangleF(e.ClipRectangle.Width - RightOffset, y1 - heightText / 2 - 3, RightOffset, heightText + 4));
+                    e.Graphics.DrawString(realMaxPrice.ToString(), DefaultFont, Brushes.White, new PointF(e.ClipRectangle.Width - RightOffset, y1 - heightText / 2));
+                }
+                if (realMinPrice == data.lowestPrice)
+                {
+                    e.Graphics.FillRectangle(new SolidBrush(Color.Red), new RectangleF(x, y2, e.ClipRectangle.Width - x - RightOffset, 1));
+
+                    e.Graphics.FillRectangle(new SolidBrush(Color.Red), new RectangleF(e.ClipRectangle.Width - RightOffset, y2 - heightText / 2 - 3, RightOffset, heightText + 4));
+                    e.Graphics.DrawString(realMinPrice.ToString(), DefaultFont, Brushes.White, new PointF(e.ClipRectangle.Width - RightOffset, y2 - heightText / 2));
+                }
 
 
-                y1 = GetYOfPrice(Math.Max(data.openPrice, data.closePrice), minPrice, maxPrice, heightGraph);
-                y2 = GetYOfPrice(Math.Min(data.openPrice, data.closePrice), minPrice, maxPrice, heightGraph);
+                y1 = GetYOfPrice(Math.Max(data.openPrice, data.closePrice), minPrice, maxPrice, heightGraph, YOffset);
+                y2 = GetYOfPrice(Math.Min(data.openPrice, data.closePrice), minPrice, maxPrice, heightGraph, YOffset);
                 h = y2 - y1;
+
 
                 e.Graphics.FillRectangle(new SolidBrush(color), new RectangleF(x, y1, width, h));
 
                 var tradesToDraw = tradesToShow.Where(t => t.dtTrade > data.dtOpen);
                 foreach (var tradeToDraw in tradesToDraw)
                 {
-                    var yTrade = GetYOfPrice(tradeToDraw.RealPrice, minPrice, maxPrice, heightGraph);
-                    var colorTrade = tradeToDraw.IsBuy ? Color.Green : Color.Red;
-                    e.Graphics.FillEllipse(new SolidBrush(Color.White), new RectangleF(x - 3, yTrade - 4, 8, 8));
-                    e.Graphics.FillEllipse(new SolidBrush(colorTrade), new RectangleF((float)(x - 1.5), (float)(yTrade - 2.5), 5, 5));
+                    bool tradeIsArchived = archiveTrades.GetOrDefault(tradeToDraw.CustomCouple)?.Any(g => g.InternalExchangeId == tradeToDraw.InternalExchangeId) == true;
+
+                    if (tradeIsArchived && cb_HideArchived.Checked)
+                        continue;
+
+                    var yTrade = GetYOfPrice(tradeToDraw.RealPrice, minPrice, maxPrice, heightGraph, YOffset);
+                    var colorTrade = tradeToDraw.IsBuy ? Color.LightGreen : Color.Pink;
+
+                    if (tradeToDraw.IsBuy)
+                    {
+
+                        PointF[] UP = new PointF[] { new PointF(x-3, yTrade + 3), new PointF(x + 8, yTrade + 3), new PointF(x + 2, yTrade - 2) };
+                        e.Graphics.FillPolygon(new SolidBrush(tradeIsArchived ? Color.Gray : Color.White), UP);
+
+                    }
+                    else
+                    {
+                        PointF[] UP = new PointF[] { new PointF(x - 3, yTrade -2), new PointF(x + 8, yTrade -2), new PointF(x + 2, yTrade +3) };
+                        e.Graphics.FillPolygon(new SolidBrush(tradeIsArchived ? Color.Gray : Color.White), UP);
+
+                    }
+
+
+                    //e.Graphics.FillEllipse(new SolidBrush(colorTrade), new RectangleF(x - 3, yTrade - 4, 8, 8));
+                    //e.Graphics.FillEllipse(new SolidBrush(tradeIsArchived ? Color.Gray : Color.White), new RectangleF(x - 3, yTrade - 4, 8, 8));
+                    //e.Graphics.FillEllipse(new SolidBrush(colorTrade), new RectangleF((float)(x - 1.5), (float)(yTrade - 2.5), 5, 5));
+
+
+                    //GraphicsPath path = new GraphicsPath();
+                    //path.AddEllipse(new RectangleF(x - 3, yTrade - 4, 12, 8));
+
+                    //// Use the path to construct a brush.
+                    //PathGradientBrush pthGrBrush = new PathGradientBrush(path);
+
+                    //// Set the color at the center of the path to blue.
+                    //pthGrBrush.CenterColor = tradeIsArchived ? Color.Gray : Color.White;
+
+                    //// Set the focus scales for the path gradient brush.
+                    //pthGrBrush.FocusScales = new PointF(0.8f, 0.8f);
+
+                    //// Set the color along the entire boundary
+                    //// of the path to aqua.
+                    //Color[] colors = { colorTrade };
+                    //pthGrBrush.SurroundColors = colors;
+                    //e.Graphics.FillEllipse(pthGrBrush, new RectangleF(x - 3, yTrade - 4, 12, 8));
+
+
                 }
                 tradesToShow.RemoveAll(t => tradesToDraw.Any(td => td.InternalExchangeId == t.InternalExchangeId));
 
@@ -417,6 +493,8 @@ namespace OpenWallet.WinForm
         private void cb_HideArchive_CheckedChanged(object sender, EventArgs e)
         {
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
+            if (currentTradeChart != null)
+                DrawChart(currentDataChart, currentTradeChart);
         }
 
         private async void dgv_trade_day_MouseDoubleClick(object sender, MouseEventArgs e)
