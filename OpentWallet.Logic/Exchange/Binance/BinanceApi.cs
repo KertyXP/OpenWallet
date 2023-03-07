@@ -265,6 +265,21 @@ namespace OpentWallet.Logic
         {
             var aListTrades = new List<GlobalTrade>(aCache);
 
+
+            var couples = ExchangeInfo.Symbols
+                .Select(s => new { from = s.BaseAsset, to = s.QuoteAsset })
+                .OrderBy(c => c.from)
+                .ThenBy(c => c.to)
+                .ToList();
+
+            foreach(var c in couples)
+            {
+                aListTrades.AddRange(await GetTradesFromCurrenciesAsync(c.from, c.to));
+            }
+
+            return aListTrades;
+
+
             if (LocalParam.aPairsToCheck?.Any() == true)
             {
                 foreach (var oPair in LocalParam.aPairsToCheck)
@@ -279,6 +294,8 @@ namespace OpentWallet.Logic
 
         private async Task<List<GlobalTrade>> GetTradesFromCurrenciesAsync(string sFrom, string sTo)
         {
+
+
             var aListTrades = new List<GlobalTrade>();
             var oTradeList = (await CallAsync<List<BinanceOrderHistory>>(BinanceCalls.ECalls.myTradesV3, $"symbol={sFrom}{sTo}")).Payload;// + oPair.SymbolSymbol);
             foreach (var oTradeBinance in oTradeList)
@@ -408,26 +425,11 @@ namespace OpentWallet.Logic
             return aListTrades;
         }
 
-        private string IntervalToString(Interval interval)
-        {
-            switch (interval)
-            {
-                case Interval.Hour1: return "1h";
-                case Interval.Hour2: return "2h";
-                case Interval.Hour4: return "4h";
-                case Interval.Hour8: return "8h";
-                case Interval.Hour12: return "12h";
-                case Interval.Hour24: return "1d";
-            }
-            return "4h";
-        }
-
-        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(Interval interval, CurrencySymbolExchange symbol)
+        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(string interval, CurrencySymbolExchange symbol)
         {
             var oCall = BinanceCalls.ECalls.GetKLines;
-            string intervalString = IntervalToString(interval);
 
-            var tradeResponse = await CallAsync<List<List<string>>>(oCall, $"symbol={symbol.Couple}&interval={intervalString}");
+            var tradeResponse = await CallAsync<List<List<string>>>(oCall, $"symbol={symbol.Couple}&interval={interval}");
             var result = tradeResponse
                 .Payload
                 .Select(trade => new TradeData

@@ -34,6 +34,9 @@ namespace OpenWallet.Common
 
             string sCorrectString = string.IsNullOrEmpty(sDecimalPart) ? sIntPart : $"{sIntPart}.{sDecimalPart}";
 
+            if (string.IsNullOrEmpty(sCorrectString))
+                return 0;
+
             return Convert.ToDouble(sCorrectString, CultureInfo.InvariantCulture);
         }
 

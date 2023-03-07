@@ -4,14 +4,21 @@ using System.Collections.Generic;
 
 namespace OpenWallet.Common
 {
-    public enum Interval
+    public class Interval
     {
-        Hour1, Hour2, Hour4, Hour8, Hour12, Hour24
+        public static string Minute15 => "15m"; 
+        public static string Hour1 => "1h";
+        public static string Hour2 => "2h"; 
+        public static string Hour4 => "4h"; 
+        public static string Hour8 => "8h"; 
+        public static string Hour12 => "12h"; 
+        public static string Hour24 => "1d"; 
     }
+
 
     public class TradesData
     {
-        public Interval interval { get; set; }
+        public string interval { get; set; }
         public CurrencySymbolExchange SymbolExchange { get; set; }
         public List<TradeData> Trades { get; set; }
     }

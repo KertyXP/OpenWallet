@@ -22,7 +22,7 @@ namespace OpenWallet.Logic.Abstraction
     }
     public interface IGetTradesData
     {
-        Task<TradesData> GetTradeHistoryOneCoupleAsync(Interval interval, CurrencySymbolExchange symbol);
+        Task<TradesData> GetTradeHistoryOneCoupleAsync(string interval, CurrencySymbolExchange symbol);
     }
 
     public enum SellBuy

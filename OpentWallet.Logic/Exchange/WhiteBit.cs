@@ -177,47 +177,45 @@ namespace OpentWallet.Logic
             return aListTrades;
         }
 
-        private string IntervalToString(Interval interval)
-        {
-            switch (interval)
-            {
-                case Interval.Hour1: return "1h";
-                case Interval.Hour2: return "2h";
-                case Interval.Hour4: return "4h";
-                case Interval.Hour8: return "8h";
-                case Interval.Hour12: return "12h";
-                case Interval.Hour24: return "1d";
-            }
-            return "4h";
-        }
-
-        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(Interval interval, CurrencySymbolExchange symbol)
+        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(string interval, CurrencySymbolExchange symbol)
         {
             var oCall = BinanceCalls.ECalls.GetKLines;
 
-            var end = GetTimeStamp(DateTime.Now);
-            var start = GetTimeStamp(DateTime.Now.AddHours(-23 * 50));
-            string intervalString = IntervalToString(interval);
-
-            var tradeResponse = await SendRequestAsync<WhiteBitKLineSimple>($"/api/v1/public/kline?market={symbol.Couple}&interval={intervalString}&start={start}&end={end}");
+            var currentDate = DateTime.Now;
 
 
 
-            var result = tradeResponse
-                .Result
-                .Select(trade => new TradeData
-                {
-                    dtOpen = UnixTimeStampToDateTime(trade[0].ToDouble()),
-                    openPrice = trade[1].ToDouble(),
-                    highestPrice = trade[3].ToDouble(),
-                    lowestPrice = trade[4].ToDouble(),
-                    closePrice = trade[2].ToDouble(),
-                    volume = trade[5].ToInt(0),
-                    dtClose = UnixTimeStampToDateTime(trade[0].ToDouble()),
-                    assetVolume = trade[6].ToInt(0),
-                    numberOfTrades = 0,
-                })
-                .ToList();
+
+            List<TradeData> result = new List<TradeData>();
+
+            while (result.Count() < 200)
+            {
+
+                var end = GetTimeStamp(currentDate);
+                var start = GetTimeStamp(currentDate.AddHours(-23 * 50));
+
+                var tradeResponse = await SendRequestAsync<WhiteBitKLineSimple>($"/api/v1/public/kline?market={symbol.Couple}&interval={interval}&start={start}&end={end}");
+                var tradeTemp = tradeResponse.Result
+                    .Select(trade => new TradeData
+                    {
+                        dtOpen = UnixTimeStampToDateTime(trade[0].ToDouble()),
+                        openPrice = trade[1].ToDouble(),
+                        highestPrice = trade[3].ToDouble(),
+                        lowestPrice = trade[4].ToDouble(),
+                        closePrice = trade[2].ToDouble(),
+                        volume = trade[5].ToInt(0),
+                        dtClose = UnixTimeStampToDateTime(trade[0].ToDouble()),
+                        assetVolume = trade[6].ToInt(0),
+                        numberOfTrades = 0,
+                    });
+
+                if (tradeTemp.Any() == false)
+                    break;
+
+                result.AddRange(tradeTemp);
+
+                currentDate = result.OrderBy(r => r.dtOpen).FirstOrDefault().dtOpen;
+            }
 
             return new TradesData() { SymbolExchange = symbol, interval = interval, Trades = result };
         }
