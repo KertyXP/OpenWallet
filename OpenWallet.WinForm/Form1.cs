@@ -97,6 +97,16 @@ namespace OpenWallet.WinForm
 
             InsertCurrentBalanceInGrid(balances);
 
+
+            bt_refreshBalance.Enabled = true;
+            button1.Enabled = true;
+        }
+
+        private async void button1_Click(object sender, EventArgs e)
+        {
+            bt_refreshBalance.Enabled = false;
+            bt_refreshBalance.Enabled = false;
+
             foreach (var balance in balances)
             {
                 var couple = GetCoupleFromBalance(balance, "USDT");
@@ -119,16 +129,6 @@ namespace OpenWallet.WinForm
                 }
 
             }
-
-            bt_refreshBalance.Enabled = true;
-            button1.Enabled = true;
-        }
-
-        private async void button1_Click(object sender, EventArgs e)
-        {
-            bt_refreshBalance.Enabled = false;
-            bt_refreshBalance.Enabled = false;
-
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
             bt_refreshBalance.Enabled = true;

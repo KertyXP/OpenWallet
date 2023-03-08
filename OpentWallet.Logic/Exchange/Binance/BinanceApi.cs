@@ -17,6 +17,7 @@ namespace OpentWallet.Logic
     public class BinanceApi : IExchange, IRefreshOneCoupleTrade, IGetTradesData
     {
         ExchangeConfig IExchange.oConfig { get; set; }
+        private long _timeStampDelay;
 
         private static List<BinanceCalls> ListCallsWeight = new List<BinanceCalls>()
         {
@@ -31,6 +32,7 @@ namespace OpentWallet.Logic
             new BinanceCalls(){Api = "/api/v3/order", eCall = BinanceCalls.ECalls.placeOrder, Weight = 1, get = false},
             new BinanceCalls(){Api = "/api/v3/order/test", eCall = BinanceCalls.ECalls.placeOrderTest, Weight = 1, get = false},
             new BinanceCalls(){Api = "/api/v3/klines", eCall = BinanceCalls.ECalls.GetKLines, Weight = 1, get = true, PublicApi = true},
+            new BinanceCalls(){Api = "/api/v3/time", eCall = BinanceCalls.ECalls.Time, Weight = 1, get = true, PublicApi = true},
         };
 
         private BinanceCalls GetCall(BinanceCalls.ECalls eCall) => ListCallsWeight.FirstOrDefault(bc => bc.eCall == eCall);
@@ -258,7 +260,14 @@ namespace OpentWallet.Logic
                 .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
                 .TotalMilliseconds;
 
-            return milliseconds.ToString();
+            return GetLongNonce().ToString();
+        }
+        private long GetLongNonce(bool compensateDelay = true)
+        {
+            return (long)DateTime.Now.ToUniversalTime()
+                .Subtract(new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc))
+                .TotalMilliseconds - (compensateDelay ? _timeStampDelay : 0);
+
         }
 
         public async Task<List<GlobalTrade>> GetTradeHistoryAsync(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
@@ -329,6 +338,10 @@ namespace OpentWallet.Logic
 
         private async Task<BinanceExchangeInfo> GetExchangeInfoAsync()
         {
+            var binanceTime = (await CallAsync<BinanceTime>(BinanceCalls.ECalls.Time, string.Empty)).Payload.ServerTime;
+            var internalTime = GetLongNonce();
+            _timeStampDelay = internalTime - binanceTime;
+
 
             var oExchangeInfo = _configServie.LoadGenericFromCache<BinanceExchangeInfo>(this, "exchangeInfo");
 
