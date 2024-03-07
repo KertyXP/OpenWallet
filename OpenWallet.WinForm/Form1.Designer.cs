@@ -39,6 +39,7 @@
             this.CustomValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.chart_usdt = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.button1 = new System.Windows.Forms.Button();
             this.bt_refreshBalance = new System.Windows.Forms.Button();
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel4 = new System.Windows.Forms.TableLayoutPanel();
@@ -56,7 +57,6 @@
             this.Delta = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Date = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tableLayoutPanel7 = new System.Windows.Forms.TableLayoutPanel();
-            this.pb_chart = new System.Windows.Forms.PictureBox();
             this.dgv_archive = new System.Windows.Forms.DataGridView();
             this.dataGridViewTextBoxColumn6 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn7 = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -64,6 +64,7 @@
             this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.cb_interval = new System.Windows.Forms.ComboBox();
             this.bt_GetCoin = new System.Windows.Forms.Button();
             this.lbl_avg_sell = new System.Windows.Forms.Label();
             this.lbl_AdvgBuy = new System.Windows.Forms.Label();
@@ -74,8 +75,9 @@
             this.cb_HideArchived = new System.Windows.Forms.CheckBox();
             this.bt_unarchive = new System.Windows.Forms.Button();
             this.bt_archive = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
-            this.cb_interval = new System.Windows.Forms.ComboBox();
+            this.tabPage3 = new System.Windows.Forms.TabPage();
+            this.flp_graph_currencies = new System.Windows.Forms.FlowLayoutPanel();
+            this.pb_chart = new currencyGraph(_balanceService, _tradeService, _configService);
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -86,15 +88,17 @@
             this.tableLayoutPanel6.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_trade_day)).BeginInit();
             this.tableLayoutPanel7.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_chart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_archive)).BeginInit();
             this.panel2.SuspendLayout();
+            this.tabPage3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pb_chart)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
             // 
             this.tabControl1.Controls.Add(this.tabPage1);
             this.tabControl1.Controls.Add(this.tabPage2);
+            this.tabControl1.Controls.Add(this.tabPage3);
             this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl1.Location = new System.Drawing.Point(0, 0);
             this.tabControl1.Name = "tabControl1";
@@ -201,13 +205,23 @@
             this.panel1.Size = new System.Drawing.Size(1165, 69);
             this.panel1.TabIndex = 0;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(3, 38);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(119, 23);
+            this.button1.TabIndex = 2;
+            this.button1.Text = "Refresh Crypto values";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
             // bt_refreshBalance
             // 
             this.bt_refreshBalance.Location = new System.Drawing.Point(3, 9);
             this.bt_refreshBalance.Name = "bt_refreshBalance";
-            this.bt_refreshBalance.Size = new System.Drawing.Size(58, 23);
+            this.bt_refreshBalance.Size = new System.Drawing.Size(119, 23);
             this.bt_refreshBalance.TabIndex = 1;
-            this.bt_refreshBalance.Text = "Refresh";
+            this.bt_refreshBalance.Text = "Refresh Balance";
             this.bt_refreshBalance.UseVisualStyleBackColor = true;
             this.bt_refreshBalance.Click += new System.EventHandler(this.bt_refreshBalance_Click);
             // 
@@ -362,16 +376,6 @@
             this.tableLayoutPanel7.Size = new System.Drawing.Size(1171, 231);
             this.tableLayoutPanel7.TabIndex = 6;
             // 
-            // pb_chart
-            // 
-            this.pb_chart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pb_chart.Location = new System.Drawing.Point(453, 3);
-            this.pb_chart.Name = "pb_chart";
-            this.pb_chart.Size = new System.Drawing.Size(715, 225);
-            this.pb_chart.TabIndex = 8;
-            this.pb_chart.TabStop = false;
-            this.pb_chart.Paint += new System.Windows.Forms.PaintEventHandler(this.pb_chart_Paint);
-            // 
             // dgv_archive
             // 
             this.dgv_archive.AllowUserToAddRows = false;
@@ -442,6 +446,15 @@
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(1165, 69);
             this.panel2.TabIndex = 5;
+            // 
+            // cb_interval
+            // 
+            this.cb_interval.FormattingEnabled = true;
+            this.cb_interval.Location = new System.Drawing.Point(539, 37);
+            this.cb_interval.Name = "cb_interval";
+            this.cb_interval.Size = new System.Drawing.Size(127, 21);
+            this.cb_interval.TabIndex = 16;
+            this.cb_interval.SelectedIndexChanged += new System.EventHandler(this.cb_interval_SelectedIndexChanged);
             // 
             // bt_GetCoin
             // 
@@ -541,24 +554,33 @@
             this.bt_archive.UseVisualStyleBackColor = true;
             this.bt_archive.Click += new System.EventHandler(this.bt_archive_Click);
             // 
-            // button1
+            // tabPage3
             // 
-            this.button1.Location = new System.Drawing.Point(128, 9);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(58, 23);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Refresh";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
+            this.tabPage3.Controls.Add(this.flp_graph_currencies);
+            this.tabPage3.Location = new System.Drawing.Point(4, 22);
+            this.tabPage3.Name = "tabPage3";
+            this.tabPage3.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPage3.Size = new System.Drawing.Size(1177, 543);
+            this.tabPage3.TabIndex = 2;
+            this.tabPage3.Text = "tabPage3";
+            this.tabPage3.UseVisualStyleBackColor = true;
             // 
-            // cb_interval
+            // flp_graph_currencies
             // 
-            this.cb_interval.FormattingEnabled = true;
-            this.cb_interval.Location = new System.Drawing.Point(539, 37);
-            this.cb_interval.Name = "cb_interval";
-            this.cb_interval.Size = new System.Drawing.Size(127, 21);
-            this.cb_interval.TabIndex = 16;
-            this.cb_interval.SelectedIndexChanged += new System.EventHandler(this.cb_interval_SelectedIndexChanged);
+            this.flp_graph_currencies.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.flp_graph_currencies.Location = new System.Drawing.Point(3, 3);
+            this.flp_graph_currencies.Name = "flp_graph_currencies";
+            this.flp_graph_currencies.Size = new System.Drawing.Size(1171, 537);
+            this.flp_graph_currencies.TabIndex = 0;
+            // 
+            // pb_chart
+            // 
+            this.pb_chart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pb_chart.Location = new System.Drawing.Point(453, 3);
+            this.pb_chart.Name = "pb_chart";
+            this.pb_chart.Size = new System.Drawing.Size(715, 225);
+            this.pb_chart.TabIndex = 8;
+            this.pb_chart.TabStop = false;
             // 
             // Form1
             // 
@@ -579,10 +601,11 @@
             this.tableLayoutPanel6.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgv_trade_day)).EndInit();
             this.tableLayoutPanel7.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pb_chart)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgv_archive)).EndInit();
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            this.tabPage3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pb_chart)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -610,7 +633,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn Delta;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
-        private System.Windows.Forms.PictureBox pb_chart;
         private System.Windows.Forms.DataGridView dgv_archive;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
@@ -637,6 +659,9 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn chart_usdt;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ComboBox cb_interval;
+        private System.Windows.Forms.TabPage tabPage3;
+        private System.Windows.Forms.FlowLayoutPanel flp_graph_currencies;
+        private currencyGraph pb_chart;
     }
 }
 

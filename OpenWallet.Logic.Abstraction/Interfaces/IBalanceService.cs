@@ -6,8 +6,9 @@ namespace OpenWallet.Logic.Abstraction.Interfaces
 {
     public interface IBalanceService
     {
+        List<CurrencySymbolPrice> GetCurrencies();
 
-        Task<List<CurrencySymbolPrice>> GetCurrencriesAsync(List<IExchange> aExchanges);
+        Task LoadCurrencriesAsync(List<IExchange> aExchanges);
 
         List<CurrencySymbolPrice> LoadFiatisation(List<CurrencySymbolPrice> aAllCurrencies);
 

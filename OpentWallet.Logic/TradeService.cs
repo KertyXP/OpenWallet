@@ -11,28 +11,35 @@ namespace OpentWallet.Logic
 {
     public class TradeService : ITradeService
     {
+
+        private List<GlobalTrade> trades = new List<GlobalTrade>();
+
         public TradeService(IBalanceService balanceService, IConfigService configService)
         {
             BalanceService = balanceService;
             ConfigService = configService;
         }
 
-        public List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
+
+        public List<GlobalTrade> GetTrades()
+            => trades;
+
+
+        public void LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
             List<CurrencySymbolPrice> aFiatisation = BalanceService.LoadFiatisation(aAllCurrencies);
 
-            var aListTrades = aExchanges.Select(oExchange =>
+            trades.Clear();
+            trades.AddRange(aExchanges.Select(oExchange =>
             {
                 return ConfigService.LoadTradesFromCache(oExchange);
             })
                 .SelectMany(s => s)
+                .Where(s => ConfigService.oGlobalConfig.ignoredCurrencies.Any(ic => ic == s.From) == false && ConfigService.oGlobalConfig.ignoredCurrencies.Any(ic => ic == s.To) == false)
                 .OrderByDescending(s => s.dtTrade)
                 .GroupBy(l => l.InternalExchangeId + l.Exchange)
                 .Select(l => l.FirstOrDefault())
-                .ToList();
-
-
-            return aListTrades;
+                );
         }
 
         public double GetAverageBuy(List<GlobalTrade> trades)

@@ -18,7 +18,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -67,6 +67,12 @@
     <Compile Include="CoinSelector.Designer.cs">
       <DependentUpon>CoinSelector.cs</DependentUpon>
     </Compile>
+    <Compile Include="currencyGraph.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="currencyGraph.Designer.cs">
+      <DependentUpon>currencyGraph.cs</DependentUpon>
+    </Compile>
     <Compile Include="DataGridViewExtension.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
@@ -79,6 +85,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="CoinSelector.resx">
       <DependentUpon>CoinSelector.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="currencyGraph.resx">
+      <DependentUpon>currencyGraph.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>

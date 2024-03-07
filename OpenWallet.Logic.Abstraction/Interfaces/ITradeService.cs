@@ -9,15 +9,14 @@ namespace OpenWallet.Logic.Abstraction.Interfaces
 
     public struct TradeArchived
     {
-
         public string from, to;
         public double quantityFrom, quantityTo;
     }
 
     public interface ITradeService
     {
-
-        List<GlobalTrade> LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies);
+        List<GlobalTrade> GetTrades();
+        void LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies);
         double GetAverageBuy(List<GlobalTrade> trades);
         double GetAverageSell(List<GlobalTrade> trades);
 

@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Unity;
 
 namespace OpentWallet.Logic
 {
@@ -15,12 +14,24 @@ namespace OpentWallet.Logic
     {
         private string sRootPath = "";
         private readonly IIocService _iocService;
+        private bool _hideArchive = true;
 
+        private Dictionary<string, List<GlobalTrade>> _archiveTrades = new Dictionary<string, List<GlobalTrade>>();
         public ConfigService(IIocService iocService)
         {
             _iocService = iocService;
-
         }
+
+        public void SetHideArchive(bool hideArchive)
+        {
+            _hideArchive = hideArchive;
+        }
+
+        public bool GetHideArchive()
+        {
+            return _hideArchive;
+        }
+
         public void Init(string sFolderPath)
         {
             sRootPath = sFolderPath;
@@ -67,6 +78,10 @@ namespace OpentWallet.Logic
             return oConfig;
         }
 
+
+        public Dictionary<string, List<GlobalTrade>> GetArchiveTrades()
+            => _archiveTrades;
+
         public void SaveArchiveTradeToCache(Dictionary<string, List<GlobalTrade>> archiveTrades)
         {
             string sPath = GetPath("ArchiveTrades.json");
@@ -75,11 +90,17 @@ namespace OpentWallet.Logic
             File.WriteAllText(sPath, json);
         }
 
-        public Dictionary<string, List<GlobalTrade>> LoadArchiveTradeFromCache()
+        public void LoadArchiveTradeFromCache()
         {
             string sPath = GetPath("ArchiveTrades.json");
 
-            return File.Exists(sPath) ? JsonConvert.DeserializeObject<Dictionary<string, List<GlobalTrade>>>(File.ReadAllText(sPath)) : new Dictionary<string, List<GlobalTrade>>();
+            _archiveTrades.Clear();
+
+            var newArchive = File.Exists(sPath) ? JsonConvert.DeserializeObject<Dictionary<string, List<GlobalTrade>>>(File.ReadAllText(sPath)) : new Dictionary<string, List<GlobalTrade>>();
+            foreach( var kvp in _archiveTrades)
+            {
+                _archiveTrades.Add(kvp.Key, kvp.Value);
+            }
         }
 
         public List<GlobalTrade> LoadTradesFromCache(IExchange exchange)
@@ -107,13 +128,12 @@ namespace OpentWallet.Logic
             return File.Exists(sPath) ? JsonConvert.DeserializeObject<List<GlobalBalance>>(File.ReadAllText(sPath)) : new List<GlobalBalance>();
         }
 
-        public async Task<List<IExchange>> LoadExchangesAsync()
+        public async Task<List<IExchange>> LoadExchangesAsync<T>()
         {
 
             List<IExchange> aExchanges = new List<IExchange>();
             var type = typeof(IExchange);
-            var types = AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(s => s.GetTypes())
+            var types = typeof(T).Assembly.GetTypes()
                 .Where(p => type.IsAssignableFrom(p) && p.IsClass)
                 .ToList()
                 .Select(t => _iocService.Resolve(t) as IExchange)
@@ -151,5 +171,6 @@ namespace OpentWallet.Logic
             string sPath = GetPath($"{type}_{exchange.ExchangeCode}.json");
             return File.Exists(sPath) ? JsonConvert.DeserializeObject<T>(File.ReadAllText(sPath)) : default;
         }
+
     }
 }

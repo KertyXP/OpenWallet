@@ -10,13 +10,14 @@ namespace OpentWallet.Logic
     public class BalanceService : IBalanceService
     {
         private IConfigService _configService { get; }
+        private List<CurrencySymbolPrice> _currencies = new List<CurrencySymbolPrice>();
 
         public BalanceService(IConfigService configService)
         {
             _configService = configService;
         }
 
-        public async Task<List<CurrencySymbolPrice>> GetCurrencriesAsync(List<IExchange> aExchanges)
+        public async Task LoadCurrencriesAsync(List<IExchange> aExchanges)
         {
 
             var tasks = aExchanges
@@ -24,11 +25,15 @@ namespace OpentWallet.Logic
 
             var result = await Task.WhenAll(tasks);
 
-            return result
+            _currencies = result
                 .SelectMany(r => r)
                 .ToList();
         }
 
+        public List<CurrencySymbolPrice> GetCurrencies()
+        {
+            return _currencies;
+        }
         public List<CurrencySymbolPrice> LoadFiatisation(List<CurrencySymbolPrice> aAllCurrencies)
         {
 
