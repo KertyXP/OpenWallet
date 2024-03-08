@@ -35,6 +35,7 @@ namespace OpenWallet.WinForm
             _tradeService = tradeService;
             _configService = configService;
             _balanceService = balanceService;
+            this.pb_chart.Init(_balanceService, _tradeService, _configService);
 
             cb_interval.Items.Add(Interval.Minute15);
             cb_interval.Items.Add(Interval.Hour1);
@@ -63,21 +64,23 @@ namespace OpenWallet.WinForm
 
 
             _tradeService.LoadTradesFromCacheOnly(exchanges, allCurrencies);
-
+            trades = _tradeService.GetTrades();
             _configService.LoadArchiveTradeFromCache();
+            archiveTrades = _configService.GetArchiveTrades();
 
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());
 
             foreach(var currency in _configService.oGlobalConfig.favoriteCurrencies)
             {
-                var pb = new PictureBox();
-                pb.Width = 200;
-                pb.Height = 150;
+                var pb = new currencyGraph();
+                pb.Init(_balanceService, _tradeService, _configService);
+                pb.Width = 300;
+                pb.Height = 200;
                 flp_graph_currencies.Controls.Add(pb);
 
+                await DrawChartFromPair(currency + "-USDT", pb);
+
             }
-
-
         }
 
 
@@ -179,7 +182,7 @@ namespace OpenWallet.WinForm
             cb_Pair.Items.AddRange(couples.OrderBy(c => c).ToArray());
             cb_Pair.SelectedItem = _pairSelected;
 
-            await DrawChartFromPair(_pairSelected);
+            await DrawChartAndSetLabelsBuySellFromPair(_pairSelected);
 
             for (int i = 0; i < dgv_trade_day.RowCount; i++)
             {
@@ -221,7 +224,7 @@ namespace OpenWallet.WinForm
             }
         }
 
-        private async Task<bool> DrawChartFromPair(string customCouple)
+        private async Task<bool> DrawChartAndSetLabelsBuySellFromPair(string customCouple)
         {
 
             if (customCouple == "<All>")
@@ -231,28 +234,32 @@ namespace OpenWallet.WinForm
             }
             else
             {
-                for (int i = 0; i < dgv_trade_day.RowCount; i++)
-                {
-                    var trade = dgv_trade_day[0, i].Value as GlobalTrade;
-                    if (trade.CustomCouple == customCouple)
-                    {
-
-                        var exchange = exchanges.FirstOrDefault(ex => ex.ExchangeCode == trade.Exchange);
-                        if (exchange is IGetTradesData getTradesData)
-                        {
-                            var dataChart = await getTradesData.GetTradeHistoryOneCoupleAsync(cb_interval.Text, trade);
-                            this.pb_chart.DrawChart(dataChart, trade);
-
-                            break;
-                        }
-                    }
-                }
+                await DrawChartFromPair(customCouple, this.pb_chart);
 
                 lbl_AdvgBuy.Text = "Avg Buy: " + _tradeService.GetAverageBuy(trades.Where(t => t.CustomCouple == customCouple).ToList()).ToString();
                 lbl_avg_sell.Text = "Avg Sell: " + _tradeService.GetAverageSell(trades.Where(t => t.CustomCouple == customCouple).ToList()).ToString();
             }
 
             return true;
+        }
+
+        private async Task DrawChartFromPair(string customCouple, currencyGraph chart)
+        {
+            for (int i = 0; i < dgv_trade_day.RowCount; i++)
+            {
+                var trade = dgv_trade_day[0, i].Value as GlobalTrade;
+                if (trade.CustomCouple == customCouple)
+                {
+                    var exchange = exchanges.FirstOrDefault(ex => ex.ExchangeCode == trade.Exchange);
+                    if (exchange is IGetTradesData getTradesData)
+                    {
+                        var dataChart = await getTradesData.GetTradeHistoryOneCoupleAsync(cb_interval.Text, trade);
+                        chart.DrawChart(dataChart, trade);
+
+                        break;
+                    }
+                }
+            }
         }
 
 
@@ -402,7 +409,7 @@ namespace OpenWallet.WinForm
                 _pairSelected = trade.CustomCouple;
                 this.cb_Pair.SelectedItem = _pairSelected;
 
-                await DrawChartFromPair(trade.CustomCouple);
+                await DrawChartAndSetLabelsBuySellFromPair(trade.CustomCouple);
             }
         }
 
@@ -501,7 +508,7 @@ namespace OpenWallet.WinForm
 
         private void pb_chart_Resize(object sender, EventArgs e)
         {
-            pb_chart.Invalidate();
+            pb_chart.RefreshChart();
         }
 
         private async void bt_GetCoin_Click(object sender, EventArgs e)
@@ -576,7 +583,7 @@ namespace OpenWallet.WinForm
 
         private async void cb_interval_SelectedIndexChanged(object sender, EventArgs e)
         {
-            await DrawChartFromPair(_pairSelected);
+            await DrawChartAndSetLabelsBuySellFromPair(_pairSelected);
         }
     }
 }

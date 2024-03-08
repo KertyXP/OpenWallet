@@ -77,7 +77,7 @@
             this.bt_archive = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.flp_graph_currencies = new System.Windows.Forms.FlowLayoutPanel();
-            this.pb_chart = new currencyGraph(_balanceService, _tradeService, _configService);
+            this.pb_chart = new OpenWallet.WinForm.currencyGraph();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -91,7 +91,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.dgv_archive)).BeginInit();
             this.panel2.SuspendLayout();
             this.tabPage3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.pb_chart)).BeginInit();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -365,8 +364,8 @@
             this.tableLayoutPanel7.ColumnCount = 2;
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 450F));
             this.tableLayoutPanel7.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel7.Controls.Add(this.pb_chart, 0, 0);
             this.tableLayoutPanel7.Controls.Add(this.dgv_archive, 0, 0);
+            this.tableLayoutPanel7.Controls.Add(this.pb_chart, 1, 0);
             this.tableLayoutPanel7.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel7.Location = new System.Drawing.Point(0, 231);
             this.tableLayoutPanel7.Margin = new System.Windows.Forms.Padding(0);
@@ -580,7 +579,6 @@
             this.pb_chart.Name = "pb_chart";
             this.pb_chart.Size = new System.Drawing.Size(715, 225);
             this.pb_chart.TabIndex = 8;
-            this.pb_chart.TabStop = false;
             // 
             // Form1
             // 
@@ -605,7 +603,6 @@
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.tabPage3.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.pb_chart)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -632,13 +629,6 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn CurrentPrice;
         private System.Windows.Forms.DataGridViewTextBoxColumn Delta;
         private System.Windows.Forms.DataGridViewTextBoxColumn Date;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
-        private System.Windows.Forms.DataGridView dgv_archive;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
-        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
         private System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.Button bt_GetCoin;
         private System.Windows.Forms.Label lbl_avg_sell;
@@ -661,6 +651,13 @@
         private System.Windows.Forms.ComboBox cb_interval;
         private System.Windows.Forms.TabPage tabPage3;
         private System.Windows.Forms.FlowLayoutPanel flp_graph_currencies;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel7;
+        private System.Windows.Forms.DataGridView dgv_archive;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn6;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn7;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn8;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
         private currencyGraph pb_chart;
     }
 }

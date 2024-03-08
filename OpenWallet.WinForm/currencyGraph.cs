@@ -1,15 +1,9 @@
 ﻿using OpenWallet.Common;
-using OpenWallet.Logic.Abstraction;
 using OpenWallet.Logic.Abstraction.Interfaces;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace OpenWallet.WinForm
@@ -17,13 +11,18 @@ namespace OpenWallet.WinForm
     public partial class currencyGraph : UserControl
     {
         Font smallFont = new Font(DefaultFont.Name, 5);
-        private readonly IBalanceService _balanceService;
-        private readonly ITradeService _tradeService;
-        private readonly IConfigService _configService;
+        private IBalanceService _balanceService;
+        private ITradeService _tradeService;
+        private IConfigService _configService;
 
-        public currencyGraph(IBalanceService balanceService, ITradeService tradeService, IConfigService configService)
+        public currencyGraph()
         {
             InitializeComponent();
+        }
+
+        public void Init(IBalanceService balanceService, ITradeService tradeService, IConfigService configService)
+        {
+
             _balanceService = balanceService;
             _tradeService = tradeService;
             _configService = configService;
@@ -147,10 +146,10 @@ namespace OpenWallet.WinForm
 
         private void DrawCandlesOnGraph(Graphics g, Rectangle r, TradesData dataChart, CurrencySymbolPrice trade)
         {
-
-            var heightGraph = r.Height - 30;
+            var footerHeight = 20;
+            var headerHeight = 10;
+            var heightGraph = r.Height - footerHeight - headerHeight;
             var heightText = g.MeasureString("0123456789", DefaultFont).Height;
-            var YOffset = r.Y + 10;
             var RightOffset = 50;
 
             g.FillRectangle(Brushes.Black, r);
@@ -176,9 +175,18 @@ namespace OpenWallet.WinForm
                 }
 
                 minPrice = minPrice > data.lowestPrice ? data.lowestPrice : minPrice;
+                minPrice = minPrice > data.closePrice ? data.closePrice : minPrice;
+                minPrice = minPrice > data.openPrice ? data.openPrice : minPrice;
                 maxPrice = maxPrice < data.highestPrice ? data.highestPrice : maxPrice;
+                maxPrice = maxPrice < data.closePrice ? data.closePrice : maxPrice;
+                maxPrice = maxPrice < data.openPrice ? data.openPrice : maxPrice;
 
             }
+
+            var currentPrice = _balanceService.GetCurrencies().FirstOrDefault(c => c.Exchange == trade.Exchange && c.CustomCouple == trade.CustomCouple)?.Price ?? 0;
+
+            minPrice = minPrice > currentPrice ? currentPrice : minPrice;
+            maxPrice = maxPrice < currentPrice ? currentPrice : maxPrice;
 
             var realMinPrice = minPrice;
             var realMaxPrice = maxPrice;
@@ -196,8 +204,7 @@ namespace OpenWallet.WinForm
             g.DrawLine(new Pen(Brushes.Gray), r.X + r.Width - RightOffset, 0, r.Width - RightOffset, r.Height);
 
 
-            var currentPrice = _balanceService.GetCurrencies().FirstOrDefault(c => c.Exchange == trade.Exchange && c.CustomCouple == trade.CustomCouple)?.Price ?? 0;
-            float yCurrentPrice = GetYOfPrice(currentPrice, minPrice, maxPrice, heightGraph, YOffset);
+            float yCurrentPrice = GetYOfPrice(currentPrice, minPrice, maxPrice, heightGraph, headerHeight);
             g.DrawLine(new Pen(Brushes.Gray), r.X, yCurrentPrice, r.X + r.Width - RightOffset, yCurrentPrice);
             g.FillRectangle(new SolidBrush(Color.Gray), new RectangleF(r.X + r.Width - RightOffset, yCurrentPrice - heightText / 2 - 3, RightOffset, heightText + 4));
             g.DrawString(currentPrice.ToString(), DefaultFont, Brushes.White, new PointF(r.X + r.Width - RightOffset, yCurrentPrice - heightText / 2));
@@ -219,8 +226,8 @@ namespace OpenWallet.WinForm
 
                 var color = data.closePrice < data.openPrice ? Color.Red : Color.Green;
 
-                float y1 = GetYOfPrice(data.highestPrice, minPrice, maxPrice, heightGraph, YOffset);
-                float y2 = GetYOfPrice(data.lowestPrice, minPrice, maxPrice, heightGraph, YOffset);
+                float y1 = GetYOfPrice(data.highestPrice, minPrice, maxPrice, heightGraph, headerHeight);
+                float y2 = GetYOfPrice(data.lowestPrice, minPrice, maxPrice, heightGraph, headerHeight);
                 float h = y2 - y1;
 
                 g.FillRectangle(new SolidBrush(color), new RectangleF(x + 2, y1, width - 4, h));
@@ -242,8 +249,8 @@ namespace OpenWallet.WinForm
                 }
 
 
-                y1 = GetYOfPrice(Math.Max(data.openPrice, data.closePrice), minPrice, maxPrice, heightGraph, YOffset);
-                y2 = GetYOfPrice(Math.Min(data.openPrice, data.closePrice), minPrice, maxPrice, heightGraph, YOffset);
+                y1 = GetYOfPrice(Math.Max(data.openPrice, data.closePrice), minPrice, maxPrice, heightGraph, headerHeight);
+                y2 = GetYOfPrice(Math.Min(data.openPrice, data.closePrice), minPrice, maxPrice, heightGraph, headerHeight);
                 h = y2 - y1;
 
 
@@ -257,7 +264,7 @@ namespace OpenWallet.WinForm
                     if (tradeIsArchived && _configService.GetHideArchive())
                         continue;
 
-                    var yTrade = GetYOfPrice(tradeToDraw.RealPrice, minPrice, maxPrice, heightGraph, YOffset);
+                    var yTrade = GetYOfPrice(tradeToDraw.RealPrice, minPrice, maxPrice, heightGraph, headerHeight);
                     var colorTrade = tradeToDraw.IsBuy ? Color.LightGreen : Color.Pink;
 
                     if (tradeToDraw.IsBuy)

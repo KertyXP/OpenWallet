@@ -97,7 +97,7 @@ namespace OpentWallet.Logic
             _archiveTrades.Clear();
 
             var newArchive = File.Exists(sPath) ? JsonConvert.DeserializeObject<Dictionary<string, List<GlobalTrade>>>(File.ReadAllText(sPath)) : new Dictionary<string, List<GlobalTrade>>();
-            foreach( var kvp in _archiveTrades)
+            foreach( var kvp in newArchive)
             {
                 _archiveTrades.Add(kvp.Key, kvp.Value);
             }
