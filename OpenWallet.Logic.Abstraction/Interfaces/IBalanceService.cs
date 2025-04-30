@@ -17,6 +17,6 @@ namespace OpenWallet.Logic.Abstraction.Interfaces
 
         Task<List<GlobalBalance>> GetBalancesAsync(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies);
 
-        List<GlobalBalance> LoadBalancesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies);
+        List<GlobalBalance> LoadBalancefromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies);
     }
 }

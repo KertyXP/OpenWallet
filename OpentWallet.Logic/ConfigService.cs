@@ -103,12 +103,12 @@ namespace OpentWallet.Logic
             }
         }
 
-        public List<GlobalTrade> LoadTradesFromCache(IExchange exchange)
+        public List<GlobalTrade> LoadTradefromCache(IExchange exchange)
         {
             string sPath = GetPath("Trades_" + exchange.ExchangeName + ".json");
             return File.Exists(sPath) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sPath)) : new List<GlobalTrade>();
         }
-        public void SaveTradesToCache(IEnumerable<GlobalTrade> trades)
+        public void SaveTradetoCache(IEnumerable<GlobalTrade> trades)
         {
             var sJson = JsonConvert.SerializeObject(trades);
             string sPath = GetPath("Trades_" + trades?.FirstOrDefault()?.Exchange + ".json");

@@ -87,8 +87,8 @@
 //                double Price = (kvp.Ask.FirstOrDefault().ToDouble() + kvp.Bid.FirstOrDefault().ToDouble()) / 2;
 //                return new List<CurrencySymbolPrice>()
 //                {
-//                    new CurrencySymbolPrice(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, kvp.Symbol, ExchangeName),
-//                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LastOrDefault(), Price, kvp.Symbol, ExchangeName),
+//                    new CurrencySymbolPrice(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LatorDefault(), Price, kvp.Symbol, ExchangeName),
+//                    new CurrencySymbolPriceReverted(kvp.Symbol.Split('/').FirstOrDefault(), kvp.Symbol.Split('/').LatorDefault(), Price, kvp.Symbol, ExchangeName),
 //                };
 //            })
 //            .SelectMany(o => o)
@@ -123,7 +123,7 @@
 
 
 //        }
-//        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
+//        public List<GlobalTrade> GetTradeHitory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
 //        {
 //            string sApi = $"/{GetAccount().Data.AccountArchive}/api/pro/v2/order/hist";
 
@@ -138,33 +138,33 @@
 
 //            var request2 = client.DownloadString($"{hostname}{sApi}?account=cash");
 
-//            var balance = JsonConvert.DeserializeObject<AscendexOrderHistory>(request2);
+//            var balance = JsonConvert.DeserializeObject<AscendexOrderHitory>(request2);
 
 //            List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache);
 
-//            foreach (var oOrderHistory in balance.Data)
+//            foreach (var oOrderHitory in balance.Data)
 //            {
 
-//                if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHistory.SeqNum))
+//                if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHitory.SeqNum))
 //                {
 //                    continue;
 //                }
-//                var cur = new CurrencySymbol(oOrderHistory.Symbol.Split('/').FirstOrDefault(), oOrderHistory.Symbol.Split('/').LastOrDefault(), oOrderHistory.Symbol);
+//                var cur = new CurrencySymbol(oOrderHitory.Symbol.Split('/').FirstOrDefault(), oOrderHitory.Symbol.Split('/').LatorDefault(), oOrderHitory.Symbol);
 
 //                GlobalTrade globalTrade = null;
-//                if (oOrderHistory.Side == "Buy")
+//                if (oOrderHitory.Side == "Buy")
 //                {
 
-//                    globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
-//                    globalTrade.SetQuantities(oOrderHistory.OrderQty.ToDouble() / globalTrade.Price, oOrderHistory.OrderQty.ToDouble());
+//                    globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHitory.Price.ToDouble(), cur.Couple, ExchangeName);
+//                    globalTrade.SetQuantities(oOrderHitory.OrderQty.ToDouble() / globalTrade.Price, oOrderHitory.OrderQty.ToDouble());
 //                }
 //                else
 //                {
-//                    globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
-//                    globalTrade.SetQuantities(oOrderHistory.OrderQty.ToDouble(), oOrderHistory.OrderQty.ToDouble() * globalTrade.Price);
+//                    globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHitory.Price.ToDouble(), cur.Couple, ExchangeName);
+//                    globalTrade.SetQuantities(oOrderHitory.OrderQty.ToDouble(), oOrderHitory.OrderQty.ToDouble() * globalTrade.Price);
 //                }
-//                globalTrade.InternalExchangeId = oOrderHistory.SeqNum;
-//                globalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.LastExecTime / 1000);
+//                globalTrade.InternalExchangeId = oOrderHitory.SeqNum;
+//                globalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHitory.LastExecTime / 1000);
 //                aListTrades.Add(globalTrade);
 
 //            }
@@ -188,7 +188,7 @@
 //    }
 
 
-//    public partial class AscendexOrderHistory
+//    public partial class AscendexOrderHitory
 //    {
 //        [JsonProperty("code")]
 //        public long Code { get; set; }
@@ -232,8 +232,8 @@
 //        [JsonProperty("status")]
 //        public string Status { get; set; }
 
-//        [JsonProperty("stopPrice")]
-//        public string StopPrice { get; set; }
+//        [JsonProperty("topPrice")]
+//        public string topPrice { get; set; }
 
 //        [JsonProperty("fillQty")]
 //        public string FillQty { get; set; }

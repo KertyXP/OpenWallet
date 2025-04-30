@@ -4,7 +4,7 @@
 //
 //    using WhiteBit;
 //
-//    var binanceOrderHistory = BinanceOrderHistory.FromJson(jsonString);
+//    var binanceOrderHitory = BinanceOrderHitory.FromJson(jsonString);
 
 using System;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using Newtonsoft.Json.Converters;
 namespace OpentWallet.Logic
 {
 
-    public partial class BinanceOrderHistory
+    public partial class BinanceOrderHitory
     {
         [JsonProperty("symbol")]
         public string Symbol { get; set; }

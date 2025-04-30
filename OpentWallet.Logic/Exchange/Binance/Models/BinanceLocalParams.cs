@@ -5,7 +5,7 @@ namespace OpentWallet.Logic
 {
     public class BinanceLocalParams
     {
-        [JsonProperty("pairsToCheck")]
-        public List<string> aPairsToCheck { get; set; }
+        [JsonProperty("pairtoCheck")]
+        public List<string> aPairtoCheck { get; set; }
     }
 }

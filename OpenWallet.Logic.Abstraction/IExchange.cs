@@ -12,17 +12,17 @@ namespace OpenWallet.Logic.Abstraction
         Task<List<GlobalBalance>> GetBalanceAsync();
         Task<List<CurrencySymbolPrice>> GetCurrenciesAsync();
         Task InitAsync(GlobalConfig oGlobalConfig, ExchangeConfig oConfig);
-        Task<List<GlobalTrade>> GetTradeHistoryAsync(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances);
+        Task<List<GlobalTrade>> GetTradeHitoryAsync(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances);
         Task<GlobalTrade> PlaceMarketOrderAsync(CurrencySymbol symbol, double quantity, SellBuy SellOrBuy, bool bTest);
     }
 
     public interface IRefreshOneCoupleTrade
     {
-        Task<List<GlobalTrade>> GetTradeHistoryOneCoupleAsync(List<GlobalTrade> aCache, CurrencySymbol symbol);
+        Task<List<GlobalTrade>> GetTradeHitoryOneCoupleAsync(List<GlobalTrade> aCache, CurrencySymbol symbol);
     }
     public interface IGetTradesData
     {
-        Task<TradesData> GetTradeHistoryOneCoupleAsync(string interval, CurrencySymbolExchange symbol);
+        Task<TradesData> GetTradeHitoryOneCoupleAsync(string interval, CurrencySymbolExchange symbol);
     }
 
     public enum SellBuy

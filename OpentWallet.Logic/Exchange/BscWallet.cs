@@ -94,21 +94,21 @@
 //                Value = sBnb.ToDouble(),
 //                BitCoinValue = sBnb.ToDouble() / bnbBtcPrice
 //            });
-//            var aTokens = oDoc.DocumentNode.Descendants("li").Where(x => x.Attributes.Contains("class") && x.Attributes["class"].Value == "list-custom list-custom-BEP-20");
+//            var aTokens = oDoc.DocumentNode.Descendants("li").Where(x => x.Attributes.Contains("class") && x.Attributes["class"].Value == "list-cutom list-cutom-BEP-20");
 //            foreach (var oToken in aTokens)
 //            {
 //                var oAmount = oToken.Descendants("span").Where(x => x.Attributes.Contains("class") && x.Attributes["class"].Value.StartsWith("list-amount")).FirstOrDefault().InnerText;
 //                var token = oToken.Descendants("a").FirstOrDefault().Attributes.FirstOrDefault(a => a.Name == "href").Value;
-//                token = token.Split('/').LastOrDefault();
+//                token = token.Split('/').LatorDefault();
 //                token = token.Split('?').FirstOrDefault();
 //                var oChart = PooCoin.GetChart(token);
-//                var LastPrice = oChart.Data.Ethereum.DexTrades.LastOrDefault();
+//                var LastPrice = oChart.Data.Ethereum.DexTrades.LatorDefault();
 //                var Amount = oAmount.Split(' ').FirstOrDefault().Replace(",", "").ToDouble();
 //                var ValueInBtc = (LastPrice?.ClosePrice?.ToDouble() ?? 0) * Amount / bnbBtcPrice;
 //                aBalance.Add(new GlobalBalance()
 //                {
 //                    Exchange = ExchangeName,
-//                    Crypto = oAmount.Split(' ').LastOrDefault(),
+//                    Crypto = oAmount.Split(' ').LatorDefault(),
 //                    CryptoId = token,
 //                    Value = Amount,
 //                    BitCoinValue = ValueInBtc
@@ -131,7 +131,7 @@
 //            return aBalance;
 //        }
 
-//        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
+//        public List<GlobalTrade> GetTradeHitory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
 //        {
 //            var oTempTrades = new List<GlobalTrade>();
 //            var oTrades = new List<GlobalTrade>();
@@ -162,7 +162,7 @@
 //                    var sTradeId = oRow.Descendants("a")
 //                        .Where(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/tx/") == true)
 //                        .Select(a => a.Attributes["href"].Value.Split('/')
-//                        .LastOrDefault())
+//                        .LatorDefault())
 //                        .FirstOrDefault();
 
 
@@ -243,18 +243,18 @@
 
 //                var tokenFrom = aSwapRoute
 //                    .Descendants("li").FirstOrDefault()
-//                    .Descendants("a").LastOrDefault(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true);
+//                    .Descendants("a").LatorDefault(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true);
 //                var tokenTo = aSwapRoute
-//                    .Descendants("li").LastOrDefault()
-//                    .Descendants("a").LastOrDefault(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true);
+//                    .Descendants("li").LatorDefault()
+//                    .Descendants("a").LatorDefault(x => x.Attributes.Contains("href") && x.Attributes["href"].Value?.StartsWith("/token/") == true);
 
-//                    var sFrom = tokenFrom.InnerText;
-//                    var sTo = tokenTo.InnerText;
+//                    var from = tokenFrom.InnerText;
+//                    var to = tokenTo.InnerText;
 
 //                if (tokenFrom.InnerText == tokenTo.InnerText) // Stack, ignore
 //                {
 
-//                    oTrades.Add(new GlobalTrade(sFrom, sTo, 1, sFrom + "_" + sTo, ExchangeCode)
+//                    oTrades.Add(new GlobalTrade(from, to, 1, from + "_" + to, ExchangeCode)
 //                    {
 //                        InternalExchangeId = oTrade.InternalExchangeId,
 //                        dtTrade = oTrade.dtTrade
@@ -265,16 +265,16 @@
 
 
 
-//                var sTokenIdFrom = tokenFrom.Attributes["href"].Value.Split('/')
-//                    .LastOrDefault()
+//                var tokenIdFrom = tokenFrom.Attributes["href"].Value.Split('/')
+//                    .LatorDefault()
 //                    .Split('?')
 //                    .FirstOrDefault();
-//                var sTokenIdTo = tokenTo.Attributes["href"].Value.Split('/')
-//                    .LastOrDefault()
+//                var tokenIdTo = tokenTo.Attributes["href"].Value.Split('/')
+//                    .LatorDefault()
 //                    .Split('?')
 //                    .FirstOrDefault();
 
-//                if (string.IsNullOrEmpty(sTokenIdFrom)) // happens when the transaction fails
+//                if (string.IsNullOrEmpty(tokenIdFrom)) // happens when the transaction fails
 //                {
 //                    oTrades.Add(new GlobalTrade("F", "F", 1, "F_F", ExchangeCode)
 //                    {
@@ -284,18 +284,18 @@
 //                    continue;
 //                }
 
-//                string sFromValue = Regex.Replace(aSwapRoute.InnerText, ".*For ([0-9,.]*).*[ ]+" + sFrom.Replace("(", "\\(").Replace(")", "\\)") + ".*", "$1");
-//                string sToValue = Regex.Replace(aSwapRoute.InnerText, ".*For ([0-9,.]*)[ ]+.*" + sTo.Replace("(", "\\(").Replace(")", "\\)") + ".*", "$1");
+//                string fromValue = Regex.Replace(aSwapRoute.InnerText, ".*For ([0-9,.]*).*[ ]+" + from.Replace("(", "\\(").Replace(")", "\\)") + ".*", "$1");
+//                string toValue = Regex.Replace(aSwapRoute.InnerText, ".*For ([0-9,.]*)[ ]+.*" + to.Replace("(", "\\(").Replace(")", "\\)") + ".*", "$1");
 
-//                double dFrom = sFromValue.Replace(",", "").ToDouble();
-//                double dTo = sToValue.Replace(",", "").ToDouble();
+//                double dFrom = fromValue.Replace(",", "").ToDouble();
+//                double dTo = toValue.Replace(",", "").ToDouble();
 
-//                string sCryptoFrom = Regex.Replace(sFrom, ".*\\((.*)\\).*", "$1");
-//                string sCryptoTo = Regex.Replace(sTo, ".*\\((.*)\\).*", "$1");
+//                string sCryptoFrom = Regex.Replace(from, ".*\\((.*)\\).*", "$1");
+//                string sCryptoTo = Regex.Replace(to, ".*\\((.*)\\).*", "$1");
 
 //                var oGlobalTrade = new GlobalTrade(sCryptoFrom, sCryptoTo, dTo / dFrom, sCryptoFrom + "_" + sCryptoTo, ExchangeCode);
-//                oGlobalTrade.CryptoFromId = sTokenIdFrom;
-//                oGlobalTrade.CryptoToId = sTokenIdTo;
+//                oGlobalTrade.CryptoFromId = tokenIdFrom;
+//                oGlobalTrade.CryptoToId = tokenIdTo;
 //                oGlobalTrade.SetQuantities(dFrom, dTo);
 //                oGlobalTrade.InternalExchangeId = oTrade.InternalExchangeId;
 //                oGlobalTrade.dtTrade = oTrade.dtTrade;

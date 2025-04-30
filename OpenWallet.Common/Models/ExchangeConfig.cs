@@ -24,8 +24,8 @@ namespace OpenWallet.Common
         [JsonProperty("localParams")]
         public JToken LocalParams { get; set; }
 
-        [JsonProperty("currenciesToIgnore")]
-        public List<string> CurrenciesToIgnore { get; set; }
+        [JsonProperty("currencietoIgnore")]
+        public List<string> CurrencietoIgnore { get; set; }
 
     }
 }

@@ -32,12 +32,6 @@
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.dgv_Balance = new System.Windows.Forms.DataGridView();
-            this.obj = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Exchange = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Crypto = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Count = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.CustomValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.chart_usdt = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel1 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
             this.bt_refreshBalance = new System.Windows.Forms.Button();
@@ -63,6 +57,7 @@
             this.dataGridViewTextBoxColumn8 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn12 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.dataGridViewTextBoxColumn13 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.pb_chart = new OpenWallet.WinForm.currencyGraph();
             this.panel2 = new System.Windows.Forms.Panel();
             this.cb_interval = new System.Windows.Forms.ComboBox();
             this.bt_GetCoin = new System.Windows.Forms.Button();
@@ -77,7 +72,11 @@
             this.bt_archive = new System.Windows.Forms.Button();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.flp_graph_currencies = new System.Windows.Forms.FlowLayoutPanel();
-            this.pb_chart = new OpenWallet.WinForm.currencyGraph();
+            this.obj = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Exchange = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Crypto = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Count = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.CutomValue = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tableLayoutPanel2.SuspendLayout();
@@ -142,8 +141,7 @@
             this.Exchange,
             this.Crypto,
             this.Count,
-            this.CustomValue,
-            this.chart_usdt});
+            this.CutomValue});
             this.dgv_Balance.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgv_Balance.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
             this.dgv_Balance.Location = new System.Drawing.Point(3, 78);
@@ -153,46 +151,6 @@
             this.dgv_Balance.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgv_Balance.Size = new System.Drawing.Size(1165, 456);
             this.dgv_Balance.TabIndex = 6;
-            this.dgv_Balance.CellPainting += new System.Windows.Forms.DataGridViewCellPaintingEventHandler(this.dgv_Balance_CellPainting);
-            this.dgv_Balance.SelectionChanged += new System.EventHandler(this.dgv_Balance_SelectionChanged);
-            // 
-            // obj
-            // 
-            this.obj.HeaderText = "obj";
-            this.obj.Name = "obj";
-            this.obj.ReadOnly = true;
-            this.obj.Visible = false;
-            // 
-            // Exchange
-            // 
-            this.Exchange.HeaderText = "Exchange";
-            this.Exchange.Name = "Exchange";
-            this.Exchange.ReadOnly = true;
-            // 
-            // Crypto
-            // 
-            this.Crypto.HeaderText = "Crypto";
-            this.Crypto.Name = "Crypto";
-            this.Crypto.ReadOnly = true;
-            // 
-            // Count
-            // 
-            this.Count.HeaderText = "Count";
-            this.Count.Name = "Count";
-            this.Count.ReadOnly = true;
-            // 
-            // CustomValue
-            // 
-            this.CustomValue.HeaderText = "CustomValue";
-            this.CustomValue.Name = "CustomValue";
-            this.CustomValue.ReadOnly = true;
-            // 
-            // chart_usdt
-            // 
-            this.chart_usdt.HeaderText = "USDT";
-            this.chart_usdt.Name = "chart_usdt";
-            this.chart_usdt.ReadOnly = true;
-            this.chart_usdt.Resizable = System.Windows.Forms.DataGridViewTriState.True;
             // 
             // panel1
             // 
@@ -394,7 +352,6 @@
             this.dgv_archive.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgv_archive.Size = new System.Drawing.Size(444, 225);
             this.dgv_archive.TabIndex = 7;
-            this.dgv_archive.SelectionChanged += new System.EventHandler(this.dgv_archive_SelectionChanged);
             // 
             // dataGridViewTextBoxColumn6
             // 
@@ -426,6 +383,15 @@
             this.dataGridViewTextBoxColumn13.HeaderText = "ValueTo";
             this.dataGridViewTextBoxColumn13.Name = "dataGridViewTextBoxColumn13";
             this.dataGridViewTextBoxColumn13.ReadOnly = true;
+            // 
+            // pb_chart
+            // 
+            this.pb_chart.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pb_chart.Location = new System.Drawing.Point(453, 3);
+            this.pb_chart.Name = "pb_chart";
+            this.pb_chart.Size = new System.Drawing.Size(715, 225);
+            this.pb_chart.TabIndex = 8;
+            this.pb_chart.Resize += new System.EventHandler(this.pb_chart_Resize);
             // 
             // panel2
             // 
@@ -572,13 +538,36 @@
             this.flp_graph_currencies.Size = new System.Drawing.Size(1171, 537);
             this.flp_graph_currencies.TabIndex = 0;
             // 
-            // pb_chart
+            // obj
             // 
-            this.pb_chart.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pb_chart.Location = new System.Drawing.Point(453, 3);
-            this.pb_chart.Name = "pb_chart";
-            this.pb_chart.Size = new System.Drawing.Size(715, 225);
-            this.pb_chart.TabIndex = 8;
+            this.obj.HeaderText = "obj";
+            this.obj.Name = "obj";
+            this.obj.ReadOnly = true;
+            this.obj.Visible = false;
+            // 
+            // Exchange
+            // 
+            this.Exchange.HeaderText = "Exchange";
+            this.Exchange.Name = "Exchange";
+            this.Exchange.ReadOnly = true;
+            // 
+            // Crypto
+            // 
+            this.Crypto.HeaderText = "Crypto";
+            this.Crypto.Name = "Crypto";
+            this.Crypto.ReadOnly = true;
+            // 
+            // Count
+            // 
+            this.Count.HeaderText = "Count";
+            this.Count.Name = "Count";
+            this.Count.ReadOnly = true;
+            // 
+            // CutomValue
+            // 
+            this.CutomValue.HeaderText = "CutomValue";
+            this.CutomValue.Name = "CutomValue";
+            this.CutomValue.ReadOnly = true;
             // 
             // Form1
             // 
@@ -641,12 +630,6 @@
         private System.Windows.Forms.Button bt_unarchive;
         private System.Windows.Forms.Button bt_archive;
         private System.Windows.Forms.DataGridView dgv_Balance;
-        private System.Windows.Forms.DataGridViewTextBoxColumn obj;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Exchange;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Crypto;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Count;
-        private System.Windows.Forms.DataGridViewTextBoxColumn CustomValue;
-        private System.Windows.Forms.DataGridViewTextBoxColumn chart_usdt;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.ComboBox cb_interval;
         private System.Windows.Forms.TabPage tabPage3;
@@ -659,6 +642,11 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn12;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn13;
         private currencyGraph pb_chart;
+        private System.Windows.Forms.DataGridViewTextBoxColumn obj;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Exchange;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Crypto;
+        private System.Windows.Forms.DataGridViewTextBoxColumn Count;
+        private System.Windows.Forms.DataGridViewTextBoxColumn CutomValue;
     }
 }
 

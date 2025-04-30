@@ -6,8 +6,8 @@ namespace OpenWallet.Common
     public static class CurrencySymbolExtension
     {
 
-        public static double GetBtcValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance) => oCurrencies.GetCustomValue(globalBalance, "BTC");
-        public static double GetCustomValueFromBtc(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto)
+        public static double GetBtcValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance) => oCurrencies.GetCutomValue(globalBalance, "BTC");
+        public static double GetCutomValueFromBtc(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto)
         {
             string sCryptoFrom = globalBalance.Crypto.ToUpper();
 
@@ -28,7 +28,7 @@ namespace OpenWallet.Common
             return 0;
 
         }
-        public static double GetCustomValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto, double? overrideValue = null)
+        public static double GetCutomValue(this List<CurrencySymbolPrice> oCurrencies, GlobalBalance globalBalance, string sCrypto, double? overrideValue = null)
         {
             string sCryptoFrom = globalBalance.Crypto.ToUpper();
             if (sCryptoFrom == sCrypto)
@@ -91,9 +91,9 @@ namespace OpenWallet.Common
 
             return 0;
         }
-        public static double GetCustomPrice(this List<CurrencySymbolPrice> oCurrencies, string sFrom, string sCrypto)
+        public static double GetCutomPrice(this List<CurrencySymbolPrice> oCurrencies, string from, string sCrypto)
         {
-            string sCryptoFrom = sFrom.ToUpper();
+            string sCryptoFrom = from.ToUpper();
             if (sCryptoFrom == sCrypto)
                 return 1;
 

@@ -41,10 +41,10 @@ namespace OpentWallet.Logic
             // fiatisation (needs at least 2 fiats Moneys (first is the fiatisation TO)
             if (_configService.oGlobalConfig.FiatMoneys.Count() > 1)
             {
-                string sTo = _configService.oGlobalConfig.FiatMoneys.FirstOrDefault();
+                string to = _configService.oGlobalConfig.FiatMoneys.FirstOrDefault();
                 aFiatisation = _configService.oGlobalConfig.FiatMoneys.Skip(1).Select(fiat =>
                 {
-                    return new CurrencySymbolPrice(fiat, sTo, aAllCurrencies.GetCustomPrice(fiat, sTo), string.Empty, string.Empty);
+                    return new CurrencySymbolPrice(fiat, to, aAllCurrencies.GetCutomPrice(fiat, to), string.Empty, string.Empty);
                 }).ToList();
             }
 
@@ -64,19 +64,19 @@ namespace OpentWallet.Logic
         public void SetBitcoinFavCryptoValue(IExchange exchange, List<CurrencySymbolPrice> aAllCurrencies, GlobalBalance oBalance)
         {
 
-            if (exchange.oConfig.CurrenciesToIgnore?.Any(c => c == oBalance.Crypto) == true)
+            if (exchange.oConfig.CurrencietoIgnore?.Any(c => c == oBalance.Crypto) == true)
                 return;
 
             oBalance.FavCrypto = _configService.oGlobalConfig.FavoriteCurrency;
             if (oBalance.Exchange == "BSC")
             {
                 //oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
-                oBalance.FavCryptoValue = aAllCurrencies.GetCustomValueFromBtc(oBalance, oBalance.FavCrypto);
+                oBalance.FavCryptoValue = aAllCurrencies.GetCutomValueFromBtc(oBalance, oBalance.FavCrypto);
             }
             else
             {
                 oBalance.BitCoinValue = aAllCurrencies.GetBtcValue(oBalance);
-                oBalance.FavCryptoValue = aAllCurrencies.GetCustomValue(oBalance, oBalance.FavCrypto);
+                oBalance.FavCryptoValue = aAllCurrencies.GetCutomValue(oBalance, oBalance.FavCrypto);
             }
 
             return;
@@ -88,7 +88,7 @@ namespace OpentWallet.Logic
             var tasks = aExchanges.Select(async exchange =>
             {
                 var balance = (await exchange.GetBalanceAsync())
-                .Where(b => exchange.oConfig.CurrenciesToIgnore?.Any(c => c == b.Crypto) != true)
+                .Where(b => exchange.oConfig.CurrencietoIgnore?.Any(c => c == b.Crypto) != true)
                 .ForEach(balance =>
                 {
                     SetBitcoinFavCryptoValue(exchange, aAllCurrencies, balance);
@@ -107,7 +107,7 @@ namespace OpentWallet.Logic
                 .ToList();
         }
 
-        public List<GlobalBalance> LoadBalancesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
+        public List<GlobalBalance> LoadBalancefromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
 
             var aBalance = aExchanges.Select(oExchange =>

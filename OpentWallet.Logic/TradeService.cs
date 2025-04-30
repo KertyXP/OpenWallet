@@ -25,14 +25,14 @@ namespace OpentWallet.Logic
             => trades;
 
 
-        public void LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
+        public void LoadTradefromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies)
         {
             List<CurrencySymbolPrice> aFiatisation = BalanceService.LoadFiatisation(aAllCurrencies);
 
             trades.Clear();
             trades.AddRange(aExchanges.Select(oExchange =>
             {
-                return ConfigService.LoadTradesFromCache(oExchange);
+                return ConfigService.LoadTradefromCache(oExchange);
             })
                 .SelectMany(s => s)
                 .Where(s => ConfigService.oGlobalConfig.ignoredCurrencies.Any(ic => ic == s.From) == false && ConfigService.oGlobalConfig.ignoredCurrencies.Any(ic => ic == s.To) == false)
@@ -58,9 +58,9 @@ namespace OpentWallet.Logic
 
             var tasks = aExchanges.Select(oExchange =>
             {
-                var tradesFromCache = ConfigService.LoadTradesFromCache(oExchange);
+                var tradefromCache = ConfigService.LoadTradefromCache(oExchange);
 
-                return oExchange.GetTradeHistoryAsync(tradesFromCache, aAllBalances);
+                return oExchange.GetTradeHitoryAsync(tradefromCache, aAllBalances);
 
             });
 
@@ -70,7 +70,7 @@ namespace OpentWallet.Logic
             return result
                 .ForEach(trades =>
                 {
-                    ConfigService.SaveTradesToCache(trades);
+                    ConfigService.SaveTradetoCache(trades);
                 })
                 .SelectMany(r => r)
                 .OrderByDescending(s => s.dtTrade)
@@ -143,9 +143,9 @@ namespace OpentWallet.Logic
             return tradeArchived;
         }
 
-        public IEnumerable<string> GetCouplesFromTrade(IEnumerable<GlobalTrade> trades)
+        public IEnumerable<string> GetCouplefromTrade(IEnumerable<GlobalTrade> trades)
         {
-            return trades.Select(t => t.CustomCouple)
+            return trades.Select(t => t.CutomCouple)
             .GroupBy(t => t)
             .Select(t => t.FirstOrDefault());
         }

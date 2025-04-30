@@ -136,7 +136,7 @@
 //            return milliseconds.ToString();
 //        }
 
-//        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
+//        public List<GlobalTrade> GetTradeHitory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
 //        {
 //            return new List<GlobalTrade>();
 //        }

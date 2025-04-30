@@ -34,7 +34,7 @@ namespace OpenWallet.WinForm
         }
 
         TradesData currentDataChart;
-        CurrencySymbolPrice currentTradeChart;
+        CurrencySymbolExchange currentTradeChart;
 
         public void RefreshChart()
         {
@@ -43,7 +43,7 @@ namespace OpenWallet.WinForm
 
             pb.Invalidate();
         }
-        public void DrawChart(TradesData dataChart, CurrencySymbolPrice trade)
+        public void DrawChart(TradesData dataChart, CurrencySymbolExchange trade)
         {
             currentDataChart = dataChart;
             currentTradeChart = trade;
@@ -103,7 +103,7 @@ namespace OpenWallet.WinForm
 
 
 
-            var currentPrice = _balanceService.GetCurrencies().FirstOrDefault(c => c.Exchange == trade.Exchange && c.CustomCouple == trade.CustomCouple)?.Price ?? 0;
+            var currentPrice = _balanceService.GetCurrencies().FirstOrDefault(c => c.Exchange == trade.Exchange && c.CutomCouple == trade.CutomCouple)?.Price ?? 0;
             float yCurrentPrice = GetYOfPrice(currentPrice, minPrice, maxPrice, r.Height, r.Y);
             g.DrawLine(new Pen(Brushes.Gray), r.X, yCurrentPrice, r.X + r.Width, yCurrentPrice);
 
@@ -144,7 +144,7 @@ namespace OpenWallet.WinForm
             }
         }
 
-        private void DrawCandlesOnGraph(Graphics g, Rectangle r, TradesData dataChart, CurrencySymbolPrice trade)
+        private void DrawCandlesOnGraph(Graphics g, Rectangle r, TradesData dataChart, CurrencySymbolExchange trade)
         {
             var footerHeight = 20;
             var headerHeight = 10;
@@ -183,7 +183,7 @@ namespace OpenWallet.WinForm
 
             }
 
-            var currentPrice = _balanceService.GetCurrencies().FirstOrDefault(c => c.Exchange == trade.Exchange && c.CustomCouple == trade.CustomCouple)?.Price ?? 0;
+            var currentPrice = _balanceService.GetCurrencies().FirstOrDefault(c => c.Exchange == trade.Exchange && c.CutomCouple == trade.CutomCouple)?.Price ?? 0;
 
             minPrice = minPrice > currentPrice ? currentPrice : minPrice;
             maxPrice = maxPrice < currentPrice ? currentPrice : maxPrice;
@@ -192,11 +192,11 @@ namespace OpenWallet.WinForm
             var realMaxPrice = maxPrice;
             minPrice = Math.Min(maxPrice * 0.8, minPrice);
 
-            string textToShow = trade.CustomCouple + " - Delta: " + (100 - minPrice / maxPrice * 100).ToString("0.##") + "%";
+            string textToShow = trade.CutomCouple + " - Delta: " + (100 - minPrice / maxPrice * 100).ToString("0.##") + "%";
             g.DrawString(textToShow, DefaultFont, Brushes.White, new PointF(0, 0));
             x = r.X + r.Width - RightOffset;
 
-            var tradesToShow = _tradeService.GetTrades().Where(t => t.dtTrade >= startTrade && t.CustomCouple == trade.CustomCouple).ToList();
+            var tradetoShow = _tradeService.GetTrades().Where(t => t.dtTrade >= startTrade && t.CutomCouple == trade.CutomCouple).ToList();
             DateTime currentDay = DateTime.Now;
 
 
@@ -256,13 +256,13 @@ namespace OpenWallet.WinForm
 
                 g.FillRectangle(new SolidBrush(color), new RectangleF(x, y1, width, h));
 
-                var tradesToDraw = tradesToShow.Where(t => t.dtTrade > data.dtOpen);
-                foreach (var tradeToDraw in tradesToDraw)
+                var tradetoDraw = tradetoShow.Where(t => t.dtTrade > data.dtOpen);
+                foreach (var tradeToDraw in tradetoDraw)
                 {
-                    bool tradeIsArchived = _configService.GetArchiveTrades().GetOrDefault(tradeToDraw.CustomCouple)?.Any(at => at.InternalExchangeId == tradeToDraw.InternalExchangeId) == true;
+                    bool tradeIsArchived = _configService.GetArchiveTrades().GetOrDefault(tradeToDraw.CutomCouple)?.Any(at => at.InternalExchangeId == tradeToDraw.InternalExchangeId) == true;
 
-                    if (tradeIsArchived && _configService.GetHideArchive())
-                        continue;
+                    //if (tradeIsArchived && _configService.GetHideArchive())
+                    //    continue;
 
                     var yTrade = GetYOfPrice(tradeToDraw.RealPrice, minPrice, maxPrice, heightGraph, headerHeight);
                     var colorTrade = tradeToDraw.IsBuy ? Color.LightGreen : Color.Pink;
@@ -284,7 +284,7 @@ namespace OpenWallet.WinForm
 
 
                 }
-                tradesToShow.RemoveAll(t => tradesToDraw.Any(td => td.InternalExchangeId == t.InternalExchangeId));
+                tradetoShow.RemoveAll(t => tradetoDraw.Any(td => td.InternalExchangeId == t.InternalExchangeId));
 
 
             }

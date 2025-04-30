@@ -19,7 +19,7 @@
 
 //        private const string hostname = "https://api.bittrex.com"; // put here your secret key
 //        private const string apiBalance = "/v3/balances"; // put here your secret key
-//        private const string apiOrderHistory = "/v3/orders/closed"; // put here your secret key
+//        private const string apiOrderHitory = "/v3/orders/closed"; // put here your secret key
 
 //        private static readonly HttpClient _httpClient = new HttpClient();
 
@@ -115,9 +115,9 @@
 //            return oGlobalBalance;
 //        }
 
-//        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
+//        public List<GlobalTrade> GetTradeHitory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
 //        {
-//            string sApi = $"{hostname}{apiOrderHistory}";
+//            string sApi = $"{hostname}{apiOrderHitory}";
 //            var nonce = GetNonce();
 
 
@@ -139,26 +139,26 @@
 //            List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache);
 
 
-//            //var balance = JsonConvert.DeserializeObject<AscendexOrderHistory>(request2);
+//            //var balance = JsonConvert.DeserializeObject<AscendexOrderHitory>(request2);
 
 
-//            //foreach (var oOrderHistory in balance.Data)
+//            //foreach (var oOrderHitory in balance.Data)
 //            //{
 
-//            //    if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHistory.SeqNum))
+//            //    if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHitory.SeqNum))
 //            //    {
 //            //        continue;
 //            //    }
-//            //    var cur = new CurrencySymbol(oOrderHistory.Symbol.Split('/').FirstOrDefault(), oOrderHistory.Symbol.Split('/').LastOrDefault());
+//            //    var cur = new CurrencySymbol(oOrderHitory.Symbol.Split('/').FirstOrDefault(), oOrderHitory.Symbol.Split('/').LatorDefault());
 
 //            //    var oGlobalTrade = new GlobalTrade();
 //            //    oGlobalTrade.Exchange = ExchangeName;
-//            //    if (oOrderHistory.Side == "Buy")
+//            //    if (oOrderHitory.Side == "Buy")
 //            //    {
 //            //        oGlobalTrade.From = cur.To;
 //            //        oGlobalTrade.To = cur.From;
-//            //        oGlobalTrade.Price = 1 / oOrderHistory.Price.ToDouble();
-//            //        oGlobalTrade.QuantityTo = oOrderHistory.OrderQty.ToDouble();
+//            //        oGlobalTrade.Price = 1 / oOrderHitory.Price.ToDouble();
+//            //        oGlobalTrade.QuantityTo = oOrderHitory.OrderQty.ToDouble();
 //            //        oGlobalTrade.QuantityFrom = oGlobalTrade.QuantityTo / oGlobalTrade.Price;
 //            //    }
 //            //    else
@@ -166,12 +166,12 @@
 
 //            //        oGlobalTrade.From = cur.From;
 //            //        oGlobalTrade.To = cur.To;
-//            //        oGlobalTrade.Price = oOrderHistory.Price.ToDouble();
-//            //        oGlobalTrade.QuantityFrom = oOrderHistory.OrderQty.ToDouble();
+//            //        oGlobalTrade.Price = oOrderHitory.Price.ToDouble();
+//            //        oGlobalTrade.QuantityFrom = oOrderHitory.OrderQty.ToDouble();
 //            //        oGlobalTrade.QuantityTo = oGlobalTrade.QuantityFrom * oGlobalTrade.Price;
 //            //    }
-//            //    oGlobalTrade.InternalExchangeId = oOrderHistory.SeqNum;
-//            //    oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.LastExecTime / 1000);
+//            //    oGlobalTrade.InternalExchangeId = oOrderHitory.SeqNum;
+//            //    oGlobalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHitory.LastExecTime / 1000);
 //            //    aListTrades.Add(oGlobalTrade);
 
 //            //}

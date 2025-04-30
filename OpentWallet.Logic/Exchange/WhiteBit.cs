@@ -59,7 +59,7 @@ namespace OpentWallet.Logic
         private async Task<T> SendRequestAsync<T>(string sApi, Payload oPost = null) where T : new()
         {
 
-            //var responseBodyHistory = web.UploadString($"{hostname}{"api/v4/main-account/history}",dataJsonStr);
+            //var responseBodyHitory = web.UploadString($"{hostname}{"api/v4/main-account/hitory}",dataJsonStr);
 
             // If the nonce is similar to or lower than the previous request number, you will receive the 'too many requests' error message
             // nonce is a number that is always higher than the previous request number
@@ -120,7 +120,7 @@ namespace OpentWallet.Logic
 
         }
 
-        public async Task<List<GlobalTrade>> GetTradeHistoryAsync(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
+        public async Task<List<GlobalTrade>> GetTradeHitoryAsync(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
         {
 
             List<GlobalTrade> aListTrades = new List<GlobalTrade>(aCache ?? new List<GlobalTrade>());
@@ -135,36 +135,36 @@ namespace OpentWallet.Logic
                     //return aListTrades;
                 }
 
-                var oHistoryResponse = await SendRequestAsync<Dictionary<string, List<OrderHistory>>>("/api/v4/trade-account/executed-history", new PayloadOrderHistory() { Offset = nOffset, Limit = 100 });
-                if (oHistoryResponse.Any() == false)
+                var oHitoryResponse = await SendRequestAsync<Dictionary<string, List<OrderHitory>>>("/api/v4/trade-account/executed-hitory", new PayloadOrderHitory() { Offset = nOffset, Limit = 100 });
+                if (oHitoryResponse.Any() == false)
                     break;
-                foreach (var kvpResponse in oHistoryResponse)
+                foreach (var kvpResponse in oHitoryResponse)
                 {
                     var cur = new CurrencySymbolExchange(kvpResponse.Key.Split('_').FirstOrDefault(), kvpResponse.Key.Split('_').Last(), kvpResponse.Key, ExchangeName);
                     if (cur == null)
                         continue; // oops
 
-                    foreach (var oOrderHistory in kvpResponse.Value)
+                    foreach (var oOrderHitory in kvpResponse.Value)
                     {
 
-                        if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHistory.Id.ToString()))
+                        if (aListTrades.Any(lt => lt.InternalExchangeId == oOrderHitory.Id.ToString()))
                         {
                             bOrderFoundInCache = true;
                             continue;
                         }
                         GlobalTrade globalTrade = null;
-                        if (oOrderHistory.Side == Side.Buy)
+                        if (oOrderHitory.Side == Side.Buy)
                         {
-                            globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
-                            globalTrade.SetQuantities(oOrderHistory.Amount.ToDouble() / globalTrade.Price, oOrderHistory.Amount.ToDouble());
+                            globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHitory.Price.ToDouble(), cur.Couple, ExchangeName);
+                            globalTrade.SetQuantities(oOrderHitory.Amount.ToDouble() / globalTrade.Price, oOrderHitory.Amount.ToDouble());
                         }
                         else
                         {
-                            globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHistory.Price.ToDouble(), cur.Couple, ExchangeName);
-                            globalTrade.SetQuantities(oOrderHistory.Amount.ToDouble(), oOrderHistory.Amount.ToDouble() * globalTrade.Price);
+                            globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHitory.Price.ToDouble(), cur.Couple, ExchangeName);
+                            globalTrade.SetQuantities(oOrderHitory.Amount.ToDouble(), oOrderHitory.Amount.ToDouble() * globalTrade.Price);
                         }
-                        globalTrade.InternalExchangeId = oOrderHistory.Id.ToString();
-                        globalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHistory.Time);
+                        globalTrade.InternalExchangeId = oOrderHitory.Id.ToString();
+                        globalTrade.dtTrade = UnixTimeStampToDateTime(oOrderHitory.Time);
                         aListTrades.Add(globalTrade);
 
                     }
@@ -177,7 +177,7 @@ namespace OpentWallet.Logic
             return aListTrades;
         }
 
-        public async Task<TradesData> GetTradeHistoryOneCoupleAsync(string interval, CurrencySymbolExchange symbol)
+        public async Task<TradesData> GetTradeHitoryOneCoupleAsync(string interval, CurrencySymbolExchange symbol)
         {
             var oCall = BinanceCalls.ECalls.GetKLines;
 
@@ -234,7 +234,7 @@ namespace OpentWallet.Logic
             var oBalance = await SendRequestAsync<Dictionary<string, Balance>>(request, new Payload() { });
 
             // this one does not work???
-            //var oHistory = SendRequest<JObject>("/api/v4/main-account/history", new PayloadWithdrawDepositHistory() { Offset = 0, Limit = 100, TransactionMethod = "1" });
+            //var oHitory = SendRequest<JObject>("/api/v4/main-account/hitory", new PayloadWithdrawDepositHitory() { Offset = 0, Limit = 100, TransactionMethod = "1" });
 
 
             List<GlobalBalance> oGlobalBalance = oBalance.Select(keyValue =>
@@ -276,7 +276,7 @@ namespace OpentWallet.Logic
             public string Type { get; set; }
         }
 
-        public partial class OrderHistory
+        public partial class OrderHitory
         {
             [JsonProperty("id")]
             public long Id { get; set; }
@@ -371,7 +371,7 @@ namespace OpentWallet.Logic
             [JsonProperty("ticker")]
             public string Ticker { get; set; }
         }
-        internal class PayloadWithdrawDepositHistory : Payload
+        internal class PayloadWithdrawDepositHitory : Payload
         {
 
             [JsonProperty("transactionMethod ")]
@@ -383,7 +383,7 @@ namespace OpentWallet.Logic
             [JsonProperty("offset")]
             public int Offset { get; set; }
         }
-        internal class PayloadOrderHistory : Payload
+        internal class PayloadOrderHitory : Payload
         {
 
             //[JsonProperty("market ")]

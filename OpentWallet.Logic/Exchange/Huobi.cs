@@ -31,7 +31,7 @@
 //        private const string GET_CONTRACT_OPEN_INTEREST = "/api/v1/contract_open_interest";
 //        private const string GET_ACCOUNT = "/v1/account/accounts";
 //        private const string GET_CONTRACT_DEPTH = "/market/depth";
-//        private const string GET_CONTRACT_KLINE = "/market/history/kline";
+//        private const string GET_CONTRACT_KLINE = "/market/hitory/kline";
 //        private const string POST_CANCEL_ORDER = "/api/v1/contract_cancel";
 //        private const string POST_ORDER_INFO = "/api/v1/contract_order_info";
 //        private const string POST_ORDER_DETAIL = "/api/v1/contract_order_detail";
@@ -322,7 +322,7 @@
 //            return UrlEncode(sign);
 //        }
 
-//        public List<GlobalTrade> GetTradeHistory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
+//        public List<GlobalTrade> GetTradeHitory(List<GlobalTrade> aCache, List<GlobalBalance> aAllBalances)
 //        {
 //            return new List<GlobalTrade>();
 //        }

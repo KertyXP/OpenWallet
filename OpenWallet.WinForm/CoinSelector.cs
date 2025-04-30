@@ -27,10 +27,10 @@ namespace OpenWallet.WinForm
 
         private void cb_From_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var sFrom = cb_From.Text;
-            this.cb_to.Enabled = _allCurrencies.Any(c => c.Exchange == "Binance" && c.From.ToUpper() == sFrom.ToUpper());
+            var from = cb_From.Text;
+            this.cb_to.Enabled = _allCurrencies.Any(c => c.Exchange == "Binance" && c.From.ToUpper() == from.ToUpper());
             this.cb_to.Items.Clear();
-            _allCurrencies.Where(c => c.Exchange == "Binance" && c.From.ToUpper() == sFrom.ToUpper())
+            _allCurrencies.Where(c => c.Exchange == "Binance" && c.From.ToUpper() == from.ToUpper())
                 .ForEach(c => { cb_to.Items.Add(c.To); });
             if (this.cb_to.Items.Count == 0)
                 return;
@@ -46,9 +46,9 @@ namespace OpenWallet.WinForm
 
         private void calculSwap()
         {
-            var sFrom = cb_From.Text;
-            var sTo = cb_to.Text;
-            var pair = _allCurrencies.FirstOrDefault(c => c.Exchange == "Binance" && c.From.ToUpper() == sFrom.ToUpper() && c.To.ToUpper() == sTo.ToUpper());
+            var from = cb_From.Text;
+            var to = cb_to.Text;
+            var pair = _allCurrencies.FirstOrDefault(c => c.Exchange == "Binance" && c.From.ToUpper() == from.ToUpper() && c.To.ToUpper() == to.ToUpper());
             symbolSelected = pair;
             lbl_couple.Text = pair?.Couple;
         }

@@ -16,7 +16,7 @@ namespace OpenWallet.Logic.Abstraction.Interfaces
     public interface ITradeService
     {
         List<GlobalTrade> GetTrades();
-        void LoadTradesFromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies);
+        void LoadTradefromCacheOnly(List<IExchange> aExchanges, List<CurrencySymbolPrice> aAllCurrencies);
         double GetAverageBuy(List<GlobalTrade> trades);
         double GetAverageSell(List<GlobalTrade> trades);
 
@@ -27,7 +27,7 @@ namespace OpenWallet.Logic.Abstraction.Interfaces
 
         TradeArchived ArchiveTrades(List<GlobalTrade> g);
 
-        IEnumerable<string> GetCouplesFromTrade(IEnumerable<GlobalTrade> trades);
+        IEnumerable<string> GetCouplefromTrade(IEnumerable<GlobalTrade> trades);
 
         double GetDelta(GlobalTrade trade, List<CurrencySymbolPrice> currencies);
 
