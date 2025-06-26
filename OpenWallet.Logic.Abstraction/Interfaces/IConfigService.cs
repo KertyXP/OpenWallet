@@ -13,8 +13,8 @@ namespace OpenWallet.Logic.Abstraction.Interfaces
         bool GetHideArchive();
 
 
-        Dictionary<string, List<GlobalTrade>> GetArchiveTrades();
-        void SaveArchiveTradeToCache(Dictionary<string, List<GlobalTrade>> archiveTrades);
+        Dictionary<string, GlobalTrade> GetArchiveTrades();
+        void SaveArchiveTradeToCache(Dictionary<string, GlobalTrade> archiveTrades);
         void LoadArchiveTradeFromCache();
         List<GlobalTrade> LoadTradefromCache(IExchange exchange);
         void SaveTradetoCache(IEnumerable<GlobalTrade> trades);

@@ -5,7 +5,7 @@ namespace OpenWallet.Common
 {
     public class GlobalTrade : CurrencySymbolPrice
     {
-        public GlobalTrade(string from, string to, double price, string couple, string exchange) : base(from, to, price, couple, exchange)
+        public GlobalTrade(string from, string to, double price, string couple, string exchange, bool? isBuy) : base(from, to, price, couple, exchange, isBuy)
         {
         }
 
@@ -29,7 +29,7 @@ namespace OpenWallet.Common
 
         public DateTime dtTrade { get; set; }
 
-
+        public string Key => Exchange + "_" + InternalExchangeId;
     }
 
 }

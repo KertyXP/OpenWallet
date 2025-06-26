@@ -48,8 +48,8 @@ namespace OpentWallet.Logic
                 double Price = result.LastPrice.ToDouble();
                 return new List<CurrencySymbolPrice>()
                 {
-                    new CurrencySymbolPrice(result.TradingPairs.Split('_').FirstOrDefault(), result.TradingPairs.Split('_').Last(), Price, result.TradingPairs, ExchangeName),
-                    new CurrencySymbolPriceReverted(result.TradingPairs.Split('_').FirstOrDefault(), result.TradingPairs.Split('_').Last(), Price, result.TradingPairs, ExchangeName),
+                    new CurrencySymbolPrice(result.TradingPairs.Split('_').FirstOrDefault(), result.TradingPairs.Split('_').Last(), Price, result.TradingPairs, ExchangeName, null),
+                    new CurrencySymbolPriceReverted(result.TradingPairs.Split('_').FirstOrDefault(), result.TradingPairs.Split('_').Last(), Price, result.TradingPairs, ExchangeName, null),
                 };
             })
             .SelectMany(o => o)
@@ -155,12 +155,12 @@ namespace OpentWallet.Logic
                         GlobalTrade globalTrade = null;
                         if (oOrderHitory.Side == Side.Buy)
                         {
-                            globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHitory.Price.ToDouble(), cur.Couple, ExchangeName);
+                            globalTrade = new GlobalTrade(cur.To, cur.From, oOrderHitory.Price.ToDouble(), cur.Couple, ExchangeName, true);
                             globalTrade.SetQuantities(oOrderHitory.Amount.ToDouble() / globalTrade.Price, oOrderHitory.Amount.ToDouble());
                         }
                         else
                         {
-                            globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHitory.Price.ToDouble(), cur.Couple, ExchangeName);
+                            globalTrade = new GlobalTrade(cur.From, cur.To, oOrderHitory.Price.ToDouble(), cur.Couple, ExchangeName, false);
                             globalTrade.SetQuantities(oOrderHitory.Amount.ToDouble(), oOrderHitory.Amount.ToDouble() * globalTrade.Price);
                         }
                         globalTrade.InternalExchangeId = oOrderHitory.Id.ToString();

@@ -259,7 +259,7 @@ namespace OpenWallet.WinForm
                 var tradetoDraw = tradetoShow.Where(t => t.dtTrade > data.dtOpen);
                 foreach (var tradeToDraw in tradetoDraw)
                 {
-                    bool tradeIsArchived = _configService.GetArchiveTrades().GetOrDefault(tradeToDraw.CutomCouple)?.Any(at => at.InternalExchangeId == tradeToDraw.InternalExchangeId) == true;
+                    bool tradeIsArchived = _configService.GetArchiveTrades().ContainsKey(tradeToDraw.Key);
 
                     //if (tradeIsArchived && _configService.GetHideArchive())
                     //    continue;

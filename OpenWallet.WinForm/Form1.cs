@@ -24,7 +24,7 @@ namespace OpenWallet.WinForm
         private IConfigService _configService { get; }
         private IBalanceService _balanceService { get; }
 
-        Dictionary<string, List<GlobalTrade>> archiveTrades;
+        Dictionary<string, GlobalTrade> archiveTrades;
         const int dgvBalanceCutom = 4;
 
 
@@ -290,7 +290,7 @@ namespace OpenWallet.WinForm
             dgv_trade_day.Rows.Clear();
             tradeToShow.ForEach(t =>
             {
-                bool tradeIsArchived = archiveTrades.GetOrDefault(t.CutomCouple)?.Any(g => g.InternalExchangeId == t.InternalExchangeId) == true;
+                bool tradeIsArchived = archiveTrades.ContainsKey(t.Key);
 
                 if (tradeIsArchived && cb_HideArchived.Checked)
                     return;
@@ -317,14 +317,10 @@ namespace OpenWallet.WinForm
 
 
             dgv_archive.Rows.Clear();
-            archiveTrades.Select(kvp => kvp.Key).ForEach(g =>
+            archiveTrades.Select(g => g.Value).GroupBy(kvp => kvp.Couple).ForEach(g =>
             {
-                var trades = archiveTrades[g];
-                if (trades.Any())
-                {
-                    var archiveTrade = _tradeService.ArchiveTrades(trades);
+                    var archiveTrade = _tradeService.ArchiveTrades(g.ToList());
                     dgv_archive.Rows.Add(trades, archiveTrade.from, archiveTrade.quantityFrom, archiveTrade.to, archiveTrade.quantityTo, trades.FirstOrDefault().dtTrade.ToString("yyyy-MM-dd"));
-                }
             });
 
             RefreshFilterDropDown();
@@ -346,15 +342,12 @@ namespace OpenWallet.WinForm
                 archives.Add(trade);
             }
 
-
             var archiveTrade = _tradeService.ArchiveTrades(archives);
             lbl_preview_archive.Text = "Selected: " + archiveTrade.from + " " + archiveTrade.quantityFrom + " || " + archiveTrade.to + " " + archiveTrade.quantityTo;
 
-            archives.AddRange(archiveTrades.GetOrDefault(archives.FirstOrDefault()?.CutomCouple) ?? new List<GlobalTrade>());
+            archives.AddRange(archiveTrades.Select(g => g.Value).Where(a => a.Key == archives.FirstOrDefault()?.Key) ?? new List<GlobalTrade>());
             archiveTrade = _tradeService.ArchiveTrades(archives);
             lbl_prev_2.Text = "All: " + archiveTrade.from + " " + archiveTrade.quantityFrom + " || " + archiveTrade.to + " " + archiveTrade.quantityTo;
-
-
         }
 
         private void cb_Pair_SelectedIndexChanged(object sender, EventArgs e)
@@ -364,27 +357,16 @@ namespace OpenWallet.WinForm
             cb_Pair.SelectedIndexChanged += cb_Pair_SelectedIndexChanged;
         }
 
-
-
         private void bt_archive_Click(object sender, EventArgs e)
         {
-            var archive = new List<GlobalTrade>();
             foreach (DataGridViewRow row in dgv_trade_day.SelectedRows)
             {
                 if (dgv_trade_day.Rows[row.Index].Visible == false)
                     continue;
 
                 var trade = row.Cells[0].Value as GlobalTrade;
-                archive.Add(trade);
+                archiveTrades.Add(trade.Key, trade);
             }
-
-            var couples = archive.GroupBy(g => g.CutomCouple).Select(g => g.FirstOrDefault().CutomCouple);
-            if (couples.Count() > 1)
-                return;
-
-            var oldArchive = archiveTrades.GetOrDefault(couples.First()) ?? new List<GlobalTrade>();
-            oldArchive.AddRange(archive);
-            archiveTrades.InsertOrUpdate(couples.First(), oldArchive);
 
             _configService.SaveArchiveTradeToCache(archiveTrades);
             RefreshTrades(trades.OrderByDescending(t => t.dtTrade).ToList());

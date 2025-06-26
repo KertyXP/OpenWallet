@@ -16,7 +16,7 @@ namespace OpentWallet.Logic
         private readonly IIocService _iocService;
         private bool _hideArchive = true;
 
-        private Dictionary<string, List<GlobalTrade>> _archiveTrades = new Dictionary<string, List<GlobalTrade>>();
+        private Dictionary<string, GlobalTrade> _archiveTrades = new Dictionary<string, GlobalTrade>();
         public ConfigService(IIocService iocService)
         {
             _iocService = iocService;
@@ -79,10 +79,10 @@ namespace OpentWallet.Logic
         }
 
 
-        public Dictionary<string, List<GlobalTrade>> GetArchiveTrades()
+        public Dictionary<string, GlobalTrade> GetArchiveTrades()
             => _archiveTrades;
 
-        public void SaveArchiveTradeToCache(Dictionary<string, List<GlobalTrade>> archiveTrades)
+        public void SaveArchiveTradeToCache(Dictionary<string, GlobalTrade> archiveTrades)
         {
             string sPath = GetPath("ArchiveTrades.json");
             string json = JsonConvert.SerializeObject(archiveTrades);
@@ -96,11 +96,9 @@ namespace OpentWallet.Logic
 
             _archiveTrades.Clear();
 
-            var newArchive = File.Exists(sPath) ? JsonConvert.DeserializeObject<Dictionary<string, List<GlobalTrade>>>(File.ReadAllText(sPath)) : new Dictionary<string, List<GlobalTrade>>();
-            foreach( var kvp in newArchive)
-            {
-                _archiveTrades.Add(kvp.Key, kvp.Value);
-            }
+            var newArchive = File.Exists(sPath) ? JsonConvert.DeserializeObject<List<GlobalTrade>>(File.ReadAllText(sPath)) : new List<GlobalTrade>();
+            var osef = newArchive.GroupBy(t => t.InternalExchangeId).Select(t => t.First()).ToList();
+            _archiveTrades = osef.ToDictionary(n => n.Key, n => n);
         }
 
         public List<GlobalTrade> LoadTradefromCache(IExchange exchange)

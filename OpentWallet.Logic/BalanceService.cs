@@ -44,7 +44,7 @@ namespace OpentWallet.Logic
                 string to = _configService.oGlobalConfig.FiatMoneys.FirstOrDefault();
                 aFiatisation = _configService.oGlobalConfig.FiatMoneys.Skip(1).Select(fiat =>
                 {
-                    return new CurrencySymbolPrice(fiat, to, aAllCurrencies.GetCutomPrice(fiat, to), string.Empty, string.Empty);
+                    return new CurrencySymbolPrice(fiat, to, aAllCurrencies.GetCutomPrice(fiat, to), string.Empty, string.Empty, null);
                 }).ToList();
             }
 

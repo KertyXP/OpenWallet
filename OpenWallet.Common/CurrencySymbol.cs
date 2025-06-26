@@ -14,8 +14,16 @@
             Couple = couple;
             _from = from;
             _to = to;
-            _realFrom = Couple.StartsWith(_from) ? _from : _to;
-            _realTo = Couple.StartsWith(_to) ? _from : _to;
+            if(couple.StartsWith(From) || couple.EndsWith(To)) 
+            {
+                _realFrom = from;
+                _realTo = to;
+            }
+            else
+            {
+                _realFrom = to;
+                _realTo = from;
+            }
         }
 
 
